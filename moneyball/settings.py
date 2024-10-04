@@ -142,3 +142,21 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Broker Detail
+BROKER_PIN = os.getenv("BROKER_PIN", type=int)
+BROKER_USER_ID = os.getenv("BROKER_USER_ID", 'User-Id Required')
+BROKER_API_KEY = os.getenv("BROKER_API_KEY", 'Api Key Required')
+BROKER_TOTP_KEY = os.getenv("BROKER_TOTP_KEY", 'TOTP Key required')
+
+
+# Global Variable
+global broker_connection
+
+import pyotp
+from SmartApi import SmartConnect
+connection = SmartConnect(api_key=BROKER_API_KEY)
+connection.generateSession(BROKER_USER_ID, BROKER_PIN, totp=pyotp.TOTP(BROKER_TOTP_KEY).now())
+
+broker_connection = connection
