@@ -1,3 +1,4 @@
+APScheduler==3.10.4
 asgiref==3.8.1
 certifi==2024.8.30
 charset-normalizer==3.3.2
@@ -8,15 +9,20 @@ django-admin-extra-buttons==1.5.8
 django-import-export==4.1.1
 gunicorn==23.0.0
 idna==3.10
+numpy==2.1.1
 packaging==24.1
+pandas==2.2.3
 psycopg2-binary==2.9.9
 pyotp==2.9.0
 python-dateutil==2.9.0.post0
+pytz==2024.2
 requests==2.32.3
 six==1.16.0
 smartapi-python==1.5.1
 sqlparse==0.5.1
 tablib==3.5.0
 typing_extensions==4.12.2
+tzdata==2024.2
+tzlocal==5.2
 urllib3==2.2.3
 whitenoise==6.7.0

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "import_export",
 
     "system_conf",
+    "stock",
 ]
 
 MIDDLEWARE = [
