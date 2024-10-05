@@ -17,8 +17,9 @@ Including another URLconf
 
 from django.urls import path
 
-from system_conf.views import AwakeAPI
+from system_conf.views import AccountExitApi, AwakeAPI
 
 urlpatterns = [
     path('awake/', AwakeAPI),
+    path('exit-transaction/', AccountExitApi),
 ]
