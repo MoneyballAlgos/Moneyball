@@ -65,7 +65,7 @@ def TargetExit(data, ltp, open_position, correlation_id, socket_mode, sws):
             'fixed_target': transaction_obj.fixed_target,
             'lot': transaction_obj.lot
         }
-        x = requests.post(f"{BED_URL_DOMAIN}/api/account/exit-transaction", json=transaction_data, verify=False)
+        x = requests.post(f"{BED_URL_DOMAIN}/api/system_conf/exit-transaction", json=transaction_data, verify=False)
         print(f"MoneyBall: TARGET EXIT: Exit from all accounts: Api Called: {x.status_code}")
     return True
 
@@ -122,6 +122,6 @@ def TrailingStopLossExit(data, ltp, open_position, correlation_id, socket_mode, 
             'fixed_target': transaction_obj.fixed_target,
             'lot': transaction_obj.lot
         }
-        x = requests.post(f"{BED_URL_DOMAIN}/api/account/exit-transaction", json=transaction_data, verify=False)
+        x = requests.post(f"{BED_URL_DOMAIN}/api/system_conf/exit-transaction", json=transaction_data, verify=False)
         print(f"MoneyBall: TRAILING/STOPLOSS EXIT: Exit from all accounts: Api Called: {x.status_code}")
     return False
