@@ -10,7 +10,7 @@ from stock.models import StockConfig, Transaction, FnO_Status, Equity_Status, Fn
 # Register your models here.
 @admin.register(FnO_Status)
 class FnOStatusAdmin(ExtraButtonsMixin, admin.ModelAdmin):
-    actions = None
+    # actions = None
     list_display = ('entry_time', 'name_', 'current', 'max_p', 'max_l_s', 'ltp', 'fixed_target', 'price', 'stoploss', 'trailing_sl', 'target', 'highest_price', 'lot', 'tr_hit', 'mode', 'product')
 
     def has_add_permission(self, request, obj=None):
@@ -61,7 +61,7 @@ class FnOStatusAdmin(ExtraButtonsMixin, admin.ModelAdmin):
 
 @admin.register(Equity_Status)
 class EquityStatusAdmin(ExtraButtonsMixin, admin.ModelAdmin):
-    actions = None
+    # actions = None
     list_display = ('entry_time', 'name_', 'current', 'max_p', 'max_l_s', 'ltp', 'fixed_target', 'price', 'stoploss', 'trailing_sl', 'target', 'highest_price', 'indics', 'lot', 'tr_hit', 'mode', 'product')
 
     def has_add_permission(self, request, obj=None):
