@@ -32,7 +32,7 @@ class AccountConfiguration(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.id}-{self.user_id}-{self.first_name}-{self.last_name}"
+        return f"{self.id}-{self.account.user_id}-{self.account.first_name}-{self.account.last_name}"
 
 
 class AccountStockConfig(models.Model):
