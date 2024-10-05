@@ -48,7 +48,7 @@ def LTP_Action(token, ltp, open_position, correlation_id, socket_mode, sws):
             del open_position[token]
             # Unsubscribe Token
             sws.unsubscribe(correlation_id, socket_mode, [{"action": 0, "exchangeType": 1, "tokens": [token]}])
-            print(f"Pratik: Token Removed: Unsubscribed : {token}")
+            print(f"MoneyBall: Token Removed: Unsubscribed : {token}")
 
     except Exception as e:
         print(f'MoneyBall: LTP ACTION: ERROR: {e}')

@@ -1,4 +1,6 @@
+import requests
 from stock.models import Transaction
+from moneyball.settings import BED_URL_DOMAIN
 
 
 def TrailingTargetUpdate(data, ltp):
@@ -22,7 +24,7 @@ def TargetExit(data, ltp, open_position, correlation_id, socket_mode, sws):
         diff = (price - data['stock_obj'].price)
         profit = round((((diff/data['stock_obj'].price) * 100)), 2)
         # TRANSACTION TABLE UPDATE
-        Transaction.objects.create(
+        transaction_obj, _ = Transaction.objects.get_or_create(
                                 product=data['stock_obj'].symbol.product,
                                 mode=data['stock_obj'].mode,
                                 symbol=data['stock_obj'].symbol.symbol,
@@ -41,8 +43,12 @@ def TargetExit(data, ltp, open_position, correlation_id, socket_mode, sws):
                                 fixed_target=data['stock_obj'].fixed_target,
                                 lot=data['stock_obj'].lot)
         sws.unsubscribe(correlation_id, socket_mode, [{"action": 0, "exchangeType": 1, "tokens": [data['stock_obj'].symbol.token]}])
-        print(f"Pratik: TARGET EXIT: Unsubscribed : {data['stock_obj'].symbol.symbol} : {data['stock_obj'].symbol.token}")
+        print(f"MoneyBall: TARGET EXIT: Unsubscribed : {data['stock_obj'].symbol.symbol} : {data['stock_obj'].symbol.token}")
         data['stock_obj'].delete()
+        print(f"MoneyBall: TARGET EXIT: Exit from all accounts: Api Calling")
+        transaction_data = dict(transaction_obj)
+        x = requests.post(f"{BED_URL_DOMAIN}/api/account/exit-transaction", data=transaction_data, verify=False)
+        print(f"MoneyBall: TARGET EXIT: Exit from all accounts: Api Called: {x.status_code}")
     return True
 
 
@@ -57,7 +63,7 @@ def TrailingStopLossExit(data, ltp, open_position, correlation_id, socket_mode, 
         diff = (price_value - data['stock_obj'].price)
         profit = round((((diff/data['stock_obj'].price) * 100)), 2)
         # TRANSACTION TABLE UPDATE
-        Transaction.objects.create(
+        transaction_obj, _ = Transaction.objects.get_or_create(
                                 product=data['stock_obj'].symbol.product,
                                 mode=data['stock_obj'].mode,
                                 symbol=data['stock_obj'].symbol.symbol,
@@ -76,6 +82,10 @@ def TrailingStopLossExit(data, ltp, open_position, correlation_id, socket_mode, 
                                 fixed_target=data['stock_obj'].fixed_target,
                                 lot=data['stock_obj'].lot)
         sws.unsubscribe(correlation_id, socket_mode, [{"action": 0, "exchangeType": 1, "tokens": [data['stock_obj'].symbol.token]}])
-        print(f"Pratik: TRAILING/STOPLOSS EXIT: Unsubscribed : {data['stock_obj'].symbol.symbol} : {data['stock_obj'].symbol.token}")
+        print(f"MoneyBall: TRAILING/STOPLOSS EXIT: Unsubscribed : {data['stock_obj'].symbol.symbol} : {data['stock_obj'].symbol.token}")
         data['stock_obj'].delete()
+        print(f"MoneyBall: TRAILING/STOPLOSS EXIT: Exit from all accounts: Api Calling")
+        transaction_data = dict(transaction_obj)
+        x = requests.post(f"{BED_URL_DOMAIN}/api/account/exit-transaction", data=transaction_data, verify=False)
+        print(f"MoneyBall: TRAILING/STOPLOSS EXIT: Exit from all accounts: Api Called: {x.status_code}")
     return False
