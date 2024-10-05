@@ -164,6 +164,7 @@ def AccountConnection():
                 account_connections[user_id_conn].terminateSession(user_id_conn)
                 print(f'MoneyBall: Account Connection: Terminated Session for accounts: {user_id_conn}')
             print(f'MoneyBall: Account Connection: Terminate Session for accounts: Ended')
+            sleep(5)
         except Exception as e:
             print(f'MoneyBall: Account Connection: Terminate Session for accounts: Error: {e}')
         
@@ -210,6 +211,7 @@ def BrokerConnection():
         global broker_connection
         try:
             broker_connection.terminateSession(BROKER_USER_ID)
+            sleep(5)
         except Exception as e:
             print(f'MoneyBall: Broker Connection: Trying to Terminate Session Error: {e}')
         
