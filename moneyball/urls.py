@@ -25,7 +25,6 @@ admin.site.site_title = 'MoneyBall AI'             # default: "Django site admin
 urlpatterns = [
     path("", admin.site.urls),
     path("api/system_conf/", include("system_conf.urls")),
-    path("api/account/", include("account.urls")),
 ]
 
 import clock
