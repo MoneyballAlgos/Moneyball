@@ -14,7 +14,7 @@ class AccountKeyAdmin(ExportActionMixin, admin.ModelAdmin):
 
 @admin.register(AccountConfiguration)
 class AccountConfigurationAdmin(ExportActionMixin, admin.ModelAdmin):
-    list_display = ('account', 'place_order', 'account_balance', 'entry_amount', 'total_open_position', 'active_open_position', 'totp_key', 'is_active')
+    list_display = ('account', 'place_order', 'account_balance', 'entry_amount', 'total_open_position', 'active_open_position', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'is_active')
 
@@ -32,7 +32,7 @@ class AccountStockConfigAdmin(ExportActionMixin, admin.ModelAdmin):
 @admin.register(AccountTransaction)
 class AccountTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
     date_hierarchy = 'date'
-    list_display = ('account', 'product', 'symbol', 'date', 'indicate', 'type', 'p_l', 'max_p', 'max_l_s', 'top_p', 'price', 'fixed_target', 'stoploss', 'target', 'lot', 'order_id', 'order_status', 'name', 'token', 'exchange', 'mode')
+    list_display = ('account', 'product', 'symbol', 'date', 'indicate', 'type', 'p_l', 'max_p', 'max_l_s', 'top_p', 'price', 'fixed_target', 'stoploss', 'target', 'lot', 'order_id', 'order_status', 'name', 'exchange', 'mode')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'product', 'indicate', 'date', 'mode', 'name', 'is_active')
 
