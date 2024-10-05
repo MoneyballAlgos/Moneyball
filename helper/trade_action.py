@@ -97,6 +97,6 @@ def Stock_Square_Off(data, ltp):
                             highest_price=data['stock_obj'].highest_price,
                             fixed_target=data['stock_obj'].fixed_target,
                             lot=data['stock_obj'].lot)
-    print(f"Pratik: SQUARE OFF EXIT: Unsubscribed : {data['stock_obj'].symbol.symbol} : {data['stock_obj'].symbol.token}")
+    print(f"MoneyBall: SQUARE OFF EXIT: Unsubscribed : {data['stock_obj'].symbol.symbol} : {data['stock_obj'].symbol.token}")
     data['stock_obj'].delete()
     return True

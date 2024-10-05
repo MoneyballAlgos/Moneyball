@@ -10,7 +10,7 @@ from account.models import AccountConfiguration, AccountStockConfig, AccountTran
 def AccountExitAction(instance):
     try:
         global account_connections
-        print(f"Pratik: Account Exit Action {instance.indicate}")
+        print(f"MoneyBall: Account Exit Action {instance.indicate}")
         # Fetch Active User
         user_account_stock_configs = AccountStockConfig.objects.filter(
                                                         product=instance.get('product'),
@@ -19,11 +19,11 @@ def AccountExitAction(instance):
                                                         mode=instance.get('mode'),
                                                         is_active=True)
         if user_account_stock_configs:
-            print(f"Pratik: Account Exit Action {instance.get('indicate')}: Total Users for Exit: {user_account_stock_configs.count()}")
+            print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: Total Users for Exit: {user_account_stock_configs.count()}")
 
             for user_stock_config in user_account_stock_configs:
                 try:
-                    print(f"Pratik: Account Exit Action {instance.get('indicate')}: User: {user_stock_config.account.first_name} {user_stock_config.account.last_name} - {user_stock_config.account.user_id}")
+                    print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: User: {user_stock_config.account.first_name} {user_stock_config.account.last_name} - {user_stock_config.account.user_id}")
                     
                     # get user connection
                     connection = account_connections[user_stock_config.account.user_id]
@@ -61,30 +61,30 @@ def AccountExitAction(instance):
                         user_stock_config.delete()
                 
                 except Exception as e:
-                    print(f"Pratik: Account Exit Action {instance.get('indicate')}: User Loop Error: {e}")
+                    print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: User Loop Error: {e}")
         else:
-            print(f"Pratik: Account Exit Action {instance.get('indicate')}: No User for Exit: {user_account_stock_configs.count()}")
+            print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: No User for Exit: {user_account_stock_configs.count()}")
     except Exception as e:
-        print(f"Pratik: Account Exit Action Main: Error: {e}")
+        print(f"MoneyBall: Account Exit Action Main: Error: {e}")
 
 
 
 def AccountEntryAction(sender, instance, created):
     try:
         global account_connections
-        print(f"Pratik: Account Entry Action {instance.indicate}")
+        print(f"MoneyBall: Account Entry Action {instance.indicate}")
         if instance.indicate == 'ENTRY':
 
             # Fetch Active User
             user_accounts = AccountConfiguration.objects.filter(place_order=True, account__is_active=True)
 
             if user_accounts:
-                print(f"Pratik: Account Entry Action {instance.indicate}: Total User for Entry: {user_accounts.count()}")
+                print(f"MoneyBall: Account Entry Action {instance.indicate}: Total User for Entry: {user_accounts.count()}")
 
                 for user in user_accounts:
                     try:
                         order_id = None
-                        print(f"Pratik: Account Entry Action {instance.indicate}: User: {user.account.first_name} {user.account.last_name} - {user.account.user_id}")
+                        print(f"MoneyBall: Account Entry Action {instance.indicate}: User: {user.account.first_name} {user.account.last_name} - {user.account.user_id}")
                         # get user connection
                         connection = account_connections[user.account.user_id]
 
@@ -135,17 +135,17 @@ def AccountEntryAction(sender, instance, created):
                                                         stoploss=instance.stoploss,
                                                         lot=lot)
                         else:
-                            print(f"Pratik: Account Entry Action {instance.indicate}: User may have Max Active Open posotion : Total - {user.total_open_position}, Active - {user.active_open_position}")
-                            print(f"Pratik: Account Entry Action {instance.indicate}: User may not have enough money to by a single share : 1 Share Price {instance.price}, - User Entry Amount {user.entry_amount}")
+                            print(f"MoneyBall: Account Entry Action {instance.indicate}: User may have Max Active Open posotion : Total - {user.total_open_position}, Active - {user.active_open_position}")
+                            print(f"MoneyBall: Account Entry Action {instance.indicate}: User may not have enough money to by a single share : 1 Share Price {instance.price}, - User Entry Amount {user.entry_amount}")
                     
                     except Exception as e:
-                        print(f"Pratik: Account Entry Action {instance.indicate}: User Loop Error: {e}")
+                        print(f"MoneyBall: Account Entry Action {instance.indicate}: User Loop Error: {e}")
             else:
-                print(f"Pratik: Account Entry Action {instance.indicate}: No User for Entry: {user_accounts.count()}")
+                print(f"MoneyBall: Account Entry Action {instance.indicate}: No User for Entry: {user_accounts.count()}")
         else:
-            print(f"Pratik: Account Entry Action: Not allowed on transaction indicator : {instance.indicate}")
+            print(f"MoneyBall: Account Entry Action: Not allowed on transaction indicator : {instance.indicate}")
     except Exception as e:
-        print(f"Pratik: Account Entry Action Main: Error: {e}")
+        print(f"MoneyBall: Account Entry Action Main: Error: {e}")
     return True
 
 
