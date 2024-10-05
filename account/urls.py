@@ -15,18 +15,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 
-admin.site.site_header = 'MoneyBall AI'            # default: "Django Administration"
-admin.site.index_title = 'Features Area'         # default: "Site administration"
-admin.site.site_title = 'MoneyBall AI'             # default: "Django site admin"
+from account.views import AccountExitApi
 
 urlpatterns = [
-    path("", admin.site.urls),
-    path("api/system_conf/", include("system_conf.urls")),
-    path("api/account/", include("account.urls")),
+    path('exit-transaction/', AccountExitApi),
 ]
-
-import clock
-clock.start()
