@@ -67,7 +67,7 @@ def socket_setup(log_identifier='Cron'):
     sws = SmartWebSocketV2(BROKER_AUTH_TOKEN, BROKER_API_KEY, BROKER_USER_ID, BROKER_FEED_TOKEN)
     sleep(2)
 
-    correlation_id = "pratik-socket"
+    correlation_id = "moneyball-socket"
     mode = 1
     nse = []
     nfo = []
