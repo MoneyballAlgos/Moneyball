@@ -46,8 +46,26 @@ def TargetExit(data, ltp, open_position, correlation_id, socket_mode, sws):
         print(f"MoneyBall: TARGET EXIT: Unsubscribed : {data['stock_obj'].symbol.symbol} : {data['stock_obj'].symbol.token}")
         data['stock_obj'].delete()
         print(f"MoneyBall: TARGET EXIT: Exit from all accounts: Api Calling")
-        transaction_data = dict(transaction_obj)
-        x = requests.post(f"{BED_URL_DOMAIN}/api/account/exit-transaction", data=transaction_data, verify=False)
+        transaction_data = {
+            'product': transaction_obj.product,
+            'mode': transaction_obj.mode,
+            'symbol': transaction_obj.symbol,
+            'name': transaction_obj.name,
+            'token': transaction_obj.token,
+            'exchange': transaction_obj.exchange,
+            'indicate': transaction_obj.indicate,
+            'type': transaction_obj.type,
+            'price': transaction_obj.price,
+            'target': transaction_obj.target,
+            'stoploss': transaction_obj.stoploss,
+            'profit': transaction_obj.profit,
+            'max': transaction_obj.max,
+            'max_l': transaction_obj.max_l,
+            'highest_price': transaction_obj.highest_price,
+            'fixed_target': transaction_obj.fixed_target,
+            'lot': transaction_obj.lot
+        }
+        x = requests.post(f"{BED_URL_DOMAIN}/api/account/exit-transaction", json=transaction_data, verify=False)
         print(f"MoneyBall: TARGET EXIT: Exit from all accounts: Api Called: {x.status_code}")
     return True
 
@@ -85,7 +103,25 @@ def TrailingStopLossExit(data, ltp, open_position, correlation_id, socket_mode, 
         print(f"MoneyBall: TRAILING/STOPLOSS EXIT: Unsubscribed : {data['stock_obj'].symbol.symbol} : {data['stock_obj'].symbol.token}")
         data['stock_obj'].delete()
         print(f"MoneyBall: TRAILING/STOPLOSS EXIT: Exit from all accounts: Api Calling")
-        transaction_data = dict(transaction_obj)
-        x = requests.post(f"{BED_URL_DOMAIN}/api/account/exit-transaction", data=transaction_data, verify=False)
+        transaction_data = {
+            'product': transaction_obj.product,
+            'mode': transaction_obj.mode,
+            'symbol': transaction_obj.symbol,
+            'name': transaction_obj.name,
+            'token': transaction_obj.token,
+            'exchange': transaction_obj.exchange,
+            'indicate': transaction_obj.indicate,
+            'type': transaction_obj.type,
+            'price': transaction_obj.price,
+            'target': transaction_obj.target,
+            'stoploss': transaction_obj.stoploss,
+            'profit': transaction_obj.profit,
+            'max': transaction_obj.max,
+            'max_l': transaction_obj.max_l,
+            'highest_price': transaction_obj.highest_price,
+            'fixed_target': transaction_obj.fixed_target,
+            'lot': transaction_obj.lot
+        }
+        x = requests.post(f"{BED_URL_DOMAIN}/api/account/exit-transaction", json=transaction_data, verify=False)
         print(f"MoneyBall: TRAILING/STOPLOSS EXIT: Exit from all accounts: Api Called: {x.status_code}")
     return False
