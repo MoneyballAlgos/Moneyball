@@ -7,9 +7,10 @@ from datetime import datetime, time, timedelta
 from helper.angel_function import historical_data
 from stock.models import StockConfig, Transaction
 from system_conf.models import Configuration, Symbol
+from account.models import AccountConfiguration, AccountKeys
 from helper.common import calculate_volatility, last_thursday
 from helper.trade_action import Price_Action_Trade, Stock_Square_Off
-from moneyball.settings import BED_URL_DOMAIN, BROKER_API_KEY, BROKER_PIN, BROKER_TOTP_KEY, BROKER_USER_ID, SOCKET_STREAM_URL_DOMAIN, broker_connection
+from moneyball.settings import BED_URL_DOMAIN, BROKER_API_KEY, BROKER_PIN, BROKER_TOTP_KEY, BROKER_USER_ID, SOCKET_STREAM_URL_DOMAIN, broker_connection, account_connections
 
 
 def stay_awake():
@@ -149,6 +150,51 @@ def SymbolSetup():
     future_enables_symbols = set(Symbol.objects.filter(product='future', is_active=True).values_list('name', flat=True))
     Symbol.objects.filter(product='equity', name__in=future_enables_symbols, is_active=True).update(fno=True)
     print(f'MoneyBall: Symbol Setup: Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
+    return True
+
+
+def AccountConnection():
+    now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
+    try:
+        print(f'MoneyBall: Account Connection: Started')
+        global account_connections
+        try:
+            print(f'MoneyBall: Account Connection: Terminate Session for accounts: Started')
+            for user_id_conn in account_connections:
+                account_connections[user_id_conn].terminateSession(user_id_conn)
+                print(f'MoneyBall: Account Connection: Terminated Session for accounts: {user_id_conn}')
+            print(f'MoneyBall: Account Connection: Terminate Session for accounts: Ended')
+        except Exception as e:
+            print(f'MoneyBall: Account Connection: Terminate Session for accounts: Error: {e}')
+        
+        print(f'MoneyBall: Account Connection: Generate Session for accounts: Started')
+        user_accounts = AccountKeys.objects.filter(is_active=True)
+
+        for user_account_obj in user_accounts:
+            connection = SmartConnect(api_key=user_account_obj.api_key)
+            connection.generateSession(user_account_obj.user_id, user_account_obj.user_pin, totp=pyotp.TOTP(user_account_obj.totp_key).now())
+            account_connections[user_account_obj.user_id] = connection
+
+            # Get Account Detail
+            account_detail = connection.getProfile(connection.refresh_token)
+            if account_detail['message'] == 'SUCCESS':
+                # Get Funds detail
+                fund_detail = connection.rmsLimit()
+                if fund_detail['message'] == 'SUCCESS':
+                    account_config, _ = AccountConfiguration.objects.get_or_create(account=user_account_obj)
+                    account_config.account_balance = float(fund_detail['data']['availablecash'])
+                    if account_config.total_open_position > account_config.active_open_position:
+                        account_config.entry_amount = float(fund_detail['data']['availablecash'])/(account_config.total_open_position-account_config.active_open_position)
+                        account_config.save()
+
+                print(f'MoneyBall: Account Connection: Session generated for {account_detail['data']['name']} : {account_detail['data']['clientcode']}')
+            else:
+                print(f'MoneyBall: Account Connection: failed to generated session for {user_account_obj.first_name} {user_account_obj.last_name} : {user_account_obj.user_id}')
+
+        print(f'MoneyBall: Account Connection: Generate Session for accounts: Ended')
+    except Exception as e:
+        print(f'MoneyBall: Account Connection: Error: {e}')
+    print(f'MoneyBall: Account Connection: Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
     return True
 
 
