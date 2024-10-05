@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 
     "system_conf",
     "stock",
+    "account",
 ]
 
 MIDDLEWARE = [

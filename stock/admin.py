@@ -136,7 +136,7 @@ class EquityStatusAdmin(ExtraButtonsMixin, admin.ModelAdmin):
 @admin.register(FnO_Transaction)
 class FnOTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
     date_hierarchy = 'date'
-    list_display = ('symbol', 'date', 'indicate', 'type', 'p_l', 'max_p', 'max_l_s', 'top_p', 'price', 'fixed_target', 'stoploss', 'target', 'lot', 'name', 'mode')
+    list_display = ('symbol', 'date', 'indicate', 'type', 'p_l', 'max_p', 'max_l_s', 'top_p', 'price', 'fixed_target', 'stoploss', 'target', 'lot', 'name', 'token', 'exchange', 'mode')
     search_fields = ['symbol', ]
     list_filter = ('indicate', 'date', 'mode', 'name')
     list_per_page = 20
@@ -179,7 +179,7 @@ class FnOTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
 @admin.register(Equity_Transaction)
 class EquityTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
     date_hierarchy = 'date'
-    list_display = ('symbol', 'date', 'indicate', 'type', 'p_l', 'max_p', 'max_l_s', 'top_p', 'price', 'fixed_target', 'stoploss', 'target', 'lot', 'name', 'mode')
+    list_display = ('symbol', 'date', 'indicate', 'type', 'p_l', 'max_p', 'max_l_s', 'top_p', 'price', 'fixed_target', 'stoploss', 'target', 'lot', 'name', 'token', 'exchange', 'mode')
     search_fields = ['symbol', ]
     list_filter = ('indicate', 'date', 'mode', 'name')
     list_per_page = 20
@@ -231,7 +231,7 @@ class StockConfigAdmin(admin.ModelAdmin):
 @admin.register(Transaction)
 class TransactionAdmin(ExportActionMixin, admin.ModelAdmin):
     date_hierarchy = 'date'
-    list_display = ('product', 'symbol', 'date', 'indicate', 'type', 'p_l', 'max_p', 'max_l_s', 'top_p', 'price', 'fixed_target', 'stoploss', 'target', 'lot', 'name', 'mode')
+    list_display = ('product', 'symbol', 'date', 'indicate', 'type', 'p_l', 'max_p', 'max_l_s', 'top_p', 'price', 'fixed_target', 'stoploss', 'target', 'lot', 'name', 'token', 'exchange', 'mode')
     search_fields = ['symbol', ]
     list_filter = ('product', 'indicate', 'date', 'mode', 'name')
     list_per_page = 20
