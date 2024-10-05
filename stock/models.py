@@ -36,6 +36,8 @@ class Transaction(models.Model):
     product = models.CharField(default='equity', max_length=255, verbose_name='Product')
     symbol = models.CharField(max_length=255, verbose_name='Symbol')
     name = models.CharField(max_length=100, verbose_name='Name', blank=True, null=True)
+    token = models.CharField(max_length=100, verbose_name='Token', null=True, blank=True)
+    exchange = models.CharField(max_length=100, verbose_name='Exchange', null=True, blank=True)
     mode = models.CharField(max_length=50, choices=MODES,verbose_name='MODE', default='none')
     indicate = models.CharField(max_length=50, verbose_name='INDICATE')
     type = models.CharField(max_length=50, verbose_name='TYPE')
