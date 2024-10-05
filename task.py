@@ -188,7 +188,7 @@ def AccountConnection():
                         account_config.entry_amount = float(fund_detail['data']['availablecash'])/(account_config.total_open_position-account_config.active_open_position)
                         account_config.save()
 
-                print(f'MoneyBall: Account Connection: Session generated for {account_detail['data']['name']} : {account_detail['data']['clientcode']}')
+                print(f'MoneyBall: Account Connection: Session generated for {account_detail["data"]["name"]} : {account_detail["data"]["clientcode"]}')
             else:
                 print(f'MoneyBall: Account Connection: failed to generated session for {user_account_obj.first_name} {user_account_obj.last_name} : {user_account_obj.user_id}')
 
