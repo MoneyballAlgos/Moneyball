@@ -4,6 +4,7 @@ from stock.models import Transaction
 from django.dispatch import receiver
 from helper.angel_order import Create_Order
 from django.db.models.signals import post_save
+from moneyball.settings import account_connections
 from account.models import AccountConfiguration, AccountStockConfig, AccountTransaction
 
 

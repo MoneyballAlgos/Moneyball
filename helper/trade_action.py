@@ -36,7 +36,7 @@ def Price_Action_Trade(data, new_entry):
         new_entry.append((data["symbol_obj"].exchange, data["symbol_obj"].name, data["symbol_obj"].token))
 
         # Start Socket Streaming
-        correlation_id = "pratik-socket"
+        correlation_id = "moneyball-socket"
         socket_mode = 1
         nse = []
         nfo = []
