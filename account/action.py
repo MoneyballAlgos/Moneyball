@@ -1,0 +1,147 @@
+from time import sleep
+from django.db import transaction
+from stock.models import Transaction
+from django.dispatch import receiver
+from helper.angel_order import Create_Order
+from django.db.models.signals import post_save
+from account.models import AccountConfiguration, AccountStockConfig, AccountTransaction
+
+
+def AccountTradeAction(sender, instance, created):
+    try:
+        global account_connections
+        print(f"Pratik: Account Trade Action {instance.indicate}")
+        if instance.indicate == 'ENTRY':
+
+            # Fetch Active User
+            user_accounts = AccountConfiguration.objects.filter(place_order=True, account__is_active=True)
+
+            if user_accounts:
+                print(f"Pratik: Account Trade Action {instance.indicate}: Total User for Entry: {user_accounts.count()}")
+
+                for user in user_accounts:
+                    try:
+                        order_id = None
+                        print(f"Pratik: Account Trade Action {instance.indicate}: User: {user.account.first_name} {user.account.last_name} - {user.account.user_id}")
+                        # get user connection
+                        connection = account_connections[user.account.user_id]
+
+                        # Place Order
+                        if instance.price < user.entry_amount and user.total_open_position > user.active_open_position:
+                            if instance.product == 'future':
+                                order_id, order_status = Create_Order(connection, 'buy', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.price, instance.lot, "MARKET")
+                            else:
+                                lot = instance.lot
+                                chk_price = instance.price * lot
+                                if chk_price < user.entry_amount:
+                                    while True:
+                                        chk_price = instance.price * lot
+                                        if chk_price >= user.entry_amount:
+                                            lot = lot - instance.lot
+                                            break
+                                        lot += instance.lot
+                                if instance.mode == 'CE':
+                                    order_id, order_status = Create_Order(connection, 'buy', 'DELIVERY', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
+                                else:
+                                    order_id, order_status = Create_Order(connection, 'sell', 'INTRADAY', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
+                                    
+                            if order_id not in ['0', 0, None]:
+                                account_stock_config_obj, created = AccountStockConfig.objects.get_or_create(
+                                                                            account=user,
+                                                                            product=instance.product,
+                                                                            symbol=instance.symbol,
+                                                                            name=instance.name,
+                                                                            mode=instance.mode,
+                                                                            is_active=True)
+                                account_stock_config_obj.lot = lot
+                                account_stock_config_obj.order_id = order_id
+                                account_stock_config_obj.order_status = order_status
+                                account_stock_config_obj.save()
+
+                                AccountTransaction.objects.create(
+                                                        account=user,
+                                                        product=instance.product,
+                                                        symbol=instance.symbol,
+                                                        name=instance.name,
+                                                        exchange=instance.exchange,
+                                                        mode=instance.mode,
+                                                        indicate=instance.indicate,
+                                                        type=instance.type,
+                                                        price=instance.price,
+                                                        target=instance.target,
+                                                        fixed_target=instance.fixed_target,
+                                                        stoploss=instance.stoploss,
+                                                        lot=lot)
+                        else:
+                            print(f"Pratik: Account Trade Action {instance.indicate}: User may have Max Active Open posotion : Total - {user.total_open_position}, Active - {user.active_open_position}")
+                            print(f"Pratik: Account Trade Action {instance.indicate}: User may not have enough money to by a single share : 1 Share Price {instance.price}, - User Entry Amount {user.entry_amount}")
+                    
+                    except Exception as e:
+                        print(f"Pratik: Account Trade Action {instance.indicate}: User Loop Error: {e}")
+            else:
+                print(f"Pratik: Account Trade Action {instance.indicate}: No User for Entry: {user_accounts.count()}")
+        elif instance.indicate == 'EXIT':
+
+            # Fetch Active User
+            user_account_stock_configs = AccountStockConfig.objects.filter(
+                                                            product=instance.product,
+                                                            symbol=instance.symbol,
+                                                            name=instance.name,
+                                                            mode=instance.mode,
+                                                            is_active=True)
+            if user_account_stock_configs:
+                print(f"Pratik: Account Trade Action {instance.indicate}: Total Users for Exit: {user_account_stock_configs.count()}")
+
+                for user_stock_config in user_account_stock_configs:
+                    try:
+                        print(f"Pratik: Account Trade Action {instance.indicate}: User: {user_stock_config.account.first_name} {user_stock_config.account.last_name} - {user_stock_config.account.user_id}")
+                        # get user connection
+                        connection = account_connections[user_stock_config.account.user_id]
+
+                        # Place Order
+                        if instance.product == 'future':
+                            order_id, order_status = Create_Order(connection, 'sell', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.price, user_stock_config.lot, "MARKET")
+                        else:
+                            if instance.mode == 'CE':
+                                order_id, order_status = Create_Order(connection, 'sell', 'DELIVERY', instance.token, instance.symbol, instance.exchange, instance.price, user_stock_config.lot, "MARKET")
+                            else:
+                                order_id, order_status = Create_Order(connection, 'buy', 'INTRADAY', instance.token, instance.symbol, instance.exchange, instance.price, user_stock_config.lot, "MARKET")
+                            
+                        if order_id not in ['0', 0, None]:
+                            AccountTransaction.objects.create(
+                                                    account=user_stock_config.account,
+                                                    product=instance.product,
+                                                    symbol=instance.symbol,
+                                                    name=instance.name,
+                                                    exchange=instance.exchange,
+                                                    mode=instance.mode,
+                                                    indicate=instance.indicate,
+                                                    type=instance.type,
+                                                    price=instance.price,
+                                                    target=instance.target,
+                                                    fixed_target=instance.fixed_target,
+                                                    stoploss=instance.stoploss,
+                                                    profit=instance.profit,
+                                                    max=instance.max,
+                                                    max_l=instance.max_l,
+                                                    highest_price=instance.highest_price,
+                                                    order_id=order_id,
+                                                    order_status=order_status,
+                                                    lot=user_stock_config.lot)
+                    
+                    except Exception as e:
+                        print(f"Pratik: Account Trade Action {instance.indicate}: User Loop Error: {e}")
+            else:
+                print(f"Pratik: Account Trade Action {instance.indicate}: No User for Exit: {user_account_stock_configs.count()}")
+        else:
+            print(f"Pratik: Account Trade Action Invalid transaction indicator : {instance.indicate}")
+    except Exception as e:
+        print(f"Pratik: Account Trade Action Main: Error: {e}")
+    return True
+
+
+@receiver(post_save, sender=Transaction)
+def OnAlgoTransaction(sender, instance, created, **kwargs):
+  if created:
+    sleep(1)
+    transaction.on_commit(lambda: AccountTradeAction(sender, instance, created))
