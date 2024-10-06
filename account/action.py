@@ -11,7 +11,7 @@ from account.models import AccountConfiguration, AccountStockConfig, AccountTran
 def AccountExitAction(instance):
     try:
         global account_connections
-        print(f"MoneyBall: Account Exit Action {instance.indicate}")
+        print(f"MoneyBall: Account Exit Action {instance.get('indicate')}")
         # Fetch Active User
         user_account_stock_configs = AccountStockConfig.objects.filter(
                                                         product=instance.get('product'),
@@ -48,14 +48,14 @@ def AccountExitAction(instance):
                                                 mode=instance.get('mode'),
                                                 indicate=instance.get('indicate'),
                                                 type=instance.get('type'),
-                                                price=instance.get('price'),
-                                                target=instance.get('target'),
-                                                fixed_target=instance.get('fixed_target'),
-                                                stoploss=instance.get('stoploss'),
-                                                profit=instance.get('profit'),
-                                                max=instance.get('max'),
-                                                max_l=instance.get('max_l'),
-                                                highest_price=instance.get('highest_price'),
+                                                price=float(instance.get('price')),
+                                                target=float(instance.get('target')),
+                                                fixed_target=float(instance.get('fixed_target')),
+                                                stoploss=float(instance.get('stoploss')),
+                                                profit=float(instance.get('profit')),
+                                                max=float(instance.get('max')),
+                                                max_l=float(instance.get('max_l')),
+                                                highest_price=float(instance.get('highest_price')),
                                                 order_id=order_id,
                                                 order_status=order_status,
                                                 lot=user_stock_config.lot)
@@ -67,6 +67,7 @@ def AccountExitAction(instance):
             print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: No User for Exit: {user_account_stock_configs.count()}")
     except Exception as e:
         print(f"MoneyBall: Account Exit Action Main: Error: {e}")
+    return True
 
 
 
