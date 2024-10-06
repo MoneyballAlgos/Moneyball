@@ -22,9 +22,10 @@ def AccountExitApi(request):
     try:
         print(f"MoneyBall: Account Exit Api : Started {now.strftime('%d-%b-%Y %H:%M:%S')}")
         data = json.loads(request.body)
+        print(f"MoneyBall: Account Exit Api : Data {data}")
 
         # Streaming threads for Open Positions
-        exit_thread = threading.Thread(name=f"API-Exit-{now.strftime('%d-%b-%Y %H:%M:%S')}", target=AccountExitAction, args=(data), daemon=True)
+        exit_thread = threading.Thread(name=f"API-Exit-{now.strftime('%d-%b-%Y %H:%M:%S')}", target=AccountExitAction, args=(data,), daemon=True)
         exit_thread.start()
 
         print(f'MoneyBall: Account Exit Api : Execution Time(hh:mm:ss) : {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
