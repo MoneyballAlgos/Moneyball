@@ -6,18 +6,24 @@ from task import AccountConnection, BrokerConnection, MarketDataUpdate, SquareOf
 
 def start():
     sched = BackgroundScheduler(timezone=str(tzlocal.get_localzone()), daemon=True)
-    if not User.objects.filter(username='MoneyBall').exists():
-        User.objects.create_user(
-            username='MoneyBall',
-            password='admin'
-        )
-        print('User has been created.')
     if not User.objects.filter(username='Master').exists():
         User.objects.create_superuser(
             username='Master',
             password='admin'
         )
         print('Superuser has been created.')
+    if not User.objects.filter(username='MoneyBall').exists():
+        User.objects.create_user(
+            username='MoneyBall',
+            password='admin'
+        )
+        print('Staff User has been created.')
+    if not User.objects.filter(username='User').exists():
+        User.objects.create_user(
+            username='User',
+            password='user'
+        )
+        print('User has been created.')
 
     # Schedules job_function to be run on the Monday to Friday
     sched.add_job(stay_awake, 'cron', day_of_week='mon-fri',
