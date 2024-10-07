@@ -62,9 +62,11 @@ def AccountExitAction(instance):
                                                 order_status=order_status,
                                                 lot=user_stock_config.lot)
                         user_stock_config.delete()
-                        user_config = AccountConfiguration.objects.get(account=user_stock_config.account, is_active=True)
-                        user_config.active_open_position -= 1
-                        user_config.save()
+                        if instance.get('product') == 'equity':
+                            if instance.get('mode') == 'CE':
+                                user_config = AccountConfiguration.objects.get(account=user_stock_config.account, is_active=True)
+                                user_config.active_open_position -= 1
+                                user_config.save()
                 
                 except Exception as e:
                     print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: User Loop Error: {e}")
@@ -143,8 +145,10 @@ def AccountEntryAction(sender, instance, created):
                                                         fixed_target=instance.fixed_target,
                                                         stoploss=instance.stoploss,
                                                         lot=lot)
-                                user_config.active_open_position += 1
-                                user_config.save()
+                                if instance.product == 'equity':
+                                    if instance.mode == 'CE':
+                                        user_config.active_open_position += 1
+                                        user_config.save()
                         else:
                             print(f"MoneyBall: Account Entry Action {instance.indicate}: User may have Max Active Open posotion : Total - {user_config.total_open_position}, Active - {user_config.active_open_position}")
                             print(f"MoneyBall: Account Entry Action {instance.indicate}: User may not have enough money to by a single share : 1 Share Price {instance.price}, - User Entry Amount {user_config.entry_amount}")
