@@ -23,8 +23,8 @@ admin.site.index_title = 'Features Area'         # default: "Site administration
 admin.site.site_title = 'MoneyBall AI'             # default: "Django site admin"
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
     path("api/system_conf/", include("system_conf.urls")),
+    path("admin/", admin.site.urls),
 ]
 
 import clock
