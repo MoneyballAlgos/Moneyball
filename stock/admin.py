@@ -31,7 +31,7 @@ class FnOStatusAdmin(ExtraButtonsMixin, admin.ModelAdmin):
     name_.short_description = 'Name'
     
     def entry_time(self, obj):
-        return (obj.created_at + timedelta(hours=5, minutes=30)).strftime("%d/%m/%y %-I:%-M:%-S %p")
+        return (obj.created_at + timedelta(hours=5, minutes=30)).strftime("%-I:%-M:%-S %p")
     entry_time.short_description = 'Time'
 
     def max_p(self, obj):
