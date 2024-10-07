@@ -11,7 +11,7 @@ from account.models import AccountConfiguration, AccountStockConfig, AccountTran
 def AccountExitAction(instance):
     try:
         global account_connections
-        print(f"MoneyBall: Account Exit Action {instance.get('indicate')}")
+        print(f"MoneyBall: Account Trade Action {instance.get('indicate')}")
         # Fetch Active User
         user_account_stock_configs = AccountStockConfig.objects.filter(
                                                         product=instance.get('product'),
@@ -20,11 +20,11 @@ def AccountExitAction(instance):
                                                         mode=instance.get('mode'),
                                                         is_active=True)
         if user_account_stock_configs:
-            print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: Total Users for Exit: {user_account_stock_configs.count()}")
+            print(f"MoneyBall: Account Trade Action {instance.get('indicate')}: Total Users for Exit: {user_account_stock_configs.count()}")
 
             for user_stock_config in user_account_stock_configs:
                 try:
-                    print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: User: {user_stock_config.account.first_name} {user_stock_config.account.last_name} - {user_stock_config.account.user_id} : {instance.get('product')} : {instance.get('symbol')}")
+                    print(f"MoneyBall: Account Trade Action {instance.get('indicate')}: User: {user_stock_config.account.first_name} {user_stock_config.account.last_name} - {user_stock_config.account.user_id} : {instance.get('product')} : {instance.get('symbol')}")
                     
                     # get user connection
                     connection = account_connections[user_stock_config.account.user_id]
@@ -44,7 +44,7 @@ def AccountExitAction(instance):
                             else:
                                 order_id, order_status = Cancel_Order(connection, user_stock_config.order_id)
                     
-                    # print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: User: {user_stock_config.account.first_name} {user_stock_config.account.last_name} - {user_stock_config.account.user_id} : {instance.get('product')} : {instance.get('symbol')} : {order_id} : {order_status} : Lots : {user_stock_config.lot}")
+                    # print(f"MoneyBall: Account Trade Action {instance.get('indicate')}: User: {user_stock_config.account.first_name} {user_stock_config.account.last_name} - {user_stock_config.account.user_id} : {instance.get('product')} : {instance.get('symbol')} : {order_id} : {order_status} : Lots : {user_stock_config.lot}")
 
                     if order_status == 'Cancelled':
                         AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
@@ -78,19 +78,19 @@ def AccountExitAction(instance):
                                 user_config.save()
                 
                 except Exception as e:
-                    print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: User Loop Error: {e}")
+                    print(f"MoneyBall: Account Trade Action {instance.get('indicate')}: User Loop Error: {e}")
         else:
-            print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: No User for Exit: {user_account_stock_configs.count()}")
+            print(f"MoneyBall: Account Trade Action {instance.get('indicate')}: No User for Exit: {user_account_stock_configs.count()}")
     except Exception as e:
-        print(f"MoneyBall: Account Exit Action Main: Error: {e}")
+        print(f"MoneyBall: Account Trade Action Main: Error Exit Func: {e}")
     return True
 
 
 
-def AccountEntryAction(sender, instance, created):
+def AccountTradeAction(sender, instance, created):
     try:
         global account_connections
-        print(f"MoneyBall: Account Entry Action {instance.indicate} : {instance.product} : {instance.symbol}")
+        print(f"MoneyBall: Account Trade Action {instance.indicate} : {instance.product} : {instance.symbol}")
         if instance.indicate == 'ENTRY':
 
             # Fetch Active User
@@ -100,12 +100,12 @@ def AccountEntryAction(sender, instance, created):
                 user_account_configs = AccountConfiguration.objects.filter(place_order=True, fno_enabled=True, account__is_active=True)
 
             if user_account_configs:
-                print(f"MoneyBall: Account Entry Action {instance.indicate}: Total User for Entry: {user_account_configs.count()}")
+                print(f"MoneyBall: Account Trade Action {instance.indicate}: Total User for Entry: {user_account_configs.count()}")
 
                 for user_config in user_account_configs:
                     try:
                         order_id = None
-                        print(f"MoneyBall: Account Entry Action {instance.indicate}: User: {user_config.account.first_name} {user_config.account.last_name} - {user_config.account.user_id} : {instance.product} : {instance.symbol}")
+                        print(f"MoneyBall: Account Trade Action {instance.indicate}: User: {user_config.account.first_name} {user_config.account.last_name} - {user_config.account.user_id} : {instance.product} : {instance.symbol}")
                         # get user connection
                         connection = account_connections[user_config.account.user_id]
 
@@ -128,7 +128,7 @@ def AccountEntryAction(sender, instance, created):
                                 else:
                                     order_id, order_status = Create_Order(connection, 'SELL', 'INTRADAY', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
 
-                            # print(f"MoneyBall: Account Entry Action {instance.indicate}: User: {user_config.account.first_name} {user_config.account.last_name} - {user_config.account.user_id} : {instance.product} : {instance.symbol} : {order_id} : {order_status} : Lots : {lot}")
+                            # print(f"MoneyBall: Account Trade Action {instance.indicate}: User: {user_config.account.first_name} {user_config.account.last_name} - {user_config.account.user_id} : {instance.product} : {instance.symbol} : {order_id} : {order_status} : Lots : {lot}")
 
                             if order_id not in ['0', 0, None]:
                                 account_stock_config_obj, created = AccountStockConfig.objects.get_or_create(
@@ -164,13 +164,13 @@ def AccountEntryAction(sender, instance, created):
                                         user_config.active_open_position += 1
                                         user_config.save()
                         else:
-                            print(f"MoneyBall: Account Entry Action {instance.indicate}: User may have Max Active Open posotion : Total - {user_config.total_open_position}, Active - {user_config.active_open_position}")
-                            print(f"MoneyBall: Account Entry Action {instance.indicate}: User may not have enough money to by a single share : 1 Share Price {instance.price}, - User Entry Amount {user_config.entry_amount}")
+                            print(f"MoneyBall: Account Trade Action {instance.indicate}: User may have Max Active Open posotion : Total - {user_config.total_open_position}, Active - {user_config.active_open_position}")
+                            print(f"MoneyBall: Account Trade Action {instance.indicate}: User may not have enough money to by a single share : 1 Share Price {instance.price}, - User Entry Amount {user_config.entry_amount}")
                     
                     except Exception as e:
-                        print(f"MoneyBall: Account Entry Action {instance.indicate}: User Loop Error: {e}")
+                        print(f"MoneyBall: Account Trade Action {instance.indicate}: User Loop Error: {e}")
             else:
-                print(f"MoneyBall: Account Entry Action {instance.indicate}: No User for Entry: {user_account_configs.count()}")
+                print(f"MoneyBall: Account Trade Action {instance.indicate}: No User for Entry: {user_account_configs.count()}")
         elif instance.indicate == 'EXIT':
             transaction_data = {
                 'product': instance.product,
@@ -193,9 +193,9 @@ def AccountEntryAction(sender, instance, created):
             }
             AccountExitAction(transaction_data)
         else:
-            print(f"MoneyBall: Account Entry Action: Not allowed on transaction indicator : {instance.indicate}")
+            print(f"MoneyBall: Account Trade Action: Not allowed on transaction indicator : {instance.indicate}")
     except Exception as e:
-        print(f"MoneyBall: Account Entry Action Main: Error: {e}")
+        print(f"MoneyBall: Account Trade Action Main: Error Trade Func: {e}")
     return True
 
 
@@ -203,4 +203,4 @@ def AccountEntryAction(sender, instance, created):
 def OnAlgoTransaction(sender, instance, created, **kwargs):
   if created:
     sleep(1)
-    transaction.on_commit(lambda: AccountEntryAction(sender, instance, created))
+    transaction.on_commit(lambda: AccountTradeAction(sender, instance, created))
