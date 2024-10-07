@@ -253,7 +253,7 @@ def Equity_BreakOut_1(auto_trigger=True):
                 if not entries_list:
                     from_day = now - timedelta(days=5)
                     data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY')
-                    sleep(0.4)
+                    sleep(0.3)
 
                     open = data_frame['Open'].iloc[-1]
                     high = data_frame['High'].iloc[-1]
