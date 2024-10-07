@@ -69,7 +69,7 @@ def Price_Action_Trade(data, new_entry):
             "socket_mode": socket_mode
         }
         response = requests.post(url, json=data_json, verify=False)
-        print(f'MoneyBall: {data["log_identifier"]}: New Entries: Streaming Response: {response.status_code}')
+        print(f'MoneyBall: {data["log_identifier"]}: New Entries: {url} : Streaming Response: {response.status_code}')
     return new_entry
 
 
