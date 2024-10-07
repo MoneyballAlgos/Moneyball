@@ -38,7 +38,7 @@ def AccountExitAction(instance):
                         else:
                             order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
                     
-                    print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: User: {user_stock_config.account.first_name} {user_stock_config.account.last_name} - {user_stock_config.account.user_id} : {instance.get('product')} : {instance.get('symbol')} : {order_id} : {order_status} : {user_stock_config.lot}")
+                    # print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: User: {user_stock_config.account.first_name} {user_stock_config.account.last_name} - {user_stock_config.account.user_id} : {instance.get('product')} : {instance.get('symbol')} : {order_id} : {order_status} : Lots : {user_stock_config.lot}")
 
                     if order_id not in ['0', 0, None]:
                         AccountTransaction.objects.create(
@@ -83,29 +83,29 @@ def AccountEntryAction(sender, instance, created):
         if instance.indicate == 'ENTRY':
 
             # Fetch Active User
-            user_accounts = AccountConfiguration.objects.filter(place_order=True, account__is_active=True)
+            user_account_configs = AccountConfiguration.objects.filter(place_order=True, account__is_active=True)
 
-            if user_accounts:
-                print(f"MoneyBall: Account Entry Action {instance.indicate}: Total User for Entry: {user_accounts.count()}")
+            if user_account_configs:
+                print(f"MoneyBall: Account Entry Action {instance.indicate}: Total User for Entry: {user_account_configs.count()}")
 
-                for user in user_accounts:
+                for user_config in user_account_configs:
                     try:
                         order_id = None
-                        print(f"MoneyBall: Account Entry Action {instance.indicate}: User: {user.account.first_name} {user.account.last_name} - {user.account.user_id} : {instance.product} : {instance.symbol}")
+                        print(f"MoneyBall: Account Entry Action {instance.indicate}: User: {user_config.account.first_name} {user_config.account.last_name} - {user_config.account.user_id} : {instance.product} : {instance.symbol}")
                         # get user connection
-                        connection = account_connections[user.account.user_id]
+                        connection = account_connections[user_config.account.user_id]
 
                         # Place Order
-                        if instance.price < user.entry_amount and user.total_open_position > user.active_open_position:
+                        if instance.price < user_config.entry_amount and user_config.total_open_position > user_config.active_open_position:
                             lot = instance.lot
                             if instance.product == 'future':
                                 order_id, order_status = Create_Order(connection, 'BUY', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.price, lot, "MARKET")
                             else:
                                 chk_price = instance.price * lot
-                                if chk_price < user.entry_amount:
+                                if chk_price < user_config.entry_amount:
                                     while True:
                                         chk_price = instance.price * lot
-                                        if chk_price >= user.entry_amount:
+                                        if chk_price >= user_config.entry_amount:
                                             lot = lot - instance.lot
                                             break
                                         lot += instance.lot
@@ -114,11 +114,11 @@ def AccountEntryAction(sender, instance, created):
                                 else:
                                     order_id, order_status = Create_Order(connection, 'SELL', 'INTRADAY', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
 
-                            print(f"MoneyBall: Account Entry Action {instance.indicate}: User: {user.account.first_name} {user.account.last_name} - {user.account.user_id} : {instance.product} : {instance.symbol} : {order_id} : {order_status} : {lot}")
+                            # print(f"MoneyBall: Account Entry Action {instance.indicate}: User: {user_config.account.first_name} {user_config.account.last_name} - {user_config.account.user_id} : {instance.product} : {instance.symbol} : {order_id} : {order_status} : Lots : {lot}")
 
                             if order_id not in ['0', 0, None]:
                                 account_stock_config_obj, created = AccountStockConfig.objects.get_or_create(
-                                                                            account=user.account,
+                                                                            account=user_config.account,
                                                                             product=instance.product,
                                                                             symbol=instance.symbol,
                                                                             name=instance.name,
@@ -130,7 +130,7 @@ def AccountEntryAction(sender, instance, created):
                                 account_stock_config_obj.save()
 
                                 AccountTransaction.objects.create(
-                                                        account=user.account,
+                                                        account=user_config.account,
                                                         product=instance.product,
                                                         symbol=instance.symbol,
                                                         name=instance.name,
@@ -143,16 +143,16 @@ def AccountEntryAction(sender, instance, created):
                                                         fixed_target=instance.fixed_target,
                                                         stoploss=instance.stoploss,
                                                         lot=lot)
-                                user.active_open_position += 1
-                                user.save()
+                                user_config.active_open_position += 1
+                                user_config.save()
                         else:
-                            print(f"MoneyBall: Account Entry Action {instance.indicate}: User may have Max Active Open posotion : Total - {user.total_open_position}, Active - {user.active_open_position}")
-                            print(f"MoneyBall: Account Entry Action {instance.indicate}: User may not have enough money to by a single share : 1 Share Price {instance.price}, - User Entry Amount {user.entry_amount}")
+                            print(f"MoneyBall: Account Entry Action {instance.indicate}: User may have Max Active Open posotion : Total - {user_config.total_open_position}, Active - {user_config.active_open_position}")
+                            print(f"MoneyBall: Account Entry Action {instance.indicate}: User may not have enough money to by a single share : 1 Share Price {instance.price}, - User Entry Amount {user_config.entry_amount}")
                     
                     except Exception as e:
                         print(f"MoneyBall: Account Entry Action {instance.indicate}: User Loop Error: {e}")
             else:
-                print(f"MoneyBall: Account Entry Action {instance.indicate}: No User for Entry: {user_accounts.count()}")
+                print(f"MoneyBall: Account Entry Action {instance.indicate}: No User for Entry: {user_account_configs.count()}")
         else:
             print(f"MoneyBall: Account Entry Action: Not allowed on transaction indicator : {instance.indicate}")
     except Exception as e:
