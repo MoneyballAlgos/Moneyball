@@ -2,7 +2,7 @@ from time import sleep
 from django.db import transaction
 from stock.models import Transaction
 from django.dispatch import receiver
-from helper.angel_order import Create_Order
+from helper.angel_order import Cancel_Order, Create_Order, Is_Order_Completed
 from django.db.models.signals import post_save
 from moneyball.settings import account_connections
 from account.models import AccountConfiguration, AccountStockConfig, AccountTransaction
@@ -31,16 +31,25 @@ def AccountExitAction(instance):
 
                     # Place Order
                     if instance.get('product') == 'future':
-                        order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                        if Is_Order_Completed(connection, user_stock_config.order_id):
+                            order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                        else:
+                            order_id, order_status = Cancel_Order(connection, user_stock_config.order_id)
                     else:
                         if instance.get('mode') == 'CE':
                             order_id, order_status = Create_Order(connection, 'SELL', 'DELIVERY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
                         else:
-                            order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                            if Is_Order_Completed(connection, user_stock_config.order_id):
+                                order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                            else:
+                                order_id, order_status = Cancel_Order(connection, user_stock_config.order_id)
                     
                     # print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: User: {user_stock_config.account.first_name} {user_stock_config.account.last_name} - {user_stock_config.account.user_id} : {instance.get('product')} : {instance.get('symbol')} : {order_id} : {order_status} : Lots : {user_stock_config.lot}")
 
-                    if order_id not in ['0', 0, None]:
+                    if order_status == 'Cancelled':
+                        AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
+                        user_stock_config.delete()
+                    elif order_id not in ['0', 0, None]:
                         AccountTransaction.objects.create(
                                                 account=user_stock_config.account,
                                                 product=instance.get('product'),
@@ -162,6 +171,27 @@ def AccountEntryAction(sender, instance, created):
                         print(f"MoneyBall: Account Entry Action {instance.indicate}: User Loop Error: {e}")
             else:
                 print(f"MoneyBall: Account Entry Action {instance.indicate}: No User for Entry: {user_account_configs.count()}")
+        elif instance.indicate == 'EXIT':
+            transaction_data = {
+                'product': instance.product,
+                'mode': instance.mode,
+                'symbol': instance.symbol,
+                'name': instance.name,
+                'token': instance.token,
+                'exchange': instance.exchange,
+                'indicate': instance.indicate,
+                'type': instance.type,
+                'price': instance.price,
+                'target': instance.target,
+                'stoploss': instance.stoploss,
+                'profit': instance.profit,
+                'max': instance.max,
+                'max_l': instance.max_l,
+                'highest_price': instance.highest_price,
+                'fixed_target': instance.fixed_target,
+                'lot': instance.lot
+            }
+            AccountExitAction(transaction_data)
         else:
             print(f"MoneyBall: Account Entry Action: Not allowed on transaction indicator : {instance.indicate}")
     except Exception as e:
