@@ -81,7 +81,7 @@ class AccountTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
 @admin.register(Account_Equity_Transaction)
 class AccountEquityTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
     date_hierarchy = 'date'
-    list_display = ('account_name', 'symbol', 'date', 'indicate', 'type', 'p_l', 'max_p', 'max_l_s', 'top_p', 'price', 'fixed_target', 'stoploss', 'target', 'lot', 'order_id', 'order_status', 'name', 'exchange', 'mode')
+    list_display = ('account_name', 'name', 'date', 'indicate', 'type', 'p_l', 'max_p', 'max_l_s', 'top_p', 'price', 'fixed_target', 'stoploss', 'target', 'lot', 'order_id', 'order_status', 'symbol', 'exchange', 'mode')
     search_fields = ['symbol', ]
     list_filter = ('account__first_name', 'indicate', 'date', 'mode', 'name')
     list_per_page = 20
