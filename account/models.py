@@ -26,6 +26,8 @@ class AccountConfiguration(models.Model):
     entry_amount = models.FloatField(default=5001, verbose_name="Entry Amount")
     total_open_position = models.BigIntegerField(default=20, verbose_name='Total Open Position')
     active_open_position = models.BigIntegerField(default=0, verbose_name='Active Open Position')
+    equity_enabled = models.BooleanField(default=False, verbose_name='Equity-Enabled')
+    fno_enabled = models.BooleanField(default=False, verbose_name='FnO-Enabled')
 
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
