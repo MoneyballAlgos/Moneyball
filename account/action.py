@@ -85,7 +85,10 @@ def AccountEntryAction(sender, instance, created):
         if instance.indicate == 'ENTRY':
 
             # Fetch Active User
-            user_account_configs = AccountConfiguration.objects.filter(place_order=True, account__is_active=True)
+            if instance.product == 'equity':
+                user_account_configs = AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, entry_amount__gte=instance.price, account__is_active=True)
+            else:
+                user_account_configs = AccountConfiguration.objects.filter(place_order=True, fno_enabled=True, account__is_active=True)
 
             if user_account_configs:
                 print(f"MoneyBall: Account Entry Action {instance.indicate}: Total User for Entry: {user_account_configs.count()}")
@@ -98,7 +101,7 @@ def AccountEntryAction(sender, instance, created):
                         connection = account_connections[user_config.account.user_id]
 
                         # Place Order
-                        if instance.price < user_config.entry_amount and user_config.total_open_position > user_config.active_open_position:
+                        if user_config.total_open_position > user_config.active_open_position:
                             lot = instance.lot
                             if instance.product == 'future':
                                 order_id, order_status = Create_Order(connection, 'BUY', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.price, lot, "MARKET")

@@ -15,7 +15,7 @@ class AccountKeyAdmin(ExportActionMixin, admin.ModelAdmin):
 
 @admin.register(AccountConfiguration)
 class AccountConfigurationAdmin(ExportActionMixin, admin.ModelAdmin):
-    list_display = ('account_name', 'place_order', 'account_balance', 'entry_amount', 'total_open_position', 'active_open_position', 'is_active')
+    list_display = ('account_name', 'place_order', 'account_balance', 'entry_amount', 'equity_enabled', 'fno_enabled', 'total_open_position', 'active_open_position', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'is_active')
 
