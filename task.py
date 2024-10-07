@@ -180,13 +180,14 @@ def AccountConnection():
             account_detail = connection.getProfile(connection.refresh_token)
             if account_detail['message'] == 'SUCCESS':
                 # Get Funds detail
-                fund_detail = connection.rmsLimit()
-                if fund_detail['message'] == 'SUCCESS':
-                    account_config, _ = AccountConfiguration.objects.get_or_create(account=user_account_obj)
-                    account_config.account_balance = float(fund_detail['data']['availablecash'])
-                    if account_config.total_open_position > account_config.active_open_position:
-                        account_config.entry_amount = float(fund_detail['data']['availablecash'])/(account_config.total_open_position-account_config.active_open_position)
-                        account_config.save()
+                if now.time() < time(9, 14, 00):
+                    fund_detail = connection.rmsLimit()
+                    if fund_detail['message'] == 'SUCCESS':
+                        account_config, _ = AccountConfiguration.objects.get_or_create(account=user_account_obj)
+                        account_config.account_balance = float(fund_detail['data']['availablecash'])
+                        if account_config.total_open_position > account_config.active_open_position:
+                            account_config.entry_amount = float(fund_detail['data']['availablecash'])/(account_config.total_open_position-account_config.active_open_position)
+                            account_config.save()
 
                 print(f'MoneyBall: Account Connection: Session generated for {account_detail["data"]["name"]} : {account_detail["data"]["clientcode"]}')
             else:
