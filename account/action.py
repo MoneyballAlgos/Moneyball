@@ -171,6 +171,27 @@ def AccountEntryAction(sender, instance, created):
                         print(f"MoneyBall: Account Entry Action {instance.indicate}: User Loop Error: {e}")
             else:
                 print(f"MoneyBall: Account Entry Action {instance.indicate}: No User for Entry: {user_account_configs.count()}")
+        elif instance.indicate == 'EXIT':
+            transaction_data = {
+                'product': instance.product,
+                'mode': instance.mode,
+                'symbol': instance.symbol,
+                'name': instance.name,
+                'token': instance.token,
+                'exchange': instance.exchange,
+                'indicate': instance.indicate,
+                'type': instance.type,
+                'price': instance.price,
+                'target': instance.target,
+                'stoploss': instance.stoploss,
+                'profit': instance.profit,
+                'max': instance.max,
+                'max_l': instance.max_l,
+                'highest_price': instance.highest_price,
+                'fixed_target': instance.fixed_target,
+                'lot': instance.lot
+            }
+            AccountExitAction(transaction_data)
         else:
             print(f"MoneyBall: Account Entry Action: Not allowed on transaction indicator : {instance.indicate}")
     except Exception as e:
