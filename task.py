@@ -98,11 +98,9 @@ def socket_setup(log_identifier='Cron'):
             })
     print(f'MoneyBall: Socket Setup : {log_identifier} : Subscribe List : {subscribe_list}')
     if not entries:
-        # {"token":"99926009","symbol":"Nifty Bank","name":"BANKNIFTY","expiry":"","strike":"0.000000","lotsize":"1","instrumenttype":"AMXIDX","exch_seg":"NSE","tick_size":"0.000000"}
-        # {"token":"99926000","symbol":"Nifty 50","name":"NIFTY","expiry":"","strike":"0.000000","lotsize":"1","instrumenttype":"AMXIDX","exch_seg":"NSE","tick_size":"0.000000"}
         subscribe_list.append({
                 "exchangeType": 1,
-                "tokens": '99926000'
+                "tokens": '3045'
             })
     
     # Streaming threads for Open Positions
