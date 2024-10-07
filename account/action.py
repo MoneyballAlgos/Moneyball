@@ -118,7 +118,7 @@ def AccountEntryAction(sender, instance, created):
 
                             if order_id not in ['0', 0, None]:
                                 account_stock_config_obj, created = AccountStockConfig.objects.get_or_create(
-                                                                            account=user,
+                                                                            account=user.account,
                                                                             product=instance.product,
                                                                             symbol=instance.symbol,
                                                                             name=instance.name,
@@ -130,7 +130,7 @@ def AccountEntryAction(sender, instance, created):
                                 account_stock_config_obj.save()
 
                                 AccountTransaction.objects.create(
-                                                        account=user,
+                                                        account=user.account,
                                                         product=instance.product,
                                                         symbol=instance.symbol,
                                                         name=instance.name,
