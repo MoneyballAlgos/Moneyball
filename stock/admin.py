@@ -1,5 +1,6 @@
-from datetime import timedelta
+from zoneinfo import ZoneInfo
 from django.contrib import admin
+from datetime import timedelta, datetime
 from import_export.admin import ExportActionMixin
 from helper.common import colour, colour_indicator
 from admin_extra_buttons.api import ExtraButtonsMixin, button
@@ -48,14 +49,19 @@ class FnOStatusAdmin(ExtraButtonsMixin, admin.ModelAdmin):
 
     @button(change_form=True,
             html_attrs={'style': 'background-color:#15FBF1;color:black'})
-    def FUTURE_STATUS(self, request):
+    def STATUS(self, request):
+        now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
         future_total_exit = Transaction.objects.filter(product='future', indicate='EXIT', is_active=True).order_by('date').count()
         future_total_entry = Transaction.objects.filter(product='future', indicate='ENTRY', is_active=True).order_by('date').count()
         future_accuracy = round((len(Transaction.objects.filter(product='future', profit__gte=0, indicate='EXIT', is_active=True))/future_total_exit) * 100, 2) if future_total_exit != 0 else 0
-        future_return_1 = round(sum(Transaction.objects.filter(product='future', indicate='EXIT', is_active=True).values_list('profit', flat=True)), 2)
-        self.message_user(request, f'Total Future Entry: {future_total_entry}, Exit: {future_total_exit}.')
-        self.message_user(request, f'Future: {future_accuracy} % Accuracy on {future_total_exit} Trades.')
-        self.message_user(request, f'--- Future Till Now: {future_return_1} % ---')
+        future_till_now = round(sum(Transaction.objects.filter(product='future', indicate='EXIT', is_active=True).values_list('profit', flat=True)), 2)
+        future_today_exit = Transaction.objects.filter(date__date=now.date(), product='future', indicate='EXIT', is_active=True).order_by('date').count()
+        future_today_entry = Transaction.objects.filter(date__date=now.date(), product='future', indicate='ENTRY', is_active=True).order_by('date').count()
+        future_today = round(sum(Transaction.objects.filter(date__date=now.date(), product='future', indicate='EXIT', is_active=True).values_list('profit', flat=True)), 2)
+        self.message_user(request, f'Total: Entry: {future_total_entry}, Exit: {future_total_exit}.')
+        self.message_user(request, f'--- {future_accuracy} % Accuracy on {future_total_exit} Trades ---')
+        self.message_user(request, f'Today: Entry: {future_today_entry}, Exit: {future_today_exit}.')
+        self.message_user(request, f'--- Gained {future_today} % today, {future_till_now} % till now ---')
         return HttpResponseRedirectToReferrer(request)
 
 
@@ -121,15 +127,15 @@ class EquityStatusAdmin(ExtraButtonsMixin, admin.ModelAdmin):
 
     @button(change_form=True,
             html_attrs={'style': 'background-color:#15FBF1;color:black'})
-    def EQUITY_STATUS(self, request):
+    def STATUS(self, request):
         equity_total_exit = Transaction.objects.filter(product='equity', indicate='EXIT', is_active=True).order_by('date').count()
         equity_total_entry = Transaction.objects.filter(product='equity', indicate='ENTRY', is_active=True).order_by('date').count()
         equity_accuracy = round((len(Transaction.objects.filter(product='equity', profit__gte=0, indicate='EXIT', is_active=True))/equity_total_exit) * 100, 2) if equity_total_exit != 0 else 0
-        equity_return_1 = round(sum(Transaction.objects.filter(product='equity', indicate='EXIT', is_active=True).values_list('profit', flat=True)), 2)
+        equity_till_now = round(sum(Transaction.objects.filter(product='equity', indicate='EXIT', is_active=True).values_list('profit', flat=True)), 2)
 
-        self.message_user(request, f'Total Equity Entry: {equity_total_entry}, Exit: {equity_total_exit}.')
-        self.message_user(request, f'Equity: {equity_accuracy} % Accuracy on {equity_total_exit} Trades.')
-        self.message_user(request, f'--- Equity Till Now: {equity_return_1} % ---')
+        self.message_user(request, f'Total: Entry: {equity_total_entry}, Exit: {equity_total_exit}.')
+        self.message_user(request, f'--- {equity_accuracy} % Accuracy on {equity_total_exit} Trades ---')
+        self.message_user(request, f'--- Gained: {equity_till_now} % till now ---')
         return HttpResponseRedirectToReferrer(request)
 
 
