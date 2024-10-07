@@ -46,10 +46,10 @@ def AccountExitAction(instance):
                     
                     # print(f"MoneyBall: Account Trade Action {instance.get('indicate')}: User: {user_stock_config.account.first_name} {user_stock_config.account.last_name} - {user_stock_config.account.user_id} : {instance.get('product')} : {instance.get('symbol')} : {order_id} : {order_status} : Lots : {user_stock_config.lot}")
 
-                    if order_status == 'Cancelled':
-                        AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
-                        user_stock_config.delete()
-                    elif order_id not in ['0', 0, None]:
+                    # if order_status == 'Cancelled':
+                    #     AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
+                    #     user_stock_config.delete()
+                    if order_id not in ['0', 0, None]:
                         AccountTransaction.objects.create(
                                                 account=user_stock_config.account,
                                                 product=instance.get('product'),

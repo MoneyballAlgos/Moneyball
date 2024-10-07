@@ -1,6 +1,7 @@
 from datetime import timedelta
 from django.contrib import admin
 from helper.common import colour
+from django.utils.html import format_html
 from import_export.admin import ExportActionMixin
 from account.models import AccountKeys, AccountConfiguration, AccountStockConfig, AccountTransaction, Account_Equity_Transaction, Account_FnO_Transaction, Account_Equity_Entry, Account_FnO_Entry
 
@@ -47,6 +48,8 @@ class AccountTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
         return ['-date']
 
     def account_name(self, obj):
+        if obj.order_status == 'Cancelled':
+            return format_html('<strong style="color:Orange;">{}</strong>', f"{obj.account.first_name}")
         return f"{obj.account.first_name}"# {obj.account.last_name[0]}"
     account_name.short_description = 'User'
 
@@ -93,6 +96,8 @@ class AccountEquityTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
         return ['-date']
     
     def account_name(self, obj):
+        if obj.order_status == 'Cancelled':
+            return format_html('<strong style="color:Orange;">{}</strong>', f"{obj.account.first_name}")
         return f"{obj.account.first_name}"# {obj.account.last_name[0]}"
     account_name.short_description = 'User'
 
@@ -140,6 +145,8 @@ class AccountFnOTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
         return ['-date']
     
     def account_name(self, obj):
+        if obj.order_status == 'Cancelled':
+            return format_html('<strong style="color:Orange;">{}</strong>', f"{obj.account.first_name}")
         return f"{obj.account.first_name}"# {obj.account.last_name[0]}"
     account_name.short_description = 'User'
 
