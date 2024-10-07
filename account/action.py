@@ -144,6 +144,8 @@ def AccountEntryAction(sender, instance, created):
                                                         target=instance.target,
                                                         fixed_target=instance.fixed_target,
                                                         stoploss=instance.stoploss,
+                                                        order_id=order_id,
+                                                        order_status=order_status,
                                                         lot=lot)
                                 if instance.product == 'equity':
                                     if instance.mode == 'CE':
