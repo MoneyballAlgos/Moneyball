@@ -25,6 +25,8 @@ def start():
         )
         print('User has been created.')
 
+    AccountConnection()
+
     # Schedules job_function to be run on the Monday to Friday
     sched.add_job(stay_awake, 'cron', day_of_week='mon-fri',
                 second='*/40', timezone='Asia/Kolkata')
