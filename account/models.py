@@ -95,18 +95,18 @@ class AccountTransaction(models.Model):
         return f"{self.id}-{self.account.user_id}-{self.product}-{self.symbol}"
 
 
-class Account_Equity_Status(AccountStockConfig):
+class Account_Equity_Entry(AccountStockConfig):
     class Meta:
         proxy = True
-        verbose_name = "Account Equity Status"
-        verbose_name_plural = "Account Equity Status"
+        verbose_name = "Account Equity Entry"
+        verbose_name_plural = "Account Equity Entries"
 
 
-class Account_FnO_Status(AccountStockConfig):
+class Account_FnO_Entry(AccountStockConfig):
     class Meta:
         proxy = True
-        verbose_name = "Account FnO Status"
-        verbose_name_plural = "Account FnO Status"
+        verbose_name = "Account FnO Entry"
+        verbose_name_plural = "Account FnO Entries"
 
 
 class Account_Equity_Transaction(AccountTransaction):
