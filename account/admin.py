@@ -2,7 +2,7 @@ from datetime import timedelta
 from django.contrib import admin
 from helper.common import colour
 from import_export.admin import ExportActionMixin
-from account.models import AccountKeys, AccountConfiguration, AccountStockConfig, AccountTransaction, Account_Equity_Transaction, Account_FnO_Transaction, Account_Equity_Status, Account_FnO_Status
+from account.models import AccountKeys, AccountConfiguration, AccountStockConfig, AccountTransaction, Account_Equity_Transaction, Account_FnO_Transaction, Account_Equity_Entry, Account_FnO_Entry
 
 
 # Register your models here.
@@ -172,8 +172,8 @@ class AccountFnOTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
     p_l.short_description = 'Profit-%'
 
 
-@admin.register(Account_Equity_Status)
-class AccountEquityStatusAdmin(ExportActionMixin, admin.ModelAdmin):
+@admin.register(Account_Equity_Entry)
+class AccountEquityEntryAdmin(ExportActionMixin, admin.ModelAdmin):
     list_display = ('account_name', 'entry_time', 'symbol', 'name', 'mode', 'lot', 'stoploss_order_placed', 'target_order_placed', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'is_active')
@@ -193,8 +193,8 @@ class AccountEquityStatusAdmin(ExportActionMixin, admin.ModelAdmin):
     entry_time.short_description = 'Time'
 
 
-@admin.register(Account_FnO_Status)
-class AccountFnOStatusAdmin(ExportActionMixin, admin.ModelAdmin):
+@admin.register(Account_FnO_Entry)
+class AccountFnOEntryAdmin(ExportActionMixin, admin.ModelAdmin):
     list_display = ('account_name', 'entry_time', 'symbol', 'name', 'mode', 'lot', 'stoploss_order_placed', 'target_order_placed', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'is_active')
