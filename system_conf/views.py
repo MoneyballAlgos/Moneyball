@@ -1,5 +1,6 @@
 import json
 from django.http import HttpResponse
+from moneyball.settings import sws, open_position
 from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
