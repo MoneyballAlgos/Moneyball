@@ -174,7 +174,7 @@ class AccountFnOTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
 
 @admin.register(Account_Equity_Entry)
 class AccountEquityEntryAdmin(ExportActionMixin, admin.ModelAdmin):
-    list_display = ('account_name', 'entry_time', 'symbol', 'name', 'mode', 'lot', 'stoploss_order_placed', 'target_order_placed', 'is_active')
+    list_display = ('account_name', 'entry_time', 'name', 'mode', 'lot', 'stoploss_order_placed', 'target_order_placed', 'symbol', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'is_active')
 
@@ -195,7 +195,7 @@ class AccountEquityEntryAdmin(ExportActionMixin, admin.ModelAdmin):
 
 @admin.register(Account_FnO_Entry)
 class AccountFnOEntryAdmin(ExportActionMixin, admin.ModelAdmin):
-    list_display = ('account_name', 'entry_time', 'symbol', 'name', 'mode', 'lot', 'stoploss_order_placed', 'target_order_placed', 'is_active')
+    list_display = ('account_name', 'entry_time', 'symbol', 'mode', 'lot', 'stoploss_order_placed', 'target_order_placed', 'name', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'is_active')
 
