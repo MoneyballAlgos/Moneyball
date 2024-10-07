@@ -28,7 +28,7 @@ class FnOStatusAdmin(ExtraButtonsMixin, admin.ModelAdmin):
         if obj.symbol.product == 'future':
             return f"{obj.symbol.name}-{obj.symbol.strike}-{obj.symbol.symbol[-2:]}"
         else:
-            return f"{obj.symbol.symbol}"
+            return f"{obj.symbol.name}"
     name_.short_description = 'Name'
     
     def entry_time(self, obj):
@@ -107,7 +107,7 @@ class EquityStatusAdmin(ExtraButtonsMixin, admin.ModelAdmin):
         if obj.symbol.product == 'future':
             return f"{obj.symbol.name}-{obj.symbol.strike}-{obj.symbol.symbol[-2:]}"
         else:
-            return f"{obj.symbol.symbol}"
+            return f"{obj.symbol.name}"
     name_.short_description = 'Name'
     
     def entry_time(self, obj):
@@ -185,7 +185,7 @@ class FnOTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
 @admin.register(Equity_Transaction)
 class EquityTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
     date_hierarchy = 'date'
-    list_display = ('symbol', 'date', 'indicate', 'type', 'p_l', 'max_p', 'max_l_s', 'top_p', 'price', 'fixed_target', 'stoploss', 'target', 'lot', 'name', 'token', 'exchange', 'mode')
+    list_display = ('name', 'date', 'indicate', 'type', 'p_l', 'max_p', 'max_l_s', 'top_p', 'price', 'fixed_target', 'stoploss', 'target', 'lot', 'symbol', 'token', 'exchange', 'mode')
     search_fields = ['symbol', ]
     list_filter = ('indicate', 'date', 'mode', 'name')
     list_per_page = 20
