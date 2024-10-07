@@ -31,12 +31,12 @@ def AccountExitAction(instance):
 
                     # Place Order
                     if instance.get('product') == 'future':
-                        order_id, order_status = Create_Order(connection, 'sell', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                        order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
                     else:
                         if instance.get('mode') == 'CE':
-                            order_id, order_status = Create_Order(connection, 'sell', 'DELIVERY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                            order_id, order_status = Create_Order(connection, 'SELL', 'DELIVERY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
                         else:
-                            order_id, order_status = Create_Order(connection, 'buy', 'INTRADAY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                            order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
                     
                     print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: User: {user_stock_config.account.first_name} {user_stock_config.account.last_name} - {user_stock_config.account.user_id} : {instance.get('product')} : {instance.get('symbol')} : {order_id} : {order_status} : {user_stock_config.lot}")
 
@@ -99,7 +99,7 @@ def AccountEntryAction(sender, instance, created):
                         if instance.price < user.entry_amount and user.total_open_position > user.active_open_position:
                             lot = instance.lot
                             if instance.product == 'future':
-                                order_id, order_status = Create_Order(connection, 'buy', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.price, lot, "MARKET")
+                                order_id, order_status = Create_Order(connection, 'BUY', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.price, lot, "MARKET")
                             else:
                                 chk_price = instance.price * lot
                                 if chk_price < user.entry_amount:
@@ -110,9 +110,9 @@ def AccountEntryAction(sender, instance, created):
                                             break
                                         lot += instance.lot
                                 if instance.mode == 'CE':
-                                    order_id, order_status = Create_Order(connection, 'buy', 'DELIVERY', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
+                                    order_id, order_status = Create_Order(connection, 'BUY', 'DELIVERY', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
                                 else:
-                                    order_id, order_status = Create_Order(connection, 'sell', 'INTRADAY', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
+                                    order_id, order_status = Create_Order(connection, 'SELL', 'INTRADAY', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
 
                             print(f"MoneyBall: Account Entry Action {instance.indicate}: User: {user.account.first_name} {user.account.last_name} - {user.account.user_id} : {instance.product} : {instance.symbol} : {order_id} : {order_status} : {lot}")
 
