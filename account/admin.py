@@ -14,7 +14,7 @@ class AccountKeyAdmin(ExportActionMixin, admin.ModelAdmin):
 
 
 @admin.register(AccountConfiguration)
-class AccountConfigurationAdmin(ExportActionMixin, admin.ModelAdmin):
+class AccountConfigurationAdmin(admin.ModelAdmin):
     list_display = ('account_name', 'place_order', 'account_balance', 'entry_amount', 'equity_enabled', 'fno_enabled', 'total_open_position', 'active_open_position', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'is_active')
@@ -24,7 +24,7 @@ class AccountConfigurationAdmin(ExportActionMixin, admin.ModelAdmin):
     account_name.short_description = 'User'
 
 @admin.register(AccountStockConfig)
-class AccountStockConfigAdmin(ExportActionMixin, admin.ModelAdmin):
+class AccountStockConfigAdmin(admin.ModelAdmin):
     list_display = ('account_name', 'created_at', 'product', 'symbol', 'name', 'mode', 'lot', 'order_id', 'order_status', 'stoploss_order_placed', 'target_order_placed', 'stoploss_order_id', 'target_order_id', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'is_active')
@@ -173,7 +173,7 @@ class AccountFnOTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
 
 
 @admin.register(Account_Equity_Entry)
-class AccountEquityEntryAdmin(ExportActionMixin, admin.ModelAdmin):
+class AccountEquityEntryAdmin(admin.ModelAdmin):
     list_display = ('account_name', 'entry_time', 'name', 'mode', 'lot', 'stoploss_order_placed', 'target_order_placed', 'symbol', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'is_active')
@@ -194,7 +194,7 @@ class AccountEquityEntryAdmin(ExportActionMixin, admin.ModelAdmin):
 
 
 @admin.register(Account_FnO_Entry)
-class AccountFnOEntryAdmin(ExportActionMixin, admin.ModelAdmin):
+class AccountFnOEntryAdmin(admin.ModelAdmin):
     list_display = ('account_name', 'entry_time', 'symbol', 'mode', 'lot', 'stoploss_order_placed', 'target_order_placed', 'name', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'is_active')

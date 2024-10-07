@@ -6,6 +6,7 @@ from helper.common import colour, colour_indicator
 from admin_extra_buttons.api import ExtraButtonsMixin, button
 from admin_extra_buttons.utils import HttpResponseRedirectToReferrer
 from stock.models import StockConfig, Transaction, FnO_Status, Equity_Status, FnO_Transaction, Equity_Transaction
+from task import AccountConnection, BrokerConnection, Equity_BreakOut_1, FnO_BreakOut_1, MarketDataUpdate, SquareOff, SymbolSetup
 
 
 # Register your models here.
@@ -226,12 +227,69 @@ class EquityTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
 
 
 @admin.register(StockConfig)
-class StockConfigAdmin(admin.ModelAdmin):
+class StockConfigAdmin(ExtraButtonsMixin, admin.ModelAdmin):
     list_display = ('created_at', 'mode', 'symbol__name', 'ltp', 'tr_hit', 'trailing_sl', 'max', 'max_l', 'price', 'target', 'stoploss', 'fixed_target', 'highest_price', 'symbol__symbol', 'lot', 'is_active')
     search_fields = ['symbol', ]
 
     def get_ordering(self, request):
         return ['-created_at']
+
+    @button(change_form=True,
+            html_attrs={'style': 'background-color:#F1502F;color:black'})
+    def Symbol_Setup(self, request):
+        self.message_user(request, 'Symbol Setup called')
+        SymbolSetup()
+        self.message_user(request, 'Symbol Setup Done')
+        return HttpResponseRedirectToReferrer(request)
+
+    @button(change_form=True,
+            html_attrs={'style': 'background-color:#F1502F;color:black'})
+    def Market_Data_Update(self, request):
+        self.message_user(request, 'Market data Update called')
+        MarketDataUpdate()
+        self.message_user(request, 'Market data Update Done')
+        return HttpResponseRedirectToReferrer(request)
+    
+    @button(change_form=True,
+            html_attrs={'style': 'background-color:#F1502F;color:black'})
+    def Equity_BreakOut_1(self, request):
+        self.message_user(request, 'Equity BreakOut 1 called')
+        Equity_BreakOut_1(auto_trigger=False)
+        self.message_user(request, 'Equity BreakOut 1 Done')
+        return HttpResponseRedirectToReferrer(request)
+    
+    @button(change_form=True,
+            html_attrs={'style': 'background-color:#F1502F;color:black'})
+    def FnO_BreakOut_1(self, request):
+        self.message_user(request, 'FnO BreakOut 1 called')
+        FnO_BreakOut_1(auto_trigger=False)
+        self.message_user(request, 'FnO BreakOut 1 Done')
+        return HttpResponseRedirectToReferrer(request)
+    
+    @button(change_form=True,
+            html_attrs={'style': 'background-color:#F1502F;color:black'})
+    def Connect(self, request):
+        self.message_user(request, 'Connect called')
+        BrokerConnection()
+        self.message_user(request, 'Connect Done')
+        return HttpResponseRedirectToReferrer(request)
+    
+    @button(change_form=True,
+            html_attrs={'style': 'background-color:#F1502F;color:black'})
+    def SquareOff(self, request):
+        self.message_user(request, 'Square Off called')
+        SquareOff()
+        self.message_user(request, 'Square Off Done')
+        return HttpResponseRedirectToReferrer(request)
+    
+    @button(change_form=True,
+            html_attrs={'style': 'background-color:#F1502F;color:black'})
+    def AccountsConnection(self, request):
+        self.message_user(request, 'Accounts Connection called')
+        AccountConnection()
+        self.message_user(request, 'Accounts Connection Done')
+        return HttpResponseRedirectToReferrer(request)
+
 
 
 @admin.register(Transaction)
