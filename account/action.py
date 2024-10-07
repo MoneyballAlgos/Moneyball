@@ -60,6 +60,9 @@ def AccountExitAction(instance):
                                                 order_status=order_status,
                                                 lot=user_stock_config.lot)
                         user_stock_config.delete()
+                        user_config = AccountConfiguration.objects.get(account=user_stock_config.account, is_active=True)
+                        user_config.active_open_position -= 1
+                        user_config.save()
                 
                 except Exception as e:
                     print(f"MoneyBall: Account Exit Action {instance.get('indicate')}: User Loop Error: {e}")
@@ -136,6 +139,8 @@ def AccountEntryAction(sender, instance, created):
                                                         fixed_target=instance.fixed_target,
                                                         stoploss=instance.stoploss,
                                                         lot=lot)
+                                user.active_open_position += 1
+                                user.save()
                         else:
                             print(f"MoneyBall: Account Entry Action {instance.indicate}: User may have Max Active Open posotion : Total - {user.total_open_position}, Active - {user.active_open_position}")
                             print(f"MoneyBall: Account Entry Action {instance.indicate}: User may not have enough money to by a single share : 1 Share Price {instance.price}, - User Entry Amount {user.entry_amount}")
