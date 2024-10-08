@@ -2,9 +2,9 @@ from time import sleep
 from django.db import transaction
 from stock.models import Transaction
 from django.dispatch import receiver
-from helper.angel_order import Cancel_Order, Create_Order, Is_Order_Completed
 from django.db.models.signals import post_save
 from moneyball.settings import account_connections
+from helper.angel_order import Cancel_Order, Create_Order, Is_Order_Completed
 from account.models import AccountConfiguration, AccountStockConfig, AccountTransaction
 
 
@@ -31,30 +31,46 @@ def AccountExitAction(instance):
 
                     # Place Order
                     if instance.get('product') == 'future':
-                        if Is_Order_Completed(connection, user_stock_config.order_id):
-                            order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                        if user_stock_config.order_placed or Is_Order_Completed(connection, user_stock_config.order_id):
+                            if instance.type == 'STOPLOSS' and not user_stock_config.stoploss_order_placed:
+                                order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                            elif instance.type == 'TARGET' and not user_stock_config.target_order_placed:
+                                order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                            else:
+                                if user_stock_config.stoploss_order_placed:
+                                    _, _ = Cancel_Order(connection, user_stock_config.stoploss_order_id)
+                                if user_stock_config.target_order_placed:
+                                    _, _ = Cancel_Order(connection, user_stock_config.target_order_id)
+                                order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
                         else:
                             order_id, order_status = Cancel_Order(connection, user_stock_config.order_id)
                     else:
                         if instance.get('mode') == 'CE':
                             order_id, order_status = Create_Order(connection, 'SELL', 'DELIVERY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
                         else:
-                            if Is_Order_Completed(connection, user_stock_config.order_id):
-                                order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                            if user_stock_config.order_placed or Is_Order_Completed(connection, user_stock_config.order_id):
+                                if instance.type == 'STOPLOSS' and not user_stock_config.stoploss_order_placed:
+                                    order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                                elif instance.type == 'TARGET' and not user_stock_config.target_order_placed:
+                                    order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                                else:
+                                    if user_stock_config.stoploss_order_placed:
+                                        _, _ = Cancel_Order(connection, user_stock_config.stoploss_order_id)
+                                    if user_stock_config.target_order_placed:
+                                        _, _ = Cancel_Order(connection, user_stock_config.target_order_id)
+                                    order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
                             else:
                                 order_id, order_status = Cancel_Order(connection, user_stock_config.order_id)
                     
                     # print(f"MoneyBall: Account Trade Action {instance.get('indicate')}: User: {user_stock_config.account.first_name} {user_stock_config.account.last_name} - {user_stock_config.account.user_id} : {instance.get('product')} : {instance.get('symbol')} : {order_id} : {order_status} : Lots : {user_stock_config.lot}")
 
-                    # if order_status == 'Cancelled':
-                    #     AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
-                    #     user_stock_config.delete()
                     if order_id not in ['0', 0, None]:
                         AccountTransaction.objects.create(
                                                 account=user_stock_config.account,
                                                 product=instance.get('product'),
                                                 symbol=instance.get('symbol'),
                                                 name=instance.get('name'),
+                                                token=instance.get('token'),
                                                 exchange=instance.get('exchange'),
                                                 mode=instance.get('mode'),
                                                 indicate=instance.get('indicate'),
@@ -148,6 +164,7 @@ def AccountTradeAction(sender, instance, created):
                                                         product=instance.product,
                                                         symbol=instance.symbol,
                                                         name=instance.name,
+                                                        token=instance.token,
                                                         exchange=instance.exchange,
                                                         mode=instance.mode,
                                                         indicate=instance.indicate,
@@ -199,8 +216,90 @@ def AccountTradeAction(sender, instance, created):
     return True
 
 
+def AccountPlaceTargetStoplossOrder(sender, instance, created):
+    try:
+        sleep(3)
+        global account_connections
+        print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} {instance.indicate} : {instance.product} : {instance.symbol}")
+        if instance.indicate == 'ENTRY':
+            if instance.product == 'future':
+                user_stock_config = AccountStockConfig.objects.get(
+                                                        account=instance.account,
+                                                        product=instance.product,
+                                                        symbol=instance.symbol,
+                                                        name=instance.name,
+                                                        mode=instance.mode,
+                                                        is_active=True)
+                
+                # get user connection
+                connection = account_connections[instance.account.user_id]
+
+                if user_stock_config.order_placed or Is_Order_Completed(connection, user_stock_config.order_id):
+                    user_stock_config.order_placed = True
+                    user_stock_config.save()
+
+                    # Place Stoploass Order
+                    if not user_stock_config.stoploss_order_placed:
+                        order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.stoploss, instance.lot, "LIMIT")
+
+                        if order_id in ['0', 0, None]:
+                            print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Retry Because Order Placement failed")
+                            AccountPlaceTargetStoplossOrder(sender, instance, created)
+
+                        print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Successfully Placed Stoploss Order")
+                        user_stock_config.stoploss_order_id = order_id
+                        user_stock_config.stoploss_order_placed = True
+                        user_stock_config.save()
+
+                    else:
+                        print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} -  Stoploss Order is Already Placed")
+                    
+
+                    # # Place Target Order
+                    # if not user_stock_config.target_order_placed:
+                    #     order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.fixed_target, instance.lot, "LIMIT")
+
+                    #     if order_id in ['0', 0, None]:
+                    #         print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Retry Because Order Placement failed")
+                    #         AccountPlaceTargetStoplossOrder(sender, instance, created)
+
+                    #     print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Successfully Placed Target Order")
+                    #     user_stock_config.target_order_id = order_id
+                    #     user_stock_config.target_order_placed = True
+                    #     user_stock_config.save()
+
+                    # else:
+                    #     print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} -  Target Order is Already Placed")
+
+                else:
+                    data = connection.individual_order_details(user_stock_config.order_id)
+                    if data['data']['orderstatus'] in ['open', 'pending']:
+                        print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Buy Order is not completed. Retry in 5 Sec")
+                        sleep(5)
+                        AccountPlaceTargetStoplossOrder(sender, instance, created)
+                    else:
+                        print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Order {data['data']['orderstatus']} - {data['data']['text']}")
+            elif instance.product == 'equity':
+                # To Do..
+                pass
+            else:
+                print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Invalid product {instance.product}")
+        else:
+            print(f"MoneyBall: Account Place Target Stoploss Order: Not allowed on account transaction indicator : {instance.indicate}")
+    except Exception as e:
+        print(f"MoneyBall: Account Place Target Stoploss Order: Error Trade Func: {e}")
+    return True
+
+
 @receiver(post_save, sender=Transaction)
 def OnAlgoTransaction(sender, instance, created, **kwargs):
+  if created:
+    sleep(1)
+    transaction.on_commit(lambda: AccountTradeAction(sender, instance, created))
+
+
+@receiver(post_save, sender=AccountTransaction)
+def OnAccountTransaction(sender, instance, created, **kwargs):
   if created:
     sleep(1)
     transaction.on_commit(lambda: AccountTradeAction(sender, instance, created))

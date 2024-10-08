@@ -26,7 +26,7 @@ class AccountConfigurationAdmin(admin.ModelAdmin):
 
 @admin.register(AccountStockConfig)
 class AccountStockConfigAdmin(admin.ModelAdmin):
-    list_display = ('account_name', 'created_at', 'product', 'symbol', 'name', 'mode', 'lot', 'order_id', 'order_status', 'stoploss_order_placed', 'target_order_placed', 'stoploss_order_id', 'target_order_id', 'is_active')
+    list_display = ('account_name', 'created_at', 'product', 'symbol', 'name', 'mode', 'lot', 'order_id', 'order_placed', 'stoploss_order_placed', 'target_order_placed', 'stoploss_order_id', 'target_order_id', 'order_status', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'is_active')
 
@@ -181,7 +181,7 @@ class AccountFnOTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
 
 @admin.register(Account_Equity_Entry)
 class AccountEquityEntryAdmin(admin.ModelAdmin):
-    list_display = ('account_name', 'entry_time', 'name', 'mode', 'lot', 'stoploss_order_placed', 'target_order_placed', 'symbol', 'is_active')
+    list_display = ('account_name', 'entry_time', 'name', 'mode', 'lot', 'order_placed', 'stoploss_order_placed', 'target_order_placed', 'symbol', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'is_active')
 
@@ -202,7 +202,7 @@ class AccountEquityEntryAdmin(admin.ModelAdmin):
 
 @admin.register(Account_FnO_Entry)
 class AccountFnOEntryAdmin(admin.ModelAdmin):
-    list_display = ('account_name', 'entry_time', 'symbol', 'mode', 'lot', 'stoploss_order_placed', 'target_order_placed', 'name', 'is_active')
+    list_display = ('account_name', 'entry_time', 'symbol', 'mode', 'lot', 'order_placed', 'stoploss_order_placed', 'target_order_placed', 'name', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'is_active')
 
