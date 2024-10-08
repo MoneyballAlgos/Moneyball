@@ -24,6 +24,7 @@ setuptools==75.1.0
 six==1.16.0
 smartapi-python==1.5.1
 sqlparse==0.5.1
+ta==0.11.0
 tablib==3.5.0
 typing_extensions==4.12.2
 tzdata==2024.2
