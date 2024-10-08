@@ -295,7 +295,8 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
 
                 # Update the status if rejected or retry in 5 sec if status is open.pending
                 else:
-                    data = connection.individual_order_details(user_stock_config.order_id)
+                    unique_order_id = user_stock_config.order_id.split('@')[0]
+                    data = connection.individual_order_details(unique_order_id)
                     if data['data']['orderstatus'] in ['open', 'pending']:
                         print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Buy Order is not completed. Retry in 5 Sec")
                         sleep(5)
@@ -324,7 +325,8 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
                     
                     # Update the status if rejected
                     else:
-                        data = connection.individual_order_details(user_stock_config.order_id)
+                        unique_order_id = user_stock_config.order_id.split('@')[0]
+                        data = connection.individual_order_details(unique_order_id)
                         print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Order {data['data']['orderstatus']} - {data['data']['text']}")
                         user_stock_config.order_status = data['data']['text']
                         user_stock_config.save()
@@ -370,7 +372,8 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
 
                     # Update the status if rejected or retry in 5 sec if status is open.pending
                     else:
-                        data = connection.individual_order_details(user_stock_config.order_id)
+                        unique_order_id = user_stock_config.order_id.split('@')[0]
+                        data = connection.individual_order_details(unique_order_id)
                         if data['data']['orderstatus'] in ['open', 'pending']:
                             print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Buy Order is not completed. Retry in 5 Sec")
                             sleep(5)
