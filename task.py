@@ -29,9 +29,8 @@ def BrokerConnection():
         except Exception as e:
             print(f'MoneyBall: Broker Connection: Trying to Terminate Session Error: {e}')
         
-        connection = SmartConnect(api_key=BROKER_API_KEY)
-        connection.generateSession(BROKER_USER_ID, BROKER_PIN, totp=pyotp.TOTP(BROKER_TOTP_KEY).now())
-        broker_connection = connection
+        broker_connection = SmartConnect(api_key=BROKER_API_KEY)
+        broker_connection.generateSession(BROKER_USER_ID, BROKER_PIN, totp=pyotp.TOTP(BROKER_TOTP_KEY).now())
     except Exception as e:
         print(f'MoneyBall: Broker Connection: Error: {e}')
     print(f'MoneyBall: Broker Connection: Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
