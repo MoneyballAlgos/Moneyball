@@ -2,6 +2,7 @@ import pyotp
 import requests
 from time import sleep
 from zoneinfo import ZoneInfo
+from helper.indicator import BB
 from SmartApi import SmartConnect
 from datetime import datetime, time, timedelta
 from helper.angel_function import historical_data
@@ -10,7 +11,7 @@ from system_conf.models import Configuration, Symbol
 from account.models import AccountConfiguration, AccountKeys
 from helper.common import calculate_volatility, last_thursday
 from helper.trade_action import Price_Action_Trade, Stock_Square_Off
-from moneyball.settings import BED_URL_DOMAIN, BROKER_API_KEY, BROKER_PIN, BROKER_TOTP_KEY, BROKER_USER_ID, SOCKET_STREAM_URL_DOMAIN, broker_connection, account_connections
+from moneyball.settings import BED_URL_DOMAIN, BROKER_API_KEY, BROKER_PIN, BROKER_TOTP_KEY, BROKER_USER_ID, SOCKET_STREAM_URL_DOMAIN, broker_connection, account_connections, entry_holder
 
 
 def stay_awake():
@@ -305,10 +306,10 @@ def Equity_BreakOut_1(auto_trigger=True):
                         if not stock_config_obj.tr_hit and (stock_config_obj.stoploss < trsl_ce):
                             stock_config_obj.tr_hit = True
                             stock_config_obj.trailing_sl = trsl_ce
-                            print(f'MoneyBall: {log_identifier}: {stock_config_obj.mode} : Stoploss --> Trailing SL : {symbol_obj.symbol}')
+                            print(f'MoneyBall: {log_identifier}: {index+1}: {stock_config_obj.mode} : Stoploss --> Trailing SL : {symbol_obj.symbol}')
                         elif stock_config_obj.tr_hit and (stock_config_obj.trailing_sl < trsl_ce):
                             stock_config_obj.trailing_sl = trsl_ce
-                            print(f'MoneyBall: {log_identifier}: {stock_config_obj.mode} : Old Trailing SL --> New Trailing SL : {symbol_obj.symbol}')
+                            print(f'MoneyBall: {log_identifier}: {index+1}: {stock_config_obj.mode} : Old Trailing SL --> New Trailing SL : {symbol_obj.symbol}')
                     stock_config_obj.save()
                 del mode, entries_list
 
@@ -343,7 +344,12 @@ def FnO_BreakOut_1(auto_trigger=True):
 
         symbol_list = Symbol.objects.filter(product='equity', fno=True, is_active=True).exclude(name__in=exclude_symbols_names).order_by('-volume')
 
-        print(f'MoneyBall: {log_identifier}: Total FnO Symbol Picked: {len(symbol_list)}')
+        global broker_connection, entry_holder
+        if not entry_holder.get(log_identifier):
+            entry_holder[log_identifier] = {'Initiated': True}
+            print(f'MoneyBall: {log_identifier}: Entry Holder Initiated: {entry_holder.get(log_identifier)}')
+
+        print(f'MoneyBall: {log_identifier}: Total FnO Symbol Picked: {len(symbol_list)} : Entry on hold: {entry_holder[log_identifier]}')
 
         new_entry = []
         for index, symbol_obj in enumerate(symbol_list):
@@ -355,40 +361,94 @@ def FnO_BreakOut_1(auto_trigger=True):
                 entries_list = StockConfig.objects.filter(symbol__product=product, symbol__name=symbol_obj.name, is_active=True)
                 if not entries_list:
                     if nop < configuration_obj.open_position:
-                        from_day = now - timedelta(days=60)
-                        data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
-                        sleep(0.3)
+                        mode = None
 
-                        open = data_frame['Open'].iloc[-1]
-                        high = data_frame['High'].iloc[-1]
-                        low = data_frame['Low'].iloc[-1]
-                        close = data_frame['Close'].iloc[-1]
-                        max_high = max(data_frame['High'].iloc[-30:-1])
-                        min_low = min(data_frame['Low'].iloc[-30:-1])
-                        daily_volatility = calculate_volatility(data_frame)
+                        # Check Hold Entries
+                        entry_idenfitier = entry_holder.get(log_identifier).get(symbol_obj.name)
+                        if entry_idenfitier:
+                            print(f'MoneyBall: {log_identifier}: {index+1}: Cheking for the hold entry: {entry_idenfitier}')
+                            from_day = now - timedelta(days=7)
+                            data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
+                            sleep(0.3)
 
-                        if (max_high < close):
-                            mode = 'CE'
-                            stock_future_symbol = Symbol.objects.filter(
-                                                        product='future',
-                                                        name=symbol_obj.name,
-                                                        symbol__endswith='CE',
-                                                        strike__gt=close,
-                                                        fno=True,
-                                                        is_active=True).order_by('strike')
+                            open = data_frame['Open'].iloc[-1]
+                            high = data_frame['High'].iloc[-1]
+                            low = data_frame['Low'].iloc[-1]
+                            close = data_frame['Close'].iloc[-1]
+                            bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
 
-                        elif (min_low > close):
-                            mode = 'PE'
-                            stock_future_symbol = Symbol.objects.filter(
-                                                        product='future',
-                                                        name=symbol_obj.name,
-                                                        symbol__endswith='PE',
-                                                        strike__lt=close,
-                                                        fno=True,
-                                                        is_active=True).order_by('-strike')
+                            if entry_idenfitier == 'CE' and close < bb['hband'].iloc[-1]:
+                                del entry_holder[log_identifier][symbol_obj.name]
+                                mode = 'CE'
+                                stock_future_symbol = Symbol.objects.filter(
+                                                            product='future',
+                                                            name=symbol_obj.name,
+                                                            symbol__endswith='CE',
+                                                            strike__gt=close,
+                                                            fno=True,
+                                                            is_active=True).order_by('strike')
+                                
 
+                            elif entry_idenfitier == 'PE' and close > bb['lband'].iloc[-1]:
+                                del entry_holder[log_identifier][symbol_obj.name]
+                                mode = 'PE'
+                                stock_future_symbol = Symbol.objects.filter(
+                                                            product='future',
+                                                            name=symbol_obj.name,
+                                                            symbol__endswith='PE',
+                                                            strike__lt=close,
+                                                            fno=True,
+                                                            is_active=True).order_by('-strike')
+
+                        # Check For New Entries
                         else:
-                            mode = None
+                            from_day = now - timedelta(days=60)
+                            data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
+                            sleep(0.3)
+
+                            open = data_frame['Open'].iloc[-1]
+                            high = data_frame['High'].iloc[-1]
+                            low = data_frame['Low'].iloc[-1]
+                            close = data_frame['Close'].iloc[-1]
+                            max_high = max(data_frame['High'].iloc[-30:-1])
+                            min_low = min(data_frame['Low'].iloc[-30:-1])
+                            daily_volatility = calculate_volatility(data_frame)
+
+                            if (max_high < close):
+                                from_day = now - timedelta(days=7)
+                                data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
+                                sleep(0.3)
+
+                                bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
+                                if  data_frame['Close'].iloc[-1] < bb['hband'].iloc[-1]:
+                                    mode = 'CE'
+                                    stock_future_symbol = Symbol.objects.filter(
+                                                                product='future',
+                                                                name=symbol_obj.name,
+                                                                symbol__endswith='CE',
+                                                                strike__gt=close,
+                                                                fno=True,
+                                                                is_active=True).order_by('strike')
+                                else:
+                                    entry_holder[log_identifier][symbol_obj.name] = 'CE'
+
+                            elif (min_low > close):
+                                from_day = now - timedelta(days=7)
+                                data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
+                                sleep(0.3)
+
+                                bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
+                                if data_frame['Close'].iloc[-1] > bb['lband'].iloc[-1]:
+                                    mode = 'PE'
+                                    stock_future_symbol = Symbol.objects.filter(
+                                                                product='future',
+                                                                name=symbol_obj.name,
+                                                                symbol__endswith='PE',
+                                                                strike__lt=close,
+                                                                fno=True,
+                                                                is_active=True).order_by('-strike')
+                                else:
+                                    entry_holder[log_identifier][symbol_obj.name] = 'PE'
 
                         if mode not in [None]:
                             data = {
@@ -401,7 +461,6 @@ def FnO_BreakOut_1(auto_trigger=True):
                                 'fixed_target': configuration_obj.fixed_target,
                             }
 
-                            global broker_connection
                             for fut_sym_obj in stock_future_symbol:
                                 ltp = broker_connection.ltpData(fut_sym_obj.exchange, fut_sym_obj.symbol, fut_sym_obj.token)['data']['ltp']
                                 lot = fut_sym_obj.lot
@@ -429,7 +488,7 @@ def FnO_BreakOut_1(auto_trigger=True):
                 StockConfig.objects.filter(symbol__product=product, symbol__name=symbol_obj.name, is_active=False).delete()
                 print(f'MoneyBall: {log_identifier}: Error: in FnO-Symbol: {symbol_obj.name} : {e}')
         del symbol_list
-        print(f'MoneyBall: {log_identifier}: Total New Entry {len(new_entry)} : New Entries: {new_entry}')
+        print(f'MoneyBall: {log_identifier}: Total New Entry {len(new_entry)} : New Entries: {new_entry} : Entry on hold: {entry_holder[log_identifier]}')
 
     except Exception as e:
         print(f'MoneyBall: {log_identifier}: ERROR: Main: {e}')
