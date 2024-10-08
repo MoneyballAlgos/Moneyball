@@ -25,8 +25,8 @@ def MarketDataUpdate():
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
     try:
         print(f'MoneyBall: Market data Update: Started : Runtime : {now.strftime("%d-%b-%Y %H:%M:%S")}')
-        if now.time().minute in [0, 10, 20, 30, 40, 50]:
-            sleep(5)
+        if now.time().minute in list(range(0, 60, 5)):
+            sleep(10)
         nse_tokens = list(Symbol.objects.filter(exchange='NSE', is_active=True).values_list('token', flat=True))
         token_list = [nse_tokens[x:x+50] for x in range(0, len(nse_tokens), 50)]
         global broker_connection
@@ -36,7 +36,7 @@ def MarketDataUpdate():
                 if data.get('data'):
                     fetched = data.get('data')['fetched']
                     for i in fetched:
-                        if now.time() > time(9, 7, 00) and now.time() < time(9, 13, 00):
+                        if now.time() > time(8, 00, 00) and now.time() < time(9, 13, 00):
                             Symbol.objects.filter(token=i['symbolToken'],
                                                     is_active=True).update(
                                                         volume=i['tradeVolume'],
@@ -225,9 +225,8 @@ def BrokerConnection():
         except Exception as e:
             print(f'MoneyBall: Broker Connection: Trying to Terminate Session Error: {e}')
         
-        connection = SmartConnect(api_key=BROKER_API_KEY)
-        connection.generateSession(BROKER_USER_ID, BROKER_PIN, totp=pyotp.TOTP(BROKER_TOTP_KEY).now())
-        broker_connection = connection
+        broker_connection = SmartConnect(api_key=BROKER_API_KEY)
+        broker_connection.generateSession(BROKER_USER_ID, BROKER_PIN, totp=pyotp.TOTP(BROKER_TOTP_KEY).now())
     except Exception as e:
         print(f'MoneyBall: Broker Connection: Error: {e}')
     print(f'MoneyBall: Broker Connection: Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
@@ -264,7 +263,7 @@ def Equity_BreakOut_1(auto_trigger=True):
                 if not entries_list:
                     from_day = now - timedelta(days=365)
                     data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY')
-                    sleep(0.4)
+                    sleep(0.3)
 
                     open = data_frame['Open'].iloc[-1]
                     high = data_frame['High'].iloc[-1]
@@ -298,7 +297,7 @@ def Equity_BreakOut_1(auto_trigger=True):
                     stock_config_obj = entries_list[0]
                     from_day = now - timedelta(days=100)
                     data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY')
-                    sleep(0.4)
+                    sleep(0.3)
 
                     trsl_ce = min(data_frame['Low'].iloc[-50:-1])
 
@@ -358,7 +357,7 @@ def FnO_BreakOut_1(auto_trigger=True):
                     if nop < configuration_obj.open_position:
                         from_day = now - timedelta(days=60)
                         data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY')
-                        sleep(0.4)
+                        sleep(0.3)
 
                         open = data_frame['Open'].iloc[-1]
                         high = data_frame['High'].iloc[-1]

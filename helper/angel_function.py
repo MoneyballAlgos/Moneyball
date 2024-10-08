@@ -1,7 +1,7 @@
 import pytz
 import pandas as pd
 from datetime import datetime
-from moneyball.settings import broker_connection, account_connections
+from moneyball.settings import broker_connection
 
 def historical_data(token, exchange, now, from_day, interval):
     historicParam = {
@@ -12,15 +12,7 @@ def historical_data(token, exchange, now, from_day, interval):
         "todate": now.strftime("%Y-%m-%d %H:%M")
     }
     global broker_connection
-    connection = None
-    if account_connections:
-        if exchange == 'NSE':
-            connection = account_connections.get('P567723')
-        if exchange == 'NFO':
-            connection = account_connections.get('H188598')
-    if connection is None:
-        connection = broker_connection
-    data = pd.DataFrame(connection.getCandleData(historicParam)['data'])
+    data = pd.DataFrame(broker_connection.getCandleData(historicParam)['data'])
     data.rename(columns={
         0: 'date', 1: 'Open', 2: 'High', 3: 'Low', 4: 'Close', 5: 'Volume'}, inplace=True)
     data.index.names = ['date']
