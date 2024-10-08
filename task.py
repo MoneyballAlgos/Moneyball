@@ -439,20 +439,22 @@ def FnO_BreakOut_1(auto_trigger=True):
 
 def SquareOff():
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
-    product = 'future'
-    print(f'MoneyBall: SQUARE OFF: Runtime : {product} : {now.strftime("%d-%b-%Y %H:%M:%S")}')
-
+    print(f'MoneyBall: SQUARE OFF: Runtime : {now.strftime("%d-%b-%Y %H:%M:%S")}')
     try:
-        configuration_obj = Configuration.objects.filter(product=product)[0]
+        future_configuration_obj = Configuration.objects.filter(product='future')[0]
+        equity_configuration_obj = Configuration.objects.filter(product='equity')[0]
 
-        entries_list = StockConfig.objects.filter(symbol__product=product, is_active=True)
+        future_entries_list = StockConfig.objects.filter(symbol__product='future', is_active=True)
+        equity_intraday_entries_list = StockConfig.objects.filter(symbol__product='equity', mode='PE', is_active=True)
+
+        entries_list = future_entries_list + equity_intraday_entries_list
 
         print(f'MoneyBall: SQUARE OFF: Loop Started: Total Entries {len(entries_list)}')
         if entries_list:
             for stock_obj in entries_list:
                 try:
                     data = {
-                        'configuration_obj': configuration_obj,
+                        'configuration_obj': future_configuration_obj if stock_obj.symbol.product == 'future' else equity_configuration_obj,
                         'stock_obj': stock_obj
                     }
                     Stock_Square_Off(data, stock_obj.ltp)
