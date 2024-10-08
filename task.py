@@ -262,7 +262,7 @@ def Equity_BreakOut_1(auto_trigger=True):
                 entries_list = StockConfig.objects.filter(symbol__product=product, symbol__name=symbol_obj.name, is_active=True)
                 if not entries_list:
                     from_day = now - timedelta(days=365)
-                    data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY')
+                    data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
                     sleep(0.3)
 
                     open = data_frame['Open'].iloc[-1]
@@ -296,7 +296,7 @@ def Equity_BreakOut_1(auto_trigger=True):
                 else:
                     stock_config_obj = entries_list[0]
                     from_day = now - timedelta(days=100)
-                    data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY')
+                    data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
                     sleep(0.3)
 
                     trsl_ce = min(data_frame['Low'].iloc[-50:-1])
@@ -356,7 +356,7 @@ def FnO_BreakOut_1(auto_trigger=True):
                 if not entries_list:
                     if nop < configuration_obj.open_position:
                         from_day = now - timedelta(days=60)
-                        data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY')
+                        data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
                         sleep(0.3)
 
                         open = data_frame['Open'].iloc[-1]
