@@ -40,7 +40,7 @@ def AccountExitAction(instance):
                             elif instance.type == 'TARGET':
                                 if not user_stock_config.target_order_placed:
                                     order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
-                            elif instance.type == 'TR-SL':
+                            elif instance.type in ['TR-SL', 'SQ-OFF']:
                                 if user_stock_config.stoploss_order_placed:
                                     _, _ = Cancel_Order(connection, user_stock_config.stoploss_order_id)
                                 if user_stock_config.target_order_placed:
@@ -64,7 +64,7 @@ def AccountExitAction(instance):
                                 elif instance.type == 'TARGET':
                                     if not user_stock_config.target_order_placed:
                                         order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
-                                elif instance.type == 'TR-SL':
+                                elif instance.type in ['TR-SL', 'SQ-OFF']:
                                     if user_stock_config.stoploss_order_placed:
                                         _, _ = Cancel_Order(connection, user_stock_config.stoploss_order_id)
                                     if user_stock_config.target_order_placed:
