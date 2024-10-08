@@ -447,7 +447,7 @@ def SquareOff():
         future_entries_list = StockConfig.objects.filter(symbol__product='future', is_active=True)
         equity_intraday_entries_list = StockConfig.objects.filter(symbol__product='equity', mode='PE', is_active=True)
 
-        entries_list = future_entries_list + equity_intraday_entries_list
+        entries_list = list(future_entries_list) + list(equity_intraday_entries_list)
 
         print(f'MoneyBall: SQUARE OFF: Loop Started: Total Entries {len(entries_list)}')
         if entries_list:
