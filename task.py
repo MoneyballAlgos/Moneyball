@@ -235,7 +235,6 @@ def BrokerConnection():
 
 
 def Equity_BreakOut_1(auto_trigger=True):
-    sleep(0.7)
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
     product = 'equity'
     log_identifier = 'Equity_BreakOut_1'
@@ -265,7 +264,7 @@ def Equity_BreakOut_1(auto_trigger=True):
                 if not entries_list:
                     from_day = now - timedelta(days=365)
                     data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY')
-                    sleep(0.3)
+                    sleep(0.4)
 
                     open = data_frame['Open'].iloc[-1]
                     high = data_frame['High'].iloc[-1]
@@ -299,7 +298,7 @@ def Equity_BreakOut_1(auto_trigger=True):
                     stock_config_obj = entries_list[0]
                     from_day = now - timedelta(days=100)
                     data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY')
-                    sleep(0.3)
+                    sleep(0.4)
 
                     trsl_ce = min(data_frame['Low'].iloc[-50:-1])
 
@@ -359,7 +358,7 @@ def FnO_BreakOut_1(auto_trigger=True):
                     if nop < configuration_obj.open_position:
                         from_day = now - timedelta(days=60)
                         data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY')
-                        sleep(0.3)
+                        sleep(0.4)
 
                         open = data_frame['Open'].iloc[-1]
                         high = data_frame['High'].iloc[-1]
