@@ -235,6 +235,7 @@ def BrokerConnection():
 
 
 def Equity_BreakOut_1(auto_trigger=True):
+    sleep(0.7)
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
     product = 'equity'
     log_identifier = 'Equity_BreakOut_1'
