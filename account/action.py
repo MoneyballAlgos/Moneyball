@@ -400,4 +400,4 @@ def OnAlgoTransaction(sender, instance, created, **kwargs):
 def OnAccountTransaction(sender, instance, created, **kwargs):
   if created:
     sleep(1)
-    transaction.on_commit(lambda: AccountTradeAction(sender, instance, created))
+    transaction.on_commit(lambda: AccountPlaceTargetStoplossOrder(sender, instance, created))
