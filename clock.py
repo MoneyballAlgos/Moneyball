@@ -9,7 +9,7 @@ def start():
     socket_setup(log_identifier='Restart')
 
     # Schedules job_function to be run on the Monday to Friday
-    sched.add_job(stay_awake, 'cron', day_of_week='mon-fri',
+    sched.add_job(stay_awake, 'cron',
                 second='*/40', timezone='Asia/Kolkata')
     sched.add_job(BrokerConnection, 'cron', day_of_week='mon-fri',
                 hour='9', minute='3', timezone='Asia/Kolkata')
