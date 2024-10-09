@@ -152,9 +152,9 @@ BROKER_USER_ID = os.getenv("BROKER_USER_ID", 'User-Id Required')
 BROKER_API_KEY = os.getenv("BROKER_API_KEY", 'Api Key Required')
 BROKER_TOTP_KEY = os.getenv("BROKER_TOTP_KEY", 'TOTP Key required')
 
-SMTP_SENDER_NAME = os.getenv("SMTP_SENDER_NAME", 'SMTP Sender name required')
-SMTP_SENDER_EMAIL = os.getenv("SMTP_SENDER_EMAIL", 'SMTP Sender email required')
-SMTP_SENDER_PASSWORD = os.getenv("SMTP_SENDER_PASSWORD", 'SMTP Sender password required')
+SENGDRID_FROM_EMAIL = 'hapbrothers@gmail.com'
+SENGDRID_FROM_NAME = 'MoneyBall.ai'
+SENDGRID_API_KEY = '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'
 
 
 # Global Variable
