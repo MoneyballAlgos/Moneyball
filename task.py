@@ -37,7 +37,7 @@ def MarketDataUpdate():
                 if data.get('data'):
                     fetched = data.get('data')['fetched']
                     for i in fetched:
-                        if now.time() > time(8, 00, 00) and now.time() < time(9, 13, 00):
+                        if now.time() > time(8, 00, 00) and now.time() < time(9, 14, 00):
                             Symbol.objects.filter(token=i['symbolToken'],
                                                     is_active=True).update(
                                                         volume=i['tradeVolume'],
