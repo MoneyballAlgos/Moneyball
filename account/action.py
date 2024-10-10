@@ -366,9 +366,10 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
 
                         AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
                         user_stock_config.delete()
-                        StockConfig.objects.filter(symbol=instance.symbol, price=instance.price).delete()
-                        Transaction.objects.filter(symbol=instance.symbol, price=instance.price).delete()
-                        Symbol.objects.filter(name=instance.name).update(fno=False)
+                        if ('RMS:Rule' in data['data']['text']) or ('F&O ban' in data['data']['text']):
+                            StockConfig.objects.filter(symbol=instance.symbol, price=instance.price).delete()
+                            Transaction.objects.filter(symbol=instance.symbol, price=instance.price).delete()
+                            Symbol.objects.filter(name=instance.name).update(fno=False)
 
                         # Send Email Notification
                         subject = f"Fno Trade on {instance.symbol}" if instance.product == 'future' else f"Equity Trade on {instance.name}"
@@ -460,8 +461,9 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
 
                             AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
                             user_stock_config.delete()
-                            StockConfig.objects.filter(symbol=instance.symbol, price=instance.price).delete()
-                            Transaction.objects.filter(symbol=instance.symbol, price=instance.price).delete()
+                            if ('RMS:Rule' in data['data']['text']) or ('F&O ban' in data['data']['text']):
+                                StockConfig.objects.filter(symbol=instance.symbol, price=instance.price).delete()
+                                Transaction.objects.filter(symbol=instance.symbol, price=instance.price).delete()
 
                             # Send Email Notification
                             subject = f"Fno Trade on {instance.symbol}" if instance.product == 'future' else f"Equity Trade on {instance.name}"
