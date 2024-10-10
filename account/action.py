@@ -285,38 +285,38 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
                     user_stock_config.order_placed = True
                     user_stock_config.save()
 
-                    # # Place Stoploass Order
-                    # if not user_stock_config.stoploss_order_placed:
-                    #     order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.stoploss, instance.lot, "LIMIT")
+                    # Place Target Order
+                    if not user_stock_config.target_order_placed:
+                        order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.fixed_target, instance.lot, "LIMIT")
 
-                    #     if order_id in ['0', 0, None]:
-                    #         print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Retry Because Order Placement failed")
-                    #         AccountPlaceTargetStoplossOrder(sender, instance, created)
+                        if order_id in ['0', 0, None]:
+                            print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Retry Because Order Placement failed")
+                            AccountPlaceTargetStoplossOrder(sender, instance, created)
 
-                    #     print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Successfully Placed Stoploss Order")
-                    #     user_stock_config.stoploss_order_id = order_id
-                    #     user_stock_config.stoploss_order_placed = True
-                    #     user_stock_config.save()
-
-                    # else:
-                    #     print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} -  Stoploss Order is Already Placed")
+                        print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Successfully Placed Target Order")
+                        user_stock_config.target_order_id = order_id
+                        user_stock_config.target_order_placed = True
+                        user_stock_config.save()
+                        sleep(3)
+                    else:
+                        print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} -  Target Order is Already Placed")
                     
+                    
+                    # Place Stoploss Order
+                    if not user_stock_config.stoploss_order_placed:
+                        order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.stoploss, instance.lot, "LIMIT")
 
-                    # # Place Target Order
-                    # if not user_stock_config.target_order_placed:
-                    #     order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.fixed_target, instance.lot, "LIMIT")
+                        if order_id in ['0', 0, None]:
+                            print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Retry Because Order Placement failed")
+                            AccountPlaceTargetStoplossOrder(sender, instance, created)
 
-                    #     if order_id in ['0', 0, None]:
-                    #         print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Retry Because Order Placement failed")
-                    #         AccountPlaceTargetStoplossOrder(sender, instance, created)
+                        print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Successfully Placed Stoploss Order")
+                        user_stock_config.stoploss_order_id = order_id
+                        user_stock_config.stoploss_order_placed = True
+                        user_stock_config.save()
 
-                    #     print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Successfully Placed Target Order")
-                    #     user_stock_config.target_order_id = order_id
-                    #     user_stock_config.target_order_placed = True
-                    #     user_stock_config.save()
-
-                    # else:
-                    #     print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} -  Target Order is Already Placed")
+                    else:
+                        print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} -  Stoploss Order is Already Placed")
 
                 # Update the status if rejected or retry in 5 sec if status is open.pending
                 else:
@@ -372,38 +372,37 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
                         user_stock_config.order_placed = True
                         user_stock_config.save()
 
-                        # # Place Stoploass Order
-                        # if not user_stock_config.stoploss_order_placed:
-                        #     order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.token, instance.symbol, instance.exchange, instance.stoploss, instance.lot, "LIMIT")
+                        # Place Target Order
+                        if not user_stock_config.target_order_placed:
+                            order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.token, instance.symbol, instance.exchange, instance.fixed_target, instance.lot, "LIMIT")
 
-                        #     if order_id in ['0', 0, None]:
-                        #         print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Retry Because Order Placement failed")
-                        #         AccountPlaceTargetStoplossOrder(sender, instance, created)
+                            if order_id in ['0', 0, None]:
+                                print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Retry Because Order Placement failed")
+                                AccountPlaceTargetStoplossOrder(sender, instance, created)
 
-                        #     print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Successfully Placed Stoploss Order")
-                        #     user_stock_config.stoploss_order_id = order_id
-                        #     user_stock_config.stoploss_order_placed = True
-                        #     user_stock_config.save()
+                            print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Successfully Placed Target Order")
+                            user_stock_config.target_order_id = order_id
+                            user_stock_config.target_order_placed = True
+                            user_stock_config.save()
+                            sleep(3)
+                        else:
+                            print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} -  Target Order is Already Placed")
 
-                        # else:
-                        #     print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} -  Stoploss Order is Already Placed")
-                        
+                        # Place Stoploss Order
+                        if not user_stock_config.stoploss_order_placed:
+                            order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.token, instance.symbol, instance.exchange, instance.stoploss, instance.lot, "LIMIT")
 
-                        # # Place Target Order
-                        # if not user_stock_config.target_order_placed:
-                        #     order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.token, instance.symbol, instance.exchange, instance.fixed_target, instance.lot, "LIMIT")
+                            if order_id in ['0', 0, None]:
+                                print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Retry Because Order Placement failed")
+                                AccountPlaceTargetStoplossOrder(sender, instance, created)
 
-                        #     if order_id in ['0', 0, None]:
-                        #         print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Retry Because Order Placement failed")
-                        #         AccountPlaceTargetStoplossOrder(sender, instance, created)
+                            print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Successfully Placed Stoploss Order")
+                            user_stock_config.stoploss_order_id = order_id
+                            user_stock_config.stoploss_order_placed = True
+                            user_stock_config.save()
 
-                        #     print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Successfully Placed Target Order")
-                        #     user_stock_config.target_order_id = order_id
-                        #     user_stock_config.target_order_placed = True
-                        #     user_stock_config.save()
-
-                        # else:
-                        #     print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} -  Target Order is Already Placed")
+                        else:
+                            print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} -  Stoploss Order is Already Placed")
 
                     # Update the status if rejected or retry in 5 sec if status is open.pending
                     else:
