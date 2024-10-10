@@ -41,18 +41,58 @@ def AccountExitAction(instance):
                                 if not user_stock_config.stoploss_order_placed:
                                     order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
                                 email_message = STOPLOSS_ORDER_PLACED.format(symbol=instance.get('symbol'), price=instance.get('price'), profit=instance.get('profit'), order_id=order_id)
+                                
+                                # Send Email Notification
+                                subject = f"Fno Trade on {instance.get('symbol')}" if instance.get('product') == 'future' else f"Equity Trade on {instance.get('name')}"
+                                template = 'stoploss_hit.html'
+                                recipients = [user_stock_config.account.email]
+                                email_context = {
+                                    'name': user_stock_config.account.first_name,
+                                    "symbol": instance.get('symbol'),
+                                    "price": instance.get('price'),
+                                    "profit": instance.get('profit'),
+                                    "order_id": order_id
+                                }
+                                email_send(subject, template, recipients, email_context)
                             elif instance.get('type') == 'TARGET':
                                 if not user_stock_config.target_order_placed:
                                     order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
                                 email_message = TARGET_ORDER_PLACED.format(symbol=instance.get('symbol'), price=instance.get('price'), profit=instance.get('profit'), order_id=order_id)
+
+                                # Send Email Notification
+                                subject = f"Fno Trade on {instance.get('symbol')}" if instance.get('product') == 'future' else f"Equity Trade on {instance.get('name')}"
+                                template = 'target_hit.html'
+                                recipients = [user_stock_config.account.email]
+                                email_context = {
+                                    'name': user_stock_config.account.first_name,
+                                    "symbol": instance.get('symbol'),
+                                    "price": instance.get('price'),
+                                    "profit": instance.get('profit'),
+                                    "order_id": order_id
+                                }
+                                email_send(subject, template, recipients, email_context)
                             elif instance.get('type') in ['TR-SL', 'SQ-OFF']:
                                 if user_stock_config.stoploss_order_placed:
                                     _, _ = Cancel_Order(connection, user_stock_config.stoploss_order_id)
                                 if user_stock_config.target_order_placed:
                                     _, _ = Cancel_Order(connection, user_stock_config.target_order_id)
-                                email_message = TRSL_ORDER_PLACED.format(symbol=instance.get('symbol'), price=instance.get('price'), profit=instance.get('profit'), order_id=order_id)
                                 
                                 order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
+                                
+                                email_message = TRSL_ORDER_PLACED.format(symbol=instance.get('symbol'), price=instance.get('price'), profit=instance.get('profit'), order_id=order_id)
+
+                                # Send Email Notification
+                                subject = f"Fno Trade on {instance.get('symbol')}" if instance.get('product') == 'future' else f"Equity Trade on {instance.get('name')}"
+                                template = 'tr_sl_hit.html'
+                                recipients = [user_stock_config.account.email]
+                                email_context = {
+                                    'name': user_stock_config.account.first_name,
+                                    "symbol": instance.get('symbol'),
+                                    "price": instance.get('price'),
+                                    "profit": instance.get('profit'),
+                                    "order_id": order_id
+                                }
+                                email_send(subject, template, recipients, email_context)
                         else:
                             order_id, order_status = Cancel_Order(connection, user_stock_config.order_id)
                     # Equity Delivery and INTRADAY(PE)
@@ -110,16 +150,6 @@ def AccountExitAction(instance):
                                 user_config = AccountConfiguration.objects.get(account=user_stock_config.account, is_active=True)
                                 user_config.active_open_position -= 1
                                 user_config.save()
-                        
-                        # Send Email Notification
-                        subject = f"Fno Trade on {instance.get('symbol')}" if instance.get('product') == 'future' else f"Equity Trade on {instance.get('name')}"
-                        template = 'trade_notification.html'
-                        recipients = [user_stock_config.account.email]
-                        email_context = {
-                            'name': user_stock_config.account.first_name,
-                            "message": email_message
-                        }
-                        email_send(subject, template, recipients, email_context)
                 
                 except Exception as e:
                     print(f"MoneyBall: Account Trade Action {instance.get('indicate')}: User Loop Error: {e}")
@@ -158,7 +188,7 @@ def AccountTradeAction(sender, instance, created):
                             
                             # Future CE and PE
                             if instance.product == 'future':
-                                order_id, order_status = Create_Order(connection, 'BUY', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.price, lot, "MARKET")
+                                order_id, order_status = Create_Order(connection, 'BUY', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
 
                             # Equity Delivery and INTRADAY(PE)
                             else:
@@ -218,11 +248,15 @@ def AccountTradeAction(sender, instance, created):
 
                                 # Send Email Notification
                                 subject = f"Fno Trade on {instance.symbol}" if instance.product == 'future' else f"Equity Trade on {instance.name}"
-                                template = 'trade_notification.html'
+                                template = 'order_placed.html'
                                 recipients = [user_config.account.email]
                                 email_context = {
                                     'name': user_config.account.first_name,
-                                    "message": ENTRY_ORDER_PLACED.format(symbol=instance.symbol, price=instance.price, target=instance.fixed_target, stoploss=instance.stoploss, order_id=order_id)
+                                    "symbol": instance.symbol,
+                                    "price": instance.price,
+                                    "target": instance.fixed_target,
+                                    "stoploss": instance.stoploss,
+                                    "order_id": order_id
                                 }
                                 email_send(subject, template, recipients, email_context)
                         else:
@@ -338,11 +372,15 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
 
                         # Send Email Notification
                         subject = f"Fno Trade on {instance.symbol}" if instance.product == 'future' else f"Equity Trade on {instance.name}"
-                        template = 'trade_notification.html'
+                        template = 'order_failed.html'
                         recipients = [instance.account.email]
                         email_context = {
                             'name': instance.account.first_name,
-                            "message": ENTRY_ORDER_FAILED.format(symbol=instance.symbol, price=instance.price, target=instance.fixed_target, stoploss=instance.stoploss, order_id=user_stock_config.order_id, reason=data['data']['text'])
+                            "symbol": instance.symbol,
+                            "price": instance.price,
+                            "target": instance.fixed_target,
+                            "stoploss": instance.stoploss,
+                            "order_id": user_stock_config.order_id
                         }
                         email_send(subject, template, recipients, email_context)
 
@@ -427,11 +465,15 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
 
                             # Send Email Notification
                             subject = f"Fno Trade on {instance.symbol}" if instance.product == 'future' else f"Equity Trade on {instance.name}"
-                            template = 'trade_notification.html'
+                            template = 'order_failed.html'
                             recipients = [instance.account.email]
                             email_context = {
                                 'name': instance.account.first_name,
-                                "message": ENTRY_ORDER_FAILED.format(symbol=instance.symbol, price=instance.price, target=instance.fixed_target, stoploss=instance.stoploss, order_id=user_stock_config.order_id, reason=data['data']['text'])
+                                "symbol": instance.symbol,
+                                "price": instance.price,
+                                "target": instance.fixed_target,
+                                "stoploss": instance.stoploss,
+                                "order_id": user_stock_config.order_id
                             }
                             email_send(subject, template, recipients, email_context)
 
