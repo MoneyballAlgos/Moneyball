@@ -103,7 +103,7 @@ def socket_setup(log_identifier='Cron'):
             })
     
     # Streaming threads for Open Positions
-    socket_thread = threading.Thread(name=f"Streaming-{now.strftime('%d-%b-%Y %H:%M:%S')}", target=connect_to_socket, args=(correlation_id, mode, subscribe_list), daemon=True)
+    socket_thread = threading.Thread(name=f"Streaming-{now.strftime('%d-%b-%Y %H:%M:%S')}", target=connect_to_socket, args=(correlation_id, mode, sws, subscribe_list), daemon=True)
     socket_thread.start()
 
     print(f'MoneyBall: Socket Setup : {log_identifier} : Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
