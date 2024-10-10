@@ -5,6 +5,7 @@ from django.db import models
 class AccountKeys(models.Model):
     first_name = models.CharField(max_length=200, verbose_name='First Name')
     last_name = models.CharField(max_length=200, verbose_name='Last Name')
+    email = models.CharField(max_length=200, verbose_name='Email', null=True, blank=True)
     mobile = models.CharField(max_length=10, verbose_name='Mobile No.')
     api_key = models.TextField(verbose_name='Api Key', null=True, blank=True, default='please_enter_developer_api_key')
     user_id = models.CharField(max_length=100, verbose_name='User Id', null=True, blank=True, default='please_enter_angel_user_id')

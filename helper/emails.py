@@ -6,13 +6,13 @@ from django.template.loader import render_to_string
 from sendgrid import SendGridAPIClient, FileContent, FileType, FileName, Disposition, ContentId
 from sendgrid.helpers.mail import Mail, Attachment, MimeType, From
 
-from moneyball.settings import SENDGRID_API_KEY, FROM_EMAIL
+from moneyball.settings import SENDGRID_API_KEY, SENGDRID_FROM_EMAIL, SENGDRID_FROM_NAME
 
 
 def email_send(subject, template, recipient, context, file_name=None):
     msg_html = render_to_string(template, context)
     message = Mail(
-        from_email=From(FROM_EMAIL, "AutoXP"),
+        from_email=From(SENGDRID_FROM_EMAIL, SENGDRID_FROM_NAME),
         to_emails=recipient,
         subject=subject,
         html_content=msg_html)
@@ -31,4 +31,4 @@ def email_send(subject, template, recipient, context, file_name=None):
         sg = SendGridAPIClient(SENDGRID_API_KEY)
         sg.send(message)
     except Exception as e:
-        pass
+        print(f'MoneyBall: SEND EMAIL: Error: {context} : {e}')
