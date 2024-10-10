@@ -37,15 +37,15 @@ def AccountExitAction(instance):
                     if instance.get('product') == 'future':
                         if user_stock_config.order_placed or Is_Order_Completed(connection, user_stock_config.order_id):
                             order_id, order_status = user_stock_config.order_id, user_stock_config.order_status
-                            if instance.type == 'STOPLOSS':
+                            if instance.get('type') == 'STOPLOSS':
                                 if not user_stock_config.stoploss_order_placed:
                                     order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
                                 email_message = STOPLOSS_ORDER_PLACED.format(symbol=instance.get('symbol'), price=instance.get('price'), profit=instance.get('profit'), order_id=order_id)
-                            elif instance.type == 'TARGET':
+                            elif instance.get('type') == 'TARGET':
                                 if not user_stock_config.target_order_placed:
                                     order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
                                 email_message = TARGET_ORDER_PLACED.format(symbol=instance.get('symbol'), price=instance.get('price'), profit=instance.get('profit'), order_id=order_id)
-                            elif instance.type in ['TR-SL', 'SQ-OFF']:
+                            elif instance.get('type') in ['TR-SL', 'SQ-OFF']:
                                 if user_stock_config.stoploss_order_placed:
                                     _, _ = Cancel_Order(connection, user_stock_config.stoploss_order_id)
                                 if user_stock_config.target_order_placed:
@@ -64,13 +64,13 @@ def AccountExitAction(instance):
                         else:
                             if user_stock_config.order_placed or Is_Order_Completed(connection, user_stock_config.order_id):
                                 order_id, order_status = user_stock_config.order_id, user_stock_config.order_status
-                                if instance.type == 'STOPLOSS':
+                                if instance.get('type') == 'STOPLOSS':
                                     if not user_stock_config.stoploss_order_placed:
                                         order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
-                                elif instance.type == 'TARGET':
+                                elif instance.get('type') == 'TARGET':
                                     if not user_stock_config.target_order_placed:
                                         order_id, order_status = Create_Order(connection, 'BUY', 'INTRADAY', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "MARKET")
-                                elif instance.type in ['TR-SL', 'SQ-OFF']:
+                                elif instance.get('type') in ['TR-SL', 'SQ-OFF']:
                                     if user_stock_config.stoploss_order_placed:
                                         _, _ = Cancel_Order(connection, user_stock_config.stoploss_order_id)
                                     if user_stock_config.target_order_placed:
