@@ -53,4 +53,4 @@ def next_multiple_of_5_after_decimal(num):
         if i % 5 == 0:
             return int_num + i / 100.0  # Return the result as a float
 
-    return None  # In case there's no valid multiple found
+    return int_num  # In case there's no valid multiple found
