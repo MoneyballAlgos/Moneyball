@@ -9,7 +9,7 @@ from account.models import AccountKeys, AccountConfiguration, AccountStockConfig
 # Register your models here.
 @admin.register(AccountKeys)
 class AccountKeyAdmin(ExportActionMixin, admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'mobile', 'api_key', 'user_id', 'user_pin', 'totp_key', 'is_active')
+    list_display = ('first_name', 'last_name', 'mobile', 'email', 'api_key', 'user_id', 'user_pin', 'totp_key', 'is_active')
     search_fields = ['first_name', 'last_name', 'mobile', 'user_id']
     list_filter = ('is_active',)
 
