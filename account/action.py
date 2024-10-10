@@ -1,9 +1,10 @@
 from time import sleep
 from django.db import transaction
 from helper.emails import email_send
-from stock.models import Transaction
 from django.dispatch import receiver
+from system_conf.models import Symbol
 from django.db.models.signals import post_save
+from stock.models import StockConfig, Transaction
 from moneyball.settings import account_connections
 from helper.angel_order import Cancel_Order, Create_Order, Is_Order_Completed
 from account.models import AccountConfiguration, AccountStockConfig, AccountTransaction
@@ -328,8 +329,12 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
                         AccountPlaceTargetStoplossOrder(sender, instance, created)
                     else:
                         print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Order {data['data']['orderstatus']} - {data['data']['text']}")
-                        user_stock_config.order_status = data['data']['text']
-                        user_stock_config.save()
+
+                        AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
+                        user_stock_config.delete()
+                        StockConfig.objects.filter(symbol=instance.symbol, price=instance.price).delete()
+                        Transaction.objects.filter(symbol=instance.symbol, price=instance.price).delete()
+                        Symbol.objects.filter(name=instance.name).update(fno=False)
 
                         # Send Email Notification
                         subject = f"Fno Trade on {instance.symbol}" if instance.product == 'future' else f"Equity Trade on {instance.name}"
@@ -414,8 +419,11 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
                             AccountPlaceTargetStoplossOrder(sender, instance, created)
                         else:
                             print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Order {data['data']['orderstatus']} - {data['data']['text']}")
-                            user_stock_config.order_status = data['data']['text']
-                            user_stock_config.save()
+
+                            AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
+                            user_stock_config.delete()
+                            StockConfig.objects.filter(symbol=instance.symbol, price=instance.price).delete()
+                            Transaction.objects.filter(symbol=instance.symbol, price=instance.price).delete()
 
                             # Send Email Notification
                             subject = f"Fno Trade on {instance.symbol}" if instance.product == 'future' else f"Equity Trade on {instance.name}"
