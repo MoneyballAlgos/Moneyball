@@ -36,3 +36,21 @@ def last_thursday(now):
         last_date -= timedelta(days=1)
         
     return last_date
+
+def next_multiple_of_5_after_decimal(num):
+    # Get the decimal part, int value
+    decimal_part = num - int(num)
+    int_num = num - decimal_part
+    
+    if decimal_part == 0.0:
+        return num
+    
+    # Convert the decimal part to an integer in terms of tenths, hundredths, etc.
+    decimal_as_int = int(decimal_part * 100)  # 2 decimal places
+
+    # Check the next multiples of 5
+    for i in range(decimal_as_int + 1, 100):  # Up to 1.00 (i.e., 100)
+        if i % 5 == 0:
+            return int_num + i / 100.0  # Return the result as a float
+
+    return None  # In case there's no valid multiple found
