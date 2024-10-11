@@ -1,7 +1,7 @@
 import tzlocal
 from django.contrib.auth.models import User
 from apscheduler.schedulers.background import BackgroundScheduler
-from task import AccountConnection, BrokerConnection, MarketDataUpdate, SquareOff, stay_awake, SymbolSetup, Equity_BreakOut_1, FnO_BreakOut_1
+from task import AccountConnection, BrokerConnection, CheckFnOSymbolDisable, MarketDataUpdate, SquareOff, stay_awake, SymbolSetup, Equity_BreakOut_1, FnO_BreakOut_1
 
 
 def start():
@@ -38,6 +38,8 @@ def start():
                 hour='9', minute='10', timezone='Asia/Kolkata')
     sched.add_job(MarketDataUpdate, 'cron', day_of_week='mon-fri',
                 hour='8-15', minute='*/13', timezone='Asia/Kolkata')
+    sched.add_job(CheckFnOSymbolDisable, 'cron', day_of_week='mon-fri',
+                hour='9-15', minute='*/3', timezone='Asia/Kolkata')
     sched.add_job(SquareOff, 'cron', day_of_week='mon-fri',
                 hour='15', minute='17', timezone='Asia/Kolkata')
     sched.add_job(Equity_BreakOut_1, 'cron', day_of_week='mon-fri',
