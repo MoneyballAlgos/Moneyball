@@ -544,7 +544,7 @@ def CheckFnOSymbolDisable():
                     account_entry_for_symbol = AccountStockConfig.objects.filter(symbol=stock_obj.symbol.symbol)
                     total_entry_in_accounts = account_entry_for_symbol.count()
                     not_placed_entry = 0
-                    for user_stock_config in account_connections:
+                    for user_stock_config in account_entry_for_symbol:
                         connection = account_connections[user_stock_config.account.user_id]
                         unique_order_id = user_stock_config.order_id.split('@')[0]
                         data = connection.individual_order_details(unique_order_id)
