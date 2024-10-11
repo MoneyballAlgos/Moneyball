@@ -534,7 +534,7 @@ def CheckFnOSymbolDisable():
     print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Runtime : {now.strftime("%d-%b-%Y %H:%M:%S")}')
     try:
         sleep(3)
-        fno_entries = StockConfig.objects.filter(product='future', fno_activation=False)
+        fno_entries = StockConfig.objects.filter(symbol__product='future', fno_activation=False)
         global account_connections
 
         print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Loop Started: Total Entries {len(fno_entries)}')
