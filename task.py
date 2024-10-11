@@ -29,8 +29,9 @@ def BrokerConnection():
         except Exception as e:
             print(f'MoneyBall: Broker Connection: Trying to Terminate Session Error: {e}')
         
-        broker_connection = SmartConnect(api_key=BROKER_API_KEY)
-        broker_connection.generateSession(BROKER_USER_ID, BROKER_PIN, totp=pyotp.TOTP(BROKER_TOTP_KEY).now())
+        connection = SmartConnect(api_key=BROKER_API_KEY)
+        connection.generateSession(BROKER_USER_ID, BROKER_PIN, totp=pyotp.TOTP(BROKER_TOTP_KEY).now())
+        broker_connection = connection
     except Exception as e:
         print(f'MoneyBall: Broker Connection: Error: {e}')
     print(f'MoneyBall: Broker Connection: Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
@@ -63,8 +64,9 @@ def socket_setup(log_identifier='Cron'):
     BROKER_AUTH_TOKEN = broker_connection.access_token
     BROKER_FEED_TOKEN = broker_connection.feed_token
 
-    sws = SmartWebSocketV2(BROKER_AUTH_TOKEN, BROKER_API_KEY, BROKER_USER_ID, BROKER_FEED_TOKEN)
+    new_sws = SmartWebSocketV2(BROKER_AUTH_TOKEN, BROKER_API_KEY, BROKER_USER_ID, BROKER_FEED_TOKEN)
     sleep(2)
+    sws = new_sws
 
     correlation_id = "moneyball-socket"
     mode = 1
