@@ -8,9 +8,9 @@ from datetime import datetime, time, timedelta
 from helper.angel_function import historical_data
 from stock.models import StockConfig, Transaction
 from system_conf.models import Configuration, Symbol
-from account.models import AccountConfiguration, AccountKeys
 from helper.common import calculate_volatility, last_thursday
 from helper.trade_action import Price_Action_Trade, Stock_Square_Off
+from account.models import AccountConfiguration, AccountKeys, AccountStockConfig, AccountTransaction
 from moneyball.settings import BED_URL_DOMAIN, BROKER_API_KEY, BROKER_PIN, BROKER_TOTP_KEY, BROKER_USER_ID, SOCKET_STREAM_URL_DOMAIN, broker_connection, account_connections, entry_holder
 
 
@@ -525,4 +525,48 @@ def SquareOff():
         print(f'MoneyBall: SQUARE OFF: ERROR: Main:{e}')
 
     print(f'MoneyBall: SQUARE OFF: Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
+    return True
+
+
+
+def CheckFnOSymbolDisable():
+    now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
+    print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Runtime : {now.strftime("%d-%b-%Y %H:%M:%S")}')
+    try:
+        sleep(3)
+        fno_entries = StockConfig.objects.filter(product='future', fno_activation=False)
+        global account_connections
+
+        print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Loop Started: Total Entries {len(fno_entries)}')
+        if fno_entries:
+            for stock_obj in fno_entries:
+                try:
+                    account_entry_for_symbol = AccountStockConfig.objects.filter(symbol=stock_obj.symbol.symbol)
+                    total_entry_in_accounts = account_entry_for_symbol.count()
+                    not_placed_entry = 0
+                    for user_stock_config in account_connections:
+                        connection = account_connections[user_stock_config.account.user_id]
+                        unique_order_id = user_stock_config.order_id.split('@')[0]
+                        data = connection.individual_order_details(unique_order_id)
+                        if data['data']['orderstatus'] in ['rejected']:
+                            AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
+                            user_stock_config.delete()
+                            not_placed_entry += 1
+                    
+                    if not_placed_entry == total_entry_in_accounts:
+                        print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Disabling the Symbol {stock_obj.symbol.symbol}')
+                        StockConfig.objects.filter(symbol=stock_obj.symbol.symbol, fixed_target=stock_obj.fixed_target).delete()
+                        Transaction.objects.filter(symbol=stock_obj.symbol.symbol, fixed_target=stock_obj.fixed_target).delete()
+                        Symbol.objects.filter(name=stock_obj.symbol.name).update(fno=False)
+                    else:
+                        stock_obj.fno_activation = True
+                        stock_obj.save()
+                except Exception as e:
+                    print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Loop Error: {stock_obj.symbol.symbol} : {stock_obj.mode} : {e}')
+        print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Loop Ended')
+
+    except Exception as e:
+        print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: ERROR: Main:{e}')
+
+    print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
     return True

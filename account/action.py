@@ -364,12 +364,12 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
                     else:
                         print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Order {data['data']['orderstatus']} - {data['data']['text']}")
 
-                        AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
-                        user_stock_config.delete()
-                        if ('RMS:Rule' in data['data']['text']) or ('F&O ban' in data['data']['text']):
-                            StockConfig.objects.filter(symbol=instance.symbol, price=instance.price).delete()
-                            Transaction.objects.filter(symbol=instance.symbol, price=instance.price).delete()
-                            Symbol.objects.filter(name=instance.name).update(fno=False)
+                        # AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
+                        # user_stock_config.delete()
+                        # if ('RMS:Rule' in data['data']['text']) or ('F&O ban' in data['data']['text']) or ('Order price is beyond' in data['data']['text']):
+                        #     StockConfig.objects.filter(symbol=instance.symbol, fixed_target=instance.fixed_target).delete()
+                        #     Transaction.objects.filter(symbol=instance.symbol, fixed_target=instance.fixed_target).delete()
+                        #     Symbol.objects.filter(name=instance.name).update(fno=False)
 
                         # Send Email Notification
                         subject = f"Fno Trade on {instance.symbol}" if instance.product == 'future' else f"Equity Trade on {instance.name}"
@@ -459,11 +459,11 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
                         else:
                             print(f"MoneyBall: Account Place Target Stoploss Order: {instance.account.first_name} {instance.account.last_name} - {instance.account.user_id} - Order {data['data']['orderstatus']} - {data['data']['text']}")
 
-                            AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
-                            user_stock_config.delete()
-                            if ('RMS:Rule' in data['data']['text']) or ('F&O ban' in data['data']['text']):
-                                StockConfig.objects.filter(symbol=instance.symbol, price=instance.price).delete()
-                                Transaction.objects.filter(symbol=instance.symbol, price=instance.price).delete()
+                            # AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
+                            # user_stock_config.delete()
+                            # if ('RMS:Rule' in data['data']['text']) or ('F&O ban' in data['data']['text']) or ('Order price is beyond' in data['data']['text']):
+                            #     StockConfig.objects.filter(symbol=instance.symbol, fixed_target=instance.fixed_target).delete()
+                            #     Transaction.objects.filter(symbol=instance.symbol, fixed_target=instance.fixed_target).delete()
 
                             # Send Email Notification
                             subject = f"Fno Trade on {instance.symbol}" if instance.product == 'future' else f"Equity Trade on {instance.name}"
