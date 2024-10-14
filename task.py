@@ -364,44 +364,45 @@ def FnO_BreakOut_1(auto_trigger=True):
                         mode = None
 
                         # Check Hold Entries
-                        entry_idenfitier = entry_holder.get(log_identifier).get(symbol_obj.name)
-                        if entry_idenfitier:
-                            print(f'MoneyBall: {log_identifier}: {index+1}: Cheking for the hold entry: {entry_idenfitier}')
-                            from_day = now - timedelta(days=7)
-                            data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
-                            sleep(0.3)
+                        # entry_idenfitier = entry_holder.get(log_identifier).get(symbol_obj.name)
+                        # if entry_idenfitier:
+                        #     print(f'MoneyBall: {log_identifier}: {index+1}: Cheking for the hold entry: {entry_idenfitier}')
+                        #     from_day = now - timedelta(days=7)
+                        #     data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
+                        #     sleep(0.3)
 
-                            open = data_frame['Open'].iloc[-1]
-                            high = data_frame['High'].iloc[-1]
-                            low = data_frame['Low'].iloc[-1]
-                            close = data_frame['Close'].iloc[-1]
-                            bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
+                        #     open = data_frame['Open'].iloc[-1]
+                        #     high = data_frame['High'].iloc[-1]
+                        #     low = data_frame['Low'].iloc[-1]
+                        #     close = data_frame['Close'].iloc[-1]
+                        #     bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
 
-                            if entry_idenfitier == 'CE' and close < bb['hband'].iloc[-1]:
-                                del entry_holder[log_identifier][symbol_obj.name]
-                                mode = 'CE'
-                                stock_future_symbol = Symbol.objects.filter(
-                                                            product='future',
-                                                            name=symbol_obj.name,
-                                                            symbol__endswith='CE',
-                                                            strike__gt=close,
-                                                            fno=True,
-                                                            is_active=True).order_by('strike')
+                        #     if entry_idenfitier == 'CE' and close < bb['hband'].iloc[-1]:
+                        #         del entry_holder[log_identifier][symbol_obj.name]
+                        #         mode = 'CE'
+                        #         stock_future_symbol = Symbol.objects.filter(
+                        #                                     product='future',
+                        #                                     name=symbol_obj.name,
+                        #                                     symbol__endswith='CE',
+                        #                                     strike__gt=close,
+                        #                                     fno=True,
+                        #                                     is_active=True).order_by('strike')
                                 
 
-                            elif entry_idenfitier == 'PE' and close > bb['lband'].iloc[-1]:
-                                del entry_holder[log_identifier][symbol_obj.name]
-                                mode = 'PE'
-                                stock_future_symbol = Symbol.objects.filter(
-                                                            product='future',
-                                                            name=symbol_obj.name,
-                                                            symbol__endswith='PE',
-                                                            strike__lt=close,
-                                                            fno=True,
-                                                            is_active=True).order_by('-strike')
+                        #     elif entry_idenfitier == 'PE' and close > bb['lband'].iloc[-1]:
+                        #         del entry_holder[log_identifier][symbol_obj.name]
+                        #         mode = 'PE'
+                        #         stock_future_symbol = Symbol.objects.filter(
+                        #                                     product='future',
+                        #                                     name=symbol_obj.name,
+                        #                                     symbol__endswith='PE',
+                        #                                     strike__lt=close,
+                        #                                     fno=True,
+                        #                                     is_active=True).order_by('-strike')
 
-                        # Check For New Entries
-                        else:
+                        # # Check For New Entries
+                        # else:
+                        if True:
                             from_day = now - timedelta(days=60)
                             data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
                             sleep(0.3)
@@ -429,8 +430,8 @@ def FnO_BreakOut_1(auto_trigger=True):
                                                                 strike__gt=close,
                                                                 fno=True,
                                                                 is_active=True).order_by('strike')
-                                else:
-                                    entry_holder[log_identifier][symbol_obj.name] = 'CE'
+                                # else:
+                                #     entry_holder[log_identifier][symbol_obj.name] = 'CE'
 
                             elif (min_low > close):
                                 from_day = now - timedelta(days=7)
@@ -447,8 +448,8 @@ def FnO_BreakOut_1(auto_trigger=True):
                                                                 strike__lt=close,
                                                                 fno=True,
                                                                 is_active=True).order_by('-strike')
-                                else:
-                                    entry_holder[log_identifier][symbol_obj.name] = 'PE'
+                                # else:
+                                #     entry_holder[log_identifier][symbol_obj.name] = 'PE'
 
                         if mode not in [None]:
                             data = {
