@@ -269,7 +269,7 @@ def AccountTradeAction(sender, instance, created):
                 for user_config in user_account_configs:
                     try:
                         # Open threads for user
-                        user_thread = threading.Thread(name=f"User-{now.strftime('%d-%b-%Y %H:%M:%S')}", target=UserTrade, args=(sender, instance, created, user_config), daemon=True)
+                        user_thread = threading.Thread(name=f"User-{instance.symbol}-{user_config.account.first_name}", target=UserTrade, args=(sender, instance, created, user_config), daemon=True)
                         user_thread.start()
 
                     except Exception as e:
