@@ -1,3 +1,4 @@
+import threading
 from time import sleep
 from django.db import transaction
 from helper.emails import email_send
@@ -160,9 +161,99 @@ def AccountExitAction(instance):
     return True
 
 
+def UserTrade(sender, instance, created, user_config):
+    global account_connections
+    order_id = None
+    print(f"MoneyBall: Account Trade Action {instance.indicate}: User: {user_config.account.first_name} {user_config.account.last_name} - {user_config.account.user_id} : {instance.product} : {instance.symbol}")
+    # get user connection
+    connection = account_connections[user_config.account.user_id]
+
+    # Place Order
+    if user_config.total_open_position > user_config.active_open_position:
+        lot = instance.lot
+        
+        # Future CE and PE
+        if instance.product == 'future':
+            order_id, order_status = Create_Order(connection, 'BUY', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
+
+        # Equity Delivery and INTRADAY(PE)
+        else:
+            chk_price = instance.price * lot
+            if chk_price < user_config.entry_amount:
+                while True:
+                    chk_price = instance.price * lot
+                    if chk_price >= user_config.entry_amount:
+                        lot = lot - instance.lot
+                        break
+                    lot += instance.lot
+            
+            # Equity Delivery
+            if instance.mode == 'CE':
+                order_id, order_status = Create_Order(connection, 'BUY', 'DELIVERY', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
+            
+            # Equity INTRADAY(PE)
+            else:
+                order_id, order_status = Create_Order(connection, 'SELL', 'INTRADAY', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
+
+        # print(f"MoneyBall: Account Trade Action {instance.indicate}: User: {user_config.account.first_name} {user_config.account.last_name} - {user_config.account.user_id} : {instance.product} : {instance.symbol} : {order_id} : {order_status} : Lots : {lot}")
+
+        if order_id not in ['0', 0, None]:
+            account_stock_config_obj, created = AccountStockConfig.objects.get_or_create(
+                                                        account=user_config.account,
+                                                        product=instance.product,
+                                                        symbol=instance.symbol,
+                                                        name=instance.name,
+                                                        mode=instance.mode,
+                                                        is_active=True)
+            account_stock_config_obj.lot = lot
+            account_stock_config_obj.order_id = order_id
+            account_stock_config_obj.order_status = order_status
+            account_stock_config_obj.save()
+
+            AccountTransaction.objects.create(
+                                    account=user_config.account,
+                                    product=instance.product,
+                                    symbol=instance.symbol,
+                                    name=instance.name,
+                                    token=instance.token,
+                                    exchange=instance.exchange,
+                                    mode=instance.mode,
+                                    indicate=instance.indicate,
+                                    type=instance.type,
+                                    price=instance.price,
+                                    target=instance.target,
+                                    fixed_target=instance.fixed_target,
+                                    stoploss=instance.stoploss,
+                                    order_id=order_id,
+                                    order_status=order_status,
+                                    lot=lot)
+            if instance.product == 'equity':
+                if instance.mode == 'CE':
+                    user_config.active_open_position += 1
+                    user_config.save()
+
+            # Send Email Notification
+            subject = f"Fno Trade on {instance.symbol}" if instance.product == 'future' else f"Equity Trade on {instance.name}"
+            template = 'order_placed.html'
+            recipients = [user_config.account.email]
+            email_context = {
+                'name': user_config.account.first_name,
+                "symbol": instance.symbol,
+                "price": instance.price,
+                "target": instance.fixed_target,
+                "stoploss": instance.stoploss,
+                "order_id": order_id
+            }
+            email_send(subject, template, recipients, email_context)
+    else:
+        print(f"MoneyBall: Account Trade Action {instance.indicate}: User may have Max Active Open posotion : Total - {user_config.total_open_position}, Active - {user_config.active_open_position}")
+        print(f"MoneyBall: Account Trade Action {instance.indicate}: User may not have enough money to by a single share : 1 Share Price {instance.price}, - User Entry Amount {user_config.entry_amount}")
+    return True
+
+
+
 def AccountTradeAction(sender, instance, created):
     try:
-        global account_connections
         print(f"MoneyBall: Account Trade Action {instance.indicate} : {instance.product} : {instance.symbol}")
         if instance.indicate == 'ENTRY':
 
@@ -177,92 +268,10 @@ def AccountTradeAction(sender, instance, created):
 
                 for user_config in user_account_configs:
                     try:
-                        order_id = None
-                        print(f"MoneyBall: Account Trade Action {instance.indicate}: User: {user_config.account.first_name} {user_config.account.last_name} - {user_config.account.user_id} : {instance.product} : {instance.symbol}")
-                        # get user connection
-                        connection = account_connections[user_config.account.user_id]
+                        # Open threads for user
+                        user_thread = threading.Thread(name=f"User-{now.strftime('%d-%b-%Y %H:%M:%S')}", target=UserTrade, args=(sender, instance, created, user_config), daemon=True)
+                        user_thread.start()
 
-                        # Place Order
-                        if user_config.total_open_position > user_config.active_open_position:
-                            lot = instance.lot
-                            
-                            # Future CE and PE
-                            if instance.product == 'future':
-                                order_id, order_status = Create_Order(connection, 'BUY', 'CARRYFORWARD', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
-
-                            # Equity Delivery and INTRADAY(PE)
-                            else:
-                                chk_price = instance.price * lot
-                                if chk_price < user_config.entry_amount:
-                                    while True:
-                                        chk_price = instance.price * lot
-                                        if chk_price >= user_config.entry_amount:
-                                            lot = lot - instance.lot
-                                            break
-                                        lot += instance.lot
-                                
-                                # Equity Delivery
-                                if instance.mode == 'CE':
-                                    order_id, order_status = Create_Order(connection, 'BUY', 'DELIVERY', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
-                                
-                                # Equity INTRADAY(PE)
-                                else:
-                                    order_id, order_status = Create_Order(connection, 'SELL', 'INTRADAY', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
-
-                            # print(f"MoneyBall: Account Trade Action {instance.indicate}: User: {user_config.account.first_name} {user_config.account.last_name} - {user_config.account.user_id} : {instance.product} : {instance.symbol} : {order_id} : {order_status} : Lots : {lot}")
-
-                            if order_id not in ['0', 0, None]:
-                                account_stock_config_obj, created = AccountStockConfig.objects.get_or_create(
-                                                                            account=user_config.account,
-                                                                            product=instance.product,
-                                                                            symbol=instance.symbol,
-                                                                            name=instance.name,
-                                                                            mode=instance.mode,
-                                                                            is_active=True)
-                                account_stock_config_obj.lot = lot
-                                account_stock_config_obj.order_id = order_id
-                                account_stock_config_obj.order_status = order_status
-                                account_stock_config_obj.save()
-
-                                AccountTransaction.objects.create(
-                                                        account=user_config.account,
-                                                        product=instance.product,
-                                                        symbol=instance.symbol,
-                                                        name=instance.name,
-                                                        token=instance.token,
-                                                        exchange=instance.exchange,
-                                                        mode=instance.mode,
-                                                        indicate=instance.indicate,
-                                                        type=instance.type,
-                                                        price=instance.price,
-                                                        target=instance.target,
-                                                        fixed_target=instance.fixed_target,
-                                                        stoploss=instance.stoploss,
-                                                        order_id=order_id,
-                                                        order_status=order_status,
-                                                        lot=lot)
-                                if instance.product == 'equity':
-                                    if instance.mode == 'CE':
-                                        user_config.active_open_position += 1
-                                        user_config.save()
-
-                                # Send Email Notification
-                                subject = f"Fno Trade on {instance.symbol}" if instance.product == 'future' else f"Equity Trade on {instance.name}"
-                                template = 'order_placed.html'
-                                recipients = [user_config.account.email]
-                                email_context = {
-                                    'name': user_config.account.first_name,
-                                    "symbol": instance.symbol,
-                                    "price": instance.price,
-                                    "target": instance.fixed_target,
-                                    "stoploss": instance.stoploss,
-                                    "order_id": order_id
-                                }
-                                email_send(subject, template, recipients, email_context)
-                        else:
-                            print(f"MoneyBall: Account Trade Action {instance.indicate}: User may have Max Active Open posotion : Total - {user_config.total_open_position}, Active - {user_config.active_open_position}")
-                            print(f"MoneyBall: Account Trade Action {instance.indicate}: User may not have enough money to by a single share : 1 Share Price {instance.price}, - User Entry Amount {user_config.entry_amount}")
-                    
                     except Exception as e:
                         print(f"MoneyBall: Account Trade Action {instance.indicate}: User Loop Error: {e}")
             else:
