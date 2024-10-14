@@ -555,7 +555,7 @@ def CheckFnOSymbolDisable():
                     
                     if not_placed_entry == total_entry_in_accounts:
                         print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Disabling the Symbol {stock_obj.symbol.symbol}')
-                        StockConfig.objects.filter(symbol=stock_obj.symbol.symbol, fixed_target=stock_obj.fixed_target).delete()
+                        StockConfig.objects.filter(symbol=stock_obj.symbol, fixed_target=stock_obj.fixed_target).delete()
                         Transaction.objects.filter(symbol=stock_obj.symbol.symbol, fixed_target=stock_obj.fixed_target).delete()
                         Symbol.objects.filter(name=stock_obj.symbol.name).update(fno=False)
                     else:
