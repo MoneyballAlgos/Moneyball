@@ -46,6 +46,7 @@ def stop_socket_setup(log_identifier='Cron'):
     try:
         sleep(2)
         sws.close_connection()
+        sws = None
         print(f'MoneyBall: Stop Socket Setup : {log_identifier} : Connection Closed')
         sleep(2)
     except Exception as e:
