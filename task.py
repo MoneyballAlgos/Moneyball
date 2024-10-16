@@ -545,23 +545,24 @@ def CheckFnOSymbolDisable():
                     account_entry_for_symbol = AccountStockConfig.objects.filter(symbol=stock_obj.symbol.symbol)
                     total_entry_in_accounts = account_entry_for_symbol.count()
                     not_placed_entry = 0
-                    for user_stock_config in account_entry_for_symbol:
-                        connection = account_connections[user_stock_config.account.user_id]
-                        unique_order_id = user_stock_config.order_id.split('@')[0]
-                        data = connection.individual_order_details(unique_order_id)
-                        if data['data']['orderstatus'] in ['rejected']:
-                            AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
-                            user_stock_config.delete()
-                            not_placed_entry += 1
-                    
-                    if not_placed_entry == total_entry_in_accounts:
-                        print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Disabling the Symbol {stock_obj.symbol.symbol}')
-                        StockConfig.objects.filter(symbol=stock_obj.symbol, fixed_target=stock_obj.fixed_target).delete()
-                        Transaction.objects.filter(symbol=stock_obj.symbol.symbol, fixed_target=stock_obj.fixed_target).delete()
-                        Symbol.objects.filter(name=stock_obj.symbol.name).update(fno=False)
-                    else:
-                        stock_obj.fno_activation = True
-                        stock_obj.save()
+                    if account_entry_for_symbol:
+                        for user_stock_config in account_entry_for_symbol:
+                            connection = account_connections[user_stock_config.account.user_id]
+                            unique_order_id = user_stock_config.order_id.split('@')[0]
+                            data = connection.individual_order_details(unique_order_id)
+                            if data['data']['orderstatus'] in ['rejected']:
+                                AccountTransaction.objects.filter(order_id=user_stock_config.order_id).delete()
+                                user_stock_config.delete()
+                                not_placed_entry += 1
+                        
+                        if not_placed_entry == total_entry_in_accounts:
+                            print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Disabling the Symbol {stock_obj.symbol.symbol}')
+                            StockConfig.objects.filter(symbol=stock_obj.symbol, fixed_target=stock_obj.fixed_target).delete()
+                            Transaction.objects.filter(symbol=stock_obj.symbol.symbol, fixed_target=stock_obj.fixed_target).delete()
+                            Symbol.objects.filter(name=stock_obj.symbol.name).update(fno=False)
+                        else:
+                            stock_obj.fno_activation = True
+                            stock_obj.save()
                 except Exception as e:
                     print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Loop Error: {stock_obj.symbol.symbol} : {stock_obj.mode} : {e}')
         print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Loop Ended')
