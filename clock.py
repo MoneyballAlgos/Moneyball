@@ -12,9 +12,9 @@ def start():
     sched.add_job(stay_awake, 'cron', day_of_week='mon-fri',
                 second='*/40', timezone='Asia/Kolkata')
     sched.add_job(BrokerConnection, 'cron', day_of_week='mon-fri',
-                hour='9', minute='3', timezone='Asia/Kolkata')
+                hour='9', minute='11', timezone='Asia/Kolkata')
     sched.add_job(socket_setup, 'cron', day_of_week='mon-fri',
-                hour='9', minute='5', timezone='Asia/Kolkata')
+                hour='9', minute='12', timezone='Asia/Kolkata')
     # sched.add_job(stop_socket_setup, 'cron', day_of_week='mon-fri',
     #             hour='5', minute='5', timezone='Asia/Kolkata')
     sched.start()
