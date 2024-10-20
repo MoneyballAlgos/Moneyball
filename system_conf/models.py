@@ -44,6 +44,13 @@ class Symbol(models.Model):
     smallcpnifty50 = models.BooleanField(default=False)
     smallcpnifty100 = models.BooleanField(default=False)
     smallcpnifty250 = models.BooleanField(default=False)
+    pivot = models.FloatField(verbose_name='Pivot', default=0)
+    r1 = models.FloatField(verbose_name='R1', default=0)
+    s1 = models.FloatField(verbose_name='S1', default=0)
+    r2 = models.FloatField(verbose_name='R2', default=0)
+    s2 = models.FloatField(verbose_name='S2', default=0)
+    r3 = models.FloatField(verbose_name='R3', default=0)
+    s3 = models.FloatField(verbose_name='S3', default=0)
 
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

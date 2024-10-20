@@ -2,11 +2,11 @@ import pyotp
 import requests
 from time import sleep
 from zoneinfo import ZoneInfo
-from helper.indicator import BB
 from SmartApi import SmartConnect
 from datetime import datetime, time, timedelta
 from helper.angel_function import historical_data
 from stock.models import StockConfig, Transaction
+from helper.indicator import BB, PIVOT, SUPER_TREND
 from system_conf.models import Configuration, Symbol
 from helper.common import calculate_volatility, last_thursday
 from helper.trade_action import Price_Action_Trade, Stock_Square_Off
@@ -377,93 +377,43 @@ def FnO_BreakOut_1(auto_trigger=True):
                     if nop < configuration_obj.open_position:
                         mode = None
 
-                        # Check Hold Entries
-                        # entry_idenfitier = entry_holder.get(log_identifier).get(symbol_obj.name)
-                        # if entry_idenfitier:
-                        #     print(f'MoneyBall: {log_identifier}: {index+1}: Cheking for the hold entry: {entry_idenfitier}')
-                        #     from_day = now - timedelta(days=7)
-                        #     data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
-                        #     sleep(0.3)
+                        from_day = now - timedelta(days=7)
+                        data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
+                        sleep(0.3)
 
-                        #     open = data_frame['Open'].iloc[-1]
-                        #     high = data_frame['High'].iloc[-1]
-                        #     low = data_frame['Low'].iloc[-1]
-                        #     close = data_frame['Close'].iloc[-1]
-                        #     bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
+                        open = data_frame['Open'].iloc[-1]
+                        high = data_frame['High'].iloc[-1]
+                        low = data_frame['Low'].iloc[-1]
+                        close = data_frame['Close'].iloc[-1]
+                        prev_close = data_frame['Close'].iloc[-2]
 
-                        #     if entry_idenfitier == 'CE' and close < bb['hband'].iloc[-1]:
-                        #         del entry_holder[log_identifier][symbol_obj.name]
-                        #         mode = 'CE'
-                        #         stock_future_symbol = Symbol.objects.filter(
-                        #                                     product='future',
-                        #                                     name=symbol_obj.name,
-                        #                                     symbol__endswith='CE',
-                        #                                     strike__gt=close,
-                        #                                     fno=True,
-                        #                                     is_active=True).order_by('strike')
-                                
+                        max_high = max(data_frame['High'].iloc[-30:-1])
+                        min_low = min(data_frame['Low'].iloc[-30:-1])
 
-                        #     elif entry_idenfitier == 'PE' and close > bb['lband'].iloc[-1]:
-                        #         del entry_holder[log_identifier][symbol_obj.name]
-                        #         mode = 'PE'
-                        #         stock_future_symbol = Symbol.objects.filter(
-                        #                                     product='future',
-                        #                                     name=symbol_obj.name,
-                        #                                     symbol__endswith='PE',
-                        #                                     strike__lt=close,
-                        #                                     fno=True,
-                        #                                     is_active=True).order_by('-strike')
+                        daily_volatility = calculate_volatility(data_frame)
 
-                        # # Check For New Entries
-                        # else:
-                        if True:
-                            from_day = now - timedelta(days=60)
-                            data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
-                            sleep(0.3)
+                        super_trend = SUPER_TREND(high=data_frame['High'], low=data_frame['Low'], close=data_frame['Close'], length=10, multiplier=3)
+                        bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
 
-                            open = data_frame['Open'].iloc[-1]
-                            high = data_frame['High'].iloc[-1]
-                            low = data_frame['Low'].iloc[-1]
-                            close = data_frame['Close'].iloc[-1]
-                            max_high = max(data_frame['High'].iloc[-30:-1])
-                            min_low = min(data_frame['Low'].iloc[-30:-1])
-                            daily_volatility = calculate_volatility(data_frame)
+                        if close > super_trend.iloc[-1] and prev_close < super_trend.iloc[-2] and not ((high > symbol_obj.r1 and low < symbol_obj.r1) or (high > symbol_obj.r2 and low < symbol_obj.r2) or (high > symbol_obj.pivot and low < symbol_obj.pivot) or (high > symbol_obj.s1 and low < symbol_obj.s1) or (high > symbol_obj.s2 and low < symbol_obj.s2)):
+                            mode = 'CE'
+                            stock_future_symbol = Symbol.objects.filter(
+                                                        product='future',
+                                                        name=symbol_obj.name,
+                                                        symbol__endswith='CE',
+                                                        strike__gt=close,
+                                                        fno=True,
+                                                        is_active=True).order_by('strike')
 
-                            if (max_high < close):
-                                from_day = now - timedelta(days=7)
-                                data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
-                                sleep(0.3)
-
-                                bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
-                                if  data_frame['Close'].iloc[-1] < bb['hband'].iloc[-1]:
-                                    mode = 'CE'
-                                    stock_future_symbol = Symbol.objects.filter(
-                                                                product='future',
-                                                                name=symbol_obj.name,
-                                                                symbol__endswith='CE',
-                                                                strike__gt=close,
-                                                                fno=True,
-                                                                is_active=True).order_by('strike')
-                                # else:
-                                #     entry_holder[log_identifier][symbol_obj.name] = 'CE'
-
-                            elif (min_low > close):
-                                from_day = now - timedelta(days=7)
-                                data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
-                                sleep(0.3)
-
-                                bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
-                                if data_frame['Close'].iloc[-1] > bb['lband'].iloc[-1]:
-                                    mode = 'PE'
-                                    stock_future_symbol = Symbol.objects.filter(
-                                                                product='future',
-                                                                name=symbol_obj.name,
-                                                                symbol__endswith='PE',
-                                                                strike__lt=close,
-                                                                fno=True,
-                                                                is_active=True).order_by('-strike')
-                                # else:
-                                #     entry_holder[log_identifier][symbol_obj.name] = 'PE'
+                        if close < super_trend.iloc[-1] and prev_close > super_trend.iloc[-2] and not ((high > symbol_obj.r1 and low < symbol_obj.r1) or (high > symbol_obj.r2 and low < symbol_obj.r2) or (high > symbol_obj.pivot and low < symbol_obj.pivot) or (high > symbol_obj.s1 and low < symbol_obj.s1) or (high > symbol_obj.s2 and low < symbol_obj.s2)):
+                            mode = 'PE'
+                            stock_future_symbol = Symbol.objects.filter(
+                                                        product='future',
+                                                        name=symbol_obj.name,
+                                                        symbol__endswith='PE',
+                                                        strike__lt=close,
+                                                        fno=True,
+                                                        is_active=True).order_by('-strike')
 
                         if mode not in [None]:
                             data = {
@@ -584,4 +534,39 @@ def CheckFnOSymbolDisable():
         print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: ERROR: Main:{e}')
 
     print(f'MoneyBall: CHECK FNO SYMBOL DISABLE: Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
+    return True
+
+
+def PivotUpdate():
+    now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
+    product = 'equity'
+    print(f'MoneyBall: PIVOT UPDATE: Runtime : {now.strftime("%d-%b-%Y %H:%M:%S")}')
+    try:
+        # Set Pivot Points
+        symbol_list = Symbol.objects.filter(product=product, is_active=True).order_by('-fno')
+
+        from_day = now - timedelta(days=5)
+        print(f'MoneyBall: PIVOT UPDATE: Started : Total : {symbol_list.count()}')
+        for symbol_obj in symbol_list:
+            data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
+            sleep(0.3)
+
+            last_day = data_frame.iloc[-2]
+
+            pivot_traditional = PIVOT(last_day)
+            symbol_obj.pivot = round(pivot_traditional['pivot'], 2)
+            symbol_obj.r1 = round(pivot_traditional['r1'], 2)
+            symbol_obj.s1 = round(pivot_traditional['s1'], 2)
+            symbol_obj.r2 = round(pivot_traditional['r2'], 2)
+            symbol_obj.s2 = round(pivot_traditional['s2'], 2)
+            symbol_obj.r3 = round(pivot_traditional['r3'], 2)
+            symbol_obj.s3 = round(pivot_traditional['s3'], 2)
+
+            symbol_obj.save()
+            print(f'MoneyBall: PIVOT UPDATE: Updated: {symbol_obj.name}')
+
+        print(f'MoneyBall: PIVOT UPDATE: Ended')
+    except Exception as e:
+        print(f'MoneyBall: PIVOT UPDATE: Error: {str(e)}')
+    print(f'MoneyBall: PIVOT UPDATE: Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
     return True
