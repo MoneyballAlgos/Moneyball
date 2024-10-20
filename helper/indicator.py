@@ -1,4 +1,5 @@
-import pandas_ta as ta
+import numpy as np
+import pandas as pd
 from ta.momentum import rsi, stochrsi_d, stochrsi_k
 from ta.volatility import average_true_range, BollingerBands, KeltnerChannel
 from ta.trend import ema_indicator, macd_diff, macd_signal, macd, sma_indicator
@@ -13,19 +14,67 @@ def SMA(dataframe, timeperiod):
                          window=timeperiod)
 
 
-def ADX(high, low, close, timeperiod):
-    return ta.adx(high=high,
-               low=low,
-               close=close,
-               length=timeperiod)[f"ADX_{timeperiod}"]
-
-
 def SUPER_TREND(high, low, close, length, multiplier):
-    return ta.supertrend(high=high,
-               low=low,
-               close=close,
-               length=length,
-               multiplier=multiplier)[f"SUPERT_{length}_{multiplier}.0"]
+    # ATR
+    
+    tr1 = pd.DataFrame(high - low)
+    tr2 = pd.DataFrame(abs(high - close.shift(1)))
+    tr3 = pd.DataFrame(abs(low - close.shift(1)))
+    frames = [tr1, tr2, tr3]
+    tr = pd.concat(frames, axis = 1, join = 'inner').max(axis = 1)
+    atr = tr.ewm(length).mean()
+    
+    # H/L AVG AND BASIC UPPER & LOWER BAND
+    
+    hl_avg = (high + low) / 2
+    upper_band = (hl_avg + multiplier * atr).dropna()
+    lower_band = (hl_avg - multiplier * atr).dropna()
+    
+    # FINAL UPPER BAND
+    final_bands = pd.DataFrame(columns = ['upper', 'lower'])
+    final_bands.iloc[:,0] = [x for x in upper_band - upper_band]
+    final_bands.iloc[:,1] = final_bands.iloc[:,0]
+    for i in range(len(final_bands)):
+        if i == 0:
+            final_bands.iloc[i,0] = 0
+        else:
+            if (upper_band[i] < final_bands.iloc[i-1,0]) | (close[i-1] > final_bands.iloc[i-1,0]):
+                final_bands.iloc[i,0] = upper_band[i]
+            else:
+                final_bands.iloc[i,0] = final_bands.iloc[i-1,0]
+    
+    # FINAL LOWER BAND
+    
+    for i in range(len(final_bands)):
+        if i == 0:
+            final_bands.iloc[i, 1] = 0
+        else:
+            if (lower_band[i] > final_bands.iloc[i-1,1]) | (close[i-1] < final_bands.iloc[i-1,1]):
+                final_bands.iloc[i,1] = lower_band[i]
+            else:
+                final_bands.iloc[i,1] = final_bands.iloc[i-1,1]
+    
+    # SUPERTREND
+    
+    supertrend = pd.DataFrame(columns = [f'supertrend_{length}'])
+    supertrend.iloc[:,0] = [x for x in final_bands['upper'] - final_bands['upper']]
+    
+    for i in range(len(supertrend)):
+        if i == 0:
+            supertrend.iloc[i, 0] = 0
+        elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 0] and close[i] < final_bands.iloc[i, 0]:
+            supertrend.iloc[i, 0] = final_bands.iloc[i, 0]
+        elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 0] and close[i] > final_bands.iloc[i, 0]:
+            supertrend.iloc[i, 0] = final_bands.iloc[i, 1]
+        elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 1] and close[i] > final_bands.iloc[i, 1]:
+            supertrend.iloc[i, 0] = final_bands.iloc[i, 1]
+        elif supertrend.iloc[i-1, 0] == final_bands.iloc[i-1, 1] and close[i] < final_bands.iloc[i, 1]:
+            supertrend.iloc[i, 0] = final_bands.iloc[i, 0]
+    
+    supertrend = supertrend.set_index(upper_band.index)
+    supertrend = supertrend.dropna()[1:]
+
+    return supertrend
 
 
 def MACD(close, fast, slow, signal):

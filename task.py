@@ -546,7 +546,7 @@ def PivotUpdate():
         symbol_list = Symbol.objects.filter(product=product, is_active=True).order_by('-fno')
 
         from_day = now - timedelta(days=5)
-        print(f'MoneyBall: PIVOT UPDATE: Started')
+        print(f'MoneyBall: PIVOT UPDATE: Started : Total : {symbol_list.count()}')
         for symbol_obj in symbol_list:
             data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
             sleep(0.3)
