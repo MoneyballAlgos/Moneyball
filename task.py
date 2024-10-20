@@ -69,6 +69,11 @@ def MarketDataUpdate():
 def SymbolSetup():
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
     try:
+
+        print(f'MoneyBall: Awake the Socket Service: Started')
+        x = requests.get(f"{SOCKET_STREAM_URL_DOMAIN}/api/system_conf/awake", verify=False)
+        print(f'MoneyBall: Awake the Socket Service: Execution Time(hh:mm:ss): {x.status_code} : {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
+
         print(f'MoneyBall: Symbol Setup: Started')
         url = "https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json"
         data = requests.get(url).json()
@@ -166,6 +171,11 @@ def SymbolSetup():
 def AccountConnection():
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
     try:
+
+        print(f'MoneyBall: Awake the Socket Service: Started')
+        x = requests.get(f"{SOCKET_STREAM_URL_DOMAIN}/api/system_conf/awake", verify=False)
+        print(f'MoneyBall: Awake the Socket Service: Execution Time(hh:mm:ss): {x.status_code} : {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
+
         print(f'MoneyBall: Account Connection: Started')
         global account_connections
         try:
