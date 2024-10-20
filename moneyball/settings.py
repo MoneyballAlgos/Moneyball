@@ -151,10 +151,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Broker Detail
-BROKER_PIN = int(os.getenv("BROKER_PIN", '1234'))
-BROKER_USER_ID = os.getenv("BROKER_USER_ID", 'H188598')
-BROKER_API_KEY = os.getenv("BROKER_API_KEY", 'PWH6YyPN')
-BROKER_TOTP_KEY = os.getenv("BROKER_TOTP_KEY", '4BCXQY5RCHHVHHAYDQ7HPMCW5E')
+BROKER_PIN = int(os.getenv("BROKER_PIN", '0000'))
+BROKER_USER_ID = os.getenv("BROKER_USER_ID", 'User-Id Required')
+BROKER_API_KEY = os.getenv("BROKER_API_KEY", 'Api Key Required')
+BROKER_TOTP_KEY = os.getenv("BROKER_TOTP_KEY", 'TOTP Key required')
 
 SMTP_SENDER_NAME = 'MoneyBall.AI'
 SMTP_SENDER_EMAIL = 'moneyballalgos@gmail.com'
