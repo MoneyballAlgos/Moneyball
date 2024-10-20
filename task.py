@@ -548,23 +548,25 @@ def PivotUpdate():
         from_day = now - timedelta(days=5)
         print(f'MoneyBall: PIVOT UPDATE: Started : Total : {symbol_list.count()}')
         for symbol_obj in symbol_list:
-            data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
-            sleep(0.3)
+            try:
+                data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
+                sleep(0.3)
 
-            last_day = data_frame.iloc[-2]
+                last_day = data_frame.iloc[-2]
 
-            pivot_traditional = PIVOT(last_day)
-            symbol_obj.pivot = round(pivot_traditional['pivot'], 2)
-            symbol_obj.r1 = round(pivot_traditional['r1'], 2)
-            symbol_obj.s1 = round(pivot_traditional['s1'], 2)
-            symbol_obj.r2 = round(pivot_traditional['r2'], 2)
-            symbol_obj.s2 = round(pivot_traditional['s2'], 2)
-            symbol_obj.r3 = round(pivot_traditional['r3'], 2)
-            symbol_obj.s3 = round(pivot_traditional['s3'], 2)
+                pivot_traditional = PIVOT(last_day)
+                symbol_obj.pivot = round(pivot_traditional['pivot'], 2)
+                symbol_obj.r1 = round(pivot_traditional['r1'], 2)
+                symbol_obj.s1 = round(pivot_traditional['s1'], 2)
+                symbol_obj.r2 = round(pivot_traditional['r2'], 2)
+                symbol_obj.s2 = round(pivot_traditional['s2'], 2)
+                symbol_obj.r3 = round(pivot_traditional['r3'], 2)
+                symbol_obj.s3 = round(pivot_traditional['s3'], 2)
 
-            symbol_obj.save()
-            print(f'MoneyBall: PIVOT UPDATE: Updated: {symbol_obj.name}')
-
+                symbol_obj.save()
+                print(f'MoneyBall: PIVOT UPDATE: Updated: {symbol_obj.name}')
+            except Exception as e:
+                print(f'MoneyBall: PIVOT UPDATE: Loop Error: {str(e)}')
         print(f'MoneyBall: PIVOT UPDATE: Ended')
     except Exception as e:
         print(f'MoneyBall: PIVOT UPDATE: Error: {str(e)}')
