@@ -1,3 +1,4 @@
+import pandas_ta as ta
 from ta.momentum import rsi, stochrsi_d, stochrsi_k
 from ta.volatility import average_true_range, BollingerBands, KeltnerChannel
 from ta.trend import ema_indicator, macd_diff, macd_signal, macd, sma_indicator
@@ -12,19 +13,19 @@ def SMA(dataframe, timeperiod):
                          window=timeperiod)
 
 
-# def ADX(high, low, close, timeperiod):
-#     return ta.adx(high=high,
-#                low=low,
-#                close=close,
-#                length=timeperiod)[f"ADX_{timeperiod}"]
+def ADX(high, low, close, timeperiod):
+    return ta.adx(high=high,
+               low=low,
+               close=close,
+               length=timeperiod)[f"ADX_{timeperiod}"]
 
 
-# def SUPER_TREND(high, low, close, length, multiplier):
-#     return ta.supertrend(high=high,
-#                low=low,
-#                close=close,
-#                length=length,
-#                multiplier=multiplier)[f"SUPERT_{length}_{multiplier}.0"]
+def SUPER_TREND(high, low, close, length, multiplier):
+    return ta.supertrend(high=high,
+               low=low,
+               close=close,
+               length=length,
+               multiplier=multiplier)[f"SUPERT_{length}_{multiplier}.0"]
 
 
 def MACD(close, fast, slow, signal):

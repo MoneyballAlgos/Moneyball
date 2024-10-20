@@ -28,5 +28,12 @@ def historical_data(token, exchange, now, from_day, interval, product):
     ist_timezone = pytz.timezone('Asia/Kolkata')
     data_frame['date'] = data_frame['date'].apply(lambda x: datetime.fromisoformat(x).astimezone(ist_timezone))
 
+    # Compare the minutes
+    if product == 'future':
+        if (data_frame['date'].iloc[-1].minute >= now.minute) and (data_frame['date'].iloc[-1].hour >= now.hour):
+            data_frame = data_frame.iloc[:-1]
+        else:
+            data_frame = data_frame
+
     data_frame = data_frame.fillna(data_frame.mean())
     return data_frame
