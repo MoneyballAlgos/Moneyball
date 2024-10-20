@@ -91,10 +91,14 @@ WSGI_APPLICATION = "moneyball.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.parse("postgresql://moneyball_db_1_user:Xb8mFjnesziBYKTDH5eqL1mFhyuTFCr0@dpg-crvruro8fa8c73dtc1t0-a/moneyball_db_1", conn_max_age=0),
-} if os.getenv('SERVER_DB', False) else {
-    'default': dj_database_url.parse("postgresql://moneyball_db_1_user:Xb8mFjnesziBYKTDH5eqL1mFhyuTFCr0@dpg-crvruro8fa8c73dtc1t0-a.singapore-postgres.render.com/moneyball_db_1", conn_max_age=0),
+    'default': dj_database_url.parse("postgres://avnadmin:AVNS_rfihu563e20sAUBgk0_@moneyball-db-moneyball-db.i.aivencloud.com:14682/moneyball_db_1?sslmode=require", conn_max_age=0),
 }
+
+# DATABASES = {
+#     'default': dj_database_url.parse("postgresql://moneyball_db_1_user:Xb8mFjnesziBYKTDH5eqL1mFhyuTFCr0@dpg-crvruro8fa8c73dtc1t0-a/moneyball_db_1", conn_max_age=0),
+# } if os.getenv('SERVER_DB', False) else {
+#     'default': dj_database_url.parse("postgresql://moneyball_db_1_user:Xb8mFjnesziBYKTDH5eqL1mFhyuTFCr0@dpg-crvruro8fa8c73dtc1t0-a.singapore-postgres.render.com/moneyball_db_1", conn_max_age=0),
+# }
 
 # DATABASES = {
 #     "default": {
@@ -147,15 +151,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Broker Detail
-BROKER_PIN = int(os.getenv("BROKER_PIN", '0000'))
-BROKER_USER_ID = os.getenv("BROKER_USER_ID", 'User-Id Required')
-BROKER_API_KEY = os.getenv("BROKER_API_KEY", 'Api Key Required')
-BROKER_TOTP_KEY = os.getenv("BROKER_TOTP_KEY", 'TOTP Key required')
+BROKER_PIN = int(os.getenv("BROKER_PIN", '1234'))
+BROKER_USER_ID = os.getenv("BROKER_USER_ID", 'H188598')
+BROKER_API_KEY = os.getenv("BROKER_API_KEY", 'PWH6YyPN')
+BROKER_TOTP_KEY = os.getenv("BROKER_TOTP_KEY", '4BCXQY5RCHHVHHAYDQ7HPMCW5E')
 
-SMTP_SENDER_NAME = os.getenv("SMTP_SENDER_NAME", 'SMTP Sender name required')
-SMTP_SENDER_EMAIL = os.getenv("SMTP_SENDER_EMAIL", 'SMTP Sender email required')
-SMTP_SENDER_LOGIN = os.getenv("SMTP_SENDER_LOGIN", 'SMTP Sender login required')
-SMTP_SENDER_PASSWORD = os.getenv("SMTP_SENDER_PASSWORD", 'SMTP Sender password required')
+SMTP_SENDER_NAME = 'MoneyBall.AI'
+SMTP_SENDER_EMAIL = 'moneyballalgos@gmail.com'
+SMTP_SENDER_LOGIN = '7da65c001@smtp-brevo.com'
+SMTP_SENDER_PASSWORD = 't6KCV3yS9sX0jWBM'
 
 
 # Global Variable
