@@ -90,10 +90,14 @@ WSGI_APPLICATION = "moneyball.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.parse("postgresql://moneyball_db_1_user:Xb8mFjnesziBYKTDH5eqL1mFhyuTFCr0@dpg-crvruro8fa8c73dtc1t0-a/moneyball_db_1", conn_max_age=0),
-} if os.getenv('SERVER_DB', False) else {
-    'default': dj_database_url.parse("postgresql://moneyball_db_1_user:Xb8mFjnesziBYKTDH5eqL1mFhyuTFCr0@dpg-crvruro8fa8c73dtc1t0-a.singapore-postgres.render.com/moneyball_db_1", conn_max_age=0),
+    'default': dj_database_url.parse("postgres://avnadmin:AVNS_rfihu563e20sAUBgk0_@moneyball-db-moneyball-db.i.aivencloud.com:14682/moneyball_db_1?sslmode=require", conn_max_age=0),
 }
+
+# DATABASES = {
+#     'default': dj_database_url.parse("postgresql://moneyball_db_1_user:Xb8mFjnesziBYKTDH5eqL1mFhyuTFCr0@dpg-crvruro8fa8c73dtc1t0-a/moneyball_db_1", conn_max_age=0),
+# } if os.getenv('SERVER_DB', False) else {
+#     'default': dj_database_url.parse("postgresql://moneyball_db_1_user:Xb8mFjnesziBYKTDH5eqL1mFhyuTFCr0@dpg-crvruro8fa8c73dtc1t0-a.singapore-postgres.render.com/moneyball_db_1", conn_max_age=0),
+# }
 
 # DATABASES = {
 #     "default": {
