@@ -74,7 +74,7 @@ def SUPER_TREND(high, low, close, length, multiplier):
     supertrend = supertrend.set_index(upper_band.index)
     supertrend = supertrend.dropna()[1:]
 
-    return supertrend
+    return supertrend[f"supertrend_{length}"]
 
 
 def MACD(close, fast, slow, signal):
