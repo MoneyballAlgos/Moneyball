@@ -261,7 +261,11 @@ def Equity_BreakOut_1(auto_trigger=True):
 
         exclude_symbols_names = Transaction.objects.filter(product=product, indicate='EXIT', created_at__date=now.date(), is_active=True).values_list('name', flat=True)
 
-        symbol_list = Symbol.objects.filter(product=product, nifty200=True, is_active=True).exclude(name__in=exclude_symbols_names).order_by('-volume')
+        symbol_list_1 = Symbol.objects.filter(product=product, nifty100=True, is_active=True).exclude(name__in=exclude_symbols_names).order_by('-volume')
+        symbol_list_2 = Symbol.objects.filter(product=product, midcpnifty50=True, is_active=True).exclude(name__in=exclude_symbols_names).order_by('-volume')
+        symbol_list_3 = Symbol.objects.filter(product=product, smallcpnifty100=True, is_active=True).exclude(name__in=exclude_symbols_names).order_by('-volume')
+
+        symbol_list = list(symbol_list_1) + list(symbol_list_2) + list(symbol_list_3)
 
         print(f'MoneyBall: {log_identifier}: Total Equity Symbol Picked: {len(symbol_list)}')
 
@@ -537,7 +541,6 @@ def SquareOff():
 
     print(f'MoneyBall: SQUARE OFF: Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
     return True
-
 
 
 def CheckFnOSymbolDisable():
