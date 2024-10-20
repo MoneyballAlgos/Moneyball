@@ -347,7 +347,7 @@ def FnO_BreakOut_1(auto_trigger=True):
 
     try:
         if auto_trigger:
-            if now.time() < time(9, 18, 00):
+            if now.time() < time(9, 22, 00):
                 raise Exception("Entry Not Started")
             elif now.time() > time(15, 11, 00):
                 raise Exception("Entry Not Stopped")
