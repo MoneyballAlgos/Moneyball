@@ -364,30 +364,29 @@ def FnO_BreakOut_1(auto_trigger=True):
             try:
                 mode = None
 
-                entries_list = StockConfig.objects.filter(symbol__product=product, symbol__name=symbol_obj.name, is_active=True)
-                if not entries_list:
-                    if nop < configuration_obj.open_position:
-                        mode = None
+                if nop < configuration_obj.open_position:
+                    from_day = now - timedelta(days=3)
+                    data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
+                    sleep(0.3)
 
-                        from_day = now - timedelta(days=3)
-                        data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
-                        sleep(0.3)
+                    open = data_frame['Open'].iloc[-1]
+                    high = data_frame['High'].iloc[-1]
+                    low = data_frame['Low'].iloc[-1]
+                    close = data_frame['Close'].iloc[-1]
+                    prev_close = data_frame['Close'].iloc[-2]
 
-                        open = data_frame['Open'].iloc[-1]
-                        high = data_frame['High'].iloc[-1]
-                        low = data_frame['Low'].iloc[-1]
-                        close = data_frame['Close'].iloc[-1]
-                        prev_close = data_frame['Close'].iloc[-2]
+                    max_high = max(data_frame['High'].iloc[-30:-1])
+                    min_low = min(data_frame['Low'].iloc[-30:-1])
 
-                        max_high = max(data_frame['High'].iloc[-30:-1])
-                        min_low = min(data_frame['Low'].iloc[-30:-1])
+                    daily_volatility = calculate_volatility(data_frame)
 
-                        daily_volatility = calculate_volatility(data_frame)
+                    super_trend = SUPER_TREND(high=data_frame['High'], low=data_frame['Low'], close=data_frame['Close'], length=10, multiplier=3)
+                    bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
 
-                        super_trend = SUPER_TREND(high=data_frame['High'], low=data_frame['Low'], close=data_frame['Close'], length=10, multiplier=3)
-                        # bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
+                    entries_list = StockConfig.objects.filter(symbol__product=product, symbol__name=symbol_obj.name, is_active=True)
+                    if not entries_list:
 
-                        if close > super_trend.iloc[-1] and prev_close < super_trend.iloc[-2] and not ((high > symbol_obj.r1 and low < symbol_obj.r1) or (high > symbol_obj.r2 and low < symbol_obj.r2) or (high > symbol_obj.pivot and low < symbol_obj.pivot) or (high > symbol_obj.s1 and low < symbol_obj.s1) or (high > symbol_obj.s2 and low < symbol_obj.s2)):
+                        if close > super_trend.iloc[-1] and prev_close < super_trend.iloc[-2] and high < bb['hband'].iloc[-1] and not ((high > symbol_obj.r1 and low < symbol_obj.r1) or (high > symbol_obj.r2 and low < symbol_obj.r2) or (high > symbol_obj.pivot and low < symbol_obj.pivot) or (high > symbol_obj.s1 and low < symbol_obj.s1) or (high > symbol_obj.s2 and low < symbol_obj.s2)):
                             mode = 'CE'
                             stock_future_symbol = Symbol.objects.filter(
                                                         product='future',
@@ -397,7 +396,7 @@ def FnO_BreakOut_1(auto_trigger=True):
                                                         fno=True,
                                                         is_active=True).order_by('strike')
 
-                        if close < super_trend.iloc[-1] and prev_close > super_trend.iloc[-2] and not ((high > symbol_obj.r1 and low < symbol_obj.r1) or (high > symbol_obj.r2 and low < symbol_obj.r2) or (high > symbol_obj.pivot and low < symbol_obj.pivot) or (high > symbol_obj.s1 and low < symbol_obj.s1) or (high > symbol_obj.s2 and low < symbol_obj.s2)):
+                        if close < super_trend.iloc[-1] and prev_close > super_trend.iloc[-2] and low > bb['lband'].iloc[-1] and not ((high > symbol_obj.r1 and low < symbol_obj.r1) or (high > symbol_obj.r2 and low < symbol_obj.r2) or (high > symbol_obj.pivot and low < symbol_obj.pivot) or (high > symbol_obj.s1 and low < symbol_obj.s1) or (high > symbol_obj.s2 and low < symbol_obj.s2)):
                             mode = 'PE'
                             stock_future_symbol = Symbol.objects.filter(
                                                         product='future',
@@ -436,9 +435,9 @@ def FnO_BreakOut_1(auto_trigger=True):
                                     new_entry = Price_Action_Trade(data, new_entry)
                                     nop += 1
                                     break
-                else:
-                    # Perform action if required for Open Entries
-                    pass
+                    else:
+                        # Perform action if required for Open Entries
+                        pass
 
                 del mode, entries_list
 

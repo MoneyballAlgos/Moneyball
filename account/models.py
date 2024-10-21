@@ -60,6 +60,11 @@ class AccountStockConfig(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+       indexes = [
+            models.Index(fields=['product',]),
+            ]
+
     def __str__(self):
         return f"{self.id}-{self.account.user_id}-{self.symbol}"
 
@@ -93,6 +98,11 @@ class AccountTransaction(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+       indexes = [
+            models.Index(fields=['product',]),
+            ]
 
     def __str__(self):
         return f"{self.id}-{self.account.user_id}-{self.product}-{self.symbol}"
