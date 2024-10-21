@@ -359,10 +359,9 @@ def FnO_BreakOut_1(auto_trigger=True):
         print(f'MoneyBall: {log_identifier}: Total FnO Symbol Picked: {len(symbol_list)} : Entry on hold: {entry_holder[log_identifier]}')
 
         new_entry = []
+        nop = StockConfig.objects.filter(symbol__product=product, is_active=True).count()
         for index, symbol_obj in enumerate(symbol_list):
             try:
-                nop = len(StockConfig.objects.filter(symbol__product=product, is_active=True))
-
                 mode = None
 
                 entries_list = StockConfig.objects.filter(symbol__product=product, symbol__name=symbol_obj.name, is_active=True)
@@ -370,7 +369,7 @@ def FnO_BreakOut_1(auto_trigger=True):
                     if nop < configuration_obj.open_position:
                         mode = None
 
-                        from_day = now - timedelta(days=7)
+                        from_day = now - timedelta(days=3)
                         data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
                         sleep(0.3)
 
@@ -386,7 +385,7 @@ def FnO_BreakOut_1(auto_trigger=True):
                         daily_volatility = calculate_volatility(data_frame)
 
                         super_trend = SUPER_TREND(high=data_frame['High'], low=data_frame['Low'], close=data_frame['Close'], length=10, multiplier=3)
-                        bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
+                        # bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
 
                         if close > super_trend.iloc[-1] and prev_close < super_trend.iloc[-2] and not ((high > symbol_obj.r1 and low < symbol_obj.r1) or (high > symbol_obj.r2 and low < symbol_obj.r2) or (high > symbol_obj.pivot and low < symbol_obj.pivot) or (high > symbol_obj.s1 and low < symbol_obj.s1) or (high > symbol_obj.s2 and low < symbol_obj.s2)):
                             mode = 'CE'
@@ -435,6 +434,7 @@ def FnO_BreakOut_1(auto_trigger=True):
                                     data['lot'] = lot
                                     data['symbol_obj'] = fut_sym_obj
                                     new_entry = Price_Action_Trade(data, new_entry)
+                                    nop += 1
                                     break
                 else:
                     # Perform action if required for Open Entries
