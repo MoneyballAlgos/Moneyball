@@ -151,6 +151,7 @@ def SymbolSetup():
                         Symbol.objects.bulk_create(bulk_create_list)
                         print(f"MoneyBall: Symbol Setup: {Symbol.objects.filter(is_active=True).count()}")
                         bulk_create_list = []
+        Symbol.objects.bulk_create(bulk_create_list)
         print(f"MoneyBall: Symbol Setup: Loop Ended")
 
         future_enables_symbols = set(Symbol.objects.filter(product='future', is_active=True).values_list('name', flat=True))
