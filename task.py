@@ -115,6 +115,7 @@ def SymbolSetup():
 
         print(f'MoneyBall: Symbol Setup: Fetch Index Symbol List : Ended')
 
+        bulk_create_list = []
         for i in data:
             product = None
             expity_date = datetime.strptime(i['expiry'], '%d%b%Y') if i['expiry'] else None
@@ -124,42 +125,32 @@ def SymbolSetup():
                 elif i['symbol'].endswith('-EQ'):
                     product = 'equity'
                 if product is not None:
-                    obj, _ = Symbol.objects.get_or_create(
-                        product=product,
-                        name=i['name'],
-                        symbol=i['symbol']
+                    bulk_create_list.append(
+                        Symbol(
+                            product=product,
+                            name=i['name'],
+                            symbol=i['symbol'],
+                            token=i['token'],
+                            strike=int(i['strike'].split('.')[0])/100,
+                            exchange=i['exch_seg'],
+                            expiry=expity_date,
+                            lot=int(i['lotsize']),
+                            fno=True if product == 'future' else False,
+                            nifty50=True if i['name'] in nifty50 else False,
+                            nifty100=True if i['name'] in nifty100 else False,
+                            nifty200=True if i['name'] in nifty200 else False,
+                            midcpnifty50=True if i['name'] in midcpnifty50 else False,
+                            midcpnifty100=True if i['name'] in midcpnifty100 else False,
+                            midcpnifty150=True if i['name'] in midcpnifty150 else False,
+                            smallcpnifty50=True if i['name'] in smallcpnifty50 else False,
+                            smallcpnifty100=True if i['name'] in smallcpnifty100 else False,
+                            smallcpnifty250=True if i['name'] in smallcpnifty250 else False
                         )
-                    obj.token=i['token']
-                    obj.strike=int(i['strike'].split('.')[0])/100
-                    obj.exchange=i['exch_seg']
-                    obj.expiry=expity_date
-                    obj.lot=int(i['lotsize'])
-                    if product == 'future':
-                        obj.fno=True
-
-                    if i['name'] in nifty50:
-                        obj.nifty50 = True
-                    if i['name'] in nifty100:
-                        obj.nifty100 = True
-                    if i['name'] in nifty200:
-                        obj.nifty200 = True
-
-                    if i['name'] in midcpnifty50:
-                        obj.midcpnifty50 = True
-                    if i['name'] in midcpnifty100:
-                        obj.midcpnifty100 = True
-                    if i['name'] in midcpnifty150:
-                        obj.midcpnifty150 = True
-
-                    if i['name'] in smallcpnifty50:
-                        obj.smallcpnifty50 = True
-                    if i['name'] in smallcpnifty100:
-                        obj.smallcpnifty100 = True
-                    if i['name'] in smallcpnifty250:
-                        obj.smallcpnifty250 = True
-
-                    obj.save()
-                    print(f"MoneyBall: Symbol Setup: Name : {obj.name} : Product : {obj.product}")
+                    )
+                    if len(bulk_create_list) == 1000:
+                        Symbol.objects.bulk_create(bulk_create_list)
+                        print(f"MoneyBall: Symbol Setup: {Symbol.objects.filter(is_active=True).count()}")
+                        bulk_create_list = []
         print(f"MoneyBall: Symbol Setup: Loop Ended")
 
         future_enables_symbols = set(Symbol.objects.filter(product='future', is_active=True).values_list('name', flat=True))
