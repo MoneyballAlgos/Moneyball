@@ -88,7 +88,7 @@ def Stock_Square_Off(data, ltp):
                             token=data['stock_obj'].symbol.token,
                             exchange=data['stock_obj'].symbol.exchange,
                             indicate='EXIT',
-                            type='SQ-OFF',
+                            type=data['exit_type'],
                             price=price,
                             target=data['stock_obj'].target,
                             stoploss=data['stock_obj'].stoploss,

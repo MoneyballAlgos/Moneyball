@@ -75,6 +75,8 @@
             "entry_amount": 10000.0,
             "total_open_position": 10,
             "active_open_position": 0,
+            "fno_enabled": false,
+            "equity_enabled": true,
             "is_active": true,
             "created_at": "2024-10-05T23:01:02.020Z",
             "updated_at": "2024-10-06T01:05:21.789Z"
@@ -90,6 +92,8 @@
             "entry_amount": 10000.0,
             "total_open_position": 5,
             "active_open_position": 0,
+            "fno_enabled": false,
+            "equity_enabled": true,
             "is_active": true,
             "created_at": "2024-10-05T23:01:03.025Z",
             "updated_at": "2024-10-06T01:05:16.094Z"

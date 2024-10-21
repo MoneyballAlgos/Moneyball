@@ -4,7 +4,7 @@
         "pk": 1,
         "fields": {
             "password": "pbkdf2_sha256$870000$D6KNOJngoMC6X8VuK1KV0t$3F+3vOuvzd4PLTr5Yl4b61gGxx3WUr0tx8Xdc3JhF48=",
-            "last_login": "2024-10-05T18:09:01Z",
+            "last_login": "2024-10-21T09:04:57Z",
             "is_superuser": false,
             "username": "MoneyBall",
             "first_name": "",
@@ -15,6 +15,7 @@
             "date_joined": "2024-10-04T11:41:10Z",
             "groups": [],
             "user_permissions": [
+                62,
                 64,
                 76,
                 84,
@@ -37,7 +38,7 @@
         "pk": 2,
         "fields": {
             "password": "pbkdf2_sha256$870000$OgQkkffiTqb6lHSTmUwOT3$1gSGsdV/6FMcqfeDH9sdg5qkuYl8SGMN2EDcWFhb4Ec=",
-            "last_login": "2024-10-21T08:55:08.491Z",
+            "last_login": "2024-10-21T09:11:20.324Z",
             "is_superuser": true,
             "username": "Master",
             "first_name": "",
