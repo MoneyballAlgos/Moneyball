@@ -159,6 +159,8 @@ def SymbolSetup():
                         obj.smallcpnifty250 = True
 
                     obj.save()
+                    print(f"MoneyBall: Symbol Setup: Name : {obj.name} : Product : {obj.product}")
+        print(f"MoneyBall: Symbol Setup: Loop Ended")
 
         future_enables_symbols = set(Symbol.objects.filter(product='future', is_active=True).values_list('name', flat=True))
         Symbol.objects.filter(product='equity', name__in=future_enables_symbols, is_active=True).update(fno=True)
