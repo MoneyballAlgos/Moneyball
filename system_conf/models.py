@@ -14,6 +14,11 @@ class Configuration(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+       indexes = [
+            models.Index(fields=['product',]),
+            ]
+
     def __str__(self):
         return f"{self.id}-{self.product}"
 
@@ -55,6 +60,22 @@ class Symbol(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+       indexes = [
+            models.Index(fields=['-fno',]),
+            models.Index(fields=['exchange',]),
+            models.Index(fields=['product',]),
+            models.Index(fields=['-nifty50',]),
+            models.Index(fields=['-nifty100',]),
+            models.Index(fields=['-nifty200',]),
+            models.Index(fields=['-midcpnifty50',]),
+            models.Index(fields=['-midcpnifty100',]),
+            models.Index(fields=['-midcpnifty150',]),
+            models.Index(fields=['-smallcpnifty50',]),
+            models.Index(fields=['-smallcpnifty100',]),
+            models.Index(fields=['-smallcpnifty250',]),
+            ]
 
     def __str__(self):
         return f"{self.id}-{self.symbol}"
