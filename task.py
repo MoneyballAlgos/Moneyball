@@ -437,8 +437,15 @@ def FnO_BreakOut_1(auto_trigger=True):
                                     nop += 1
                                     break
                     else:
+                        stock_obj = entries_list[0]
                         # Perform action if required for Open Entries
-                        pass
+                        if ((high > symbol_obj.r1 and low < symbol_obj.r1) or (high > symbol_obj.r2 and low < symbol_obj.r2) or (high > symbol_obj.pivot and low < symbol_obj.pivot) or (high > symbol_obj.s1 and low < symbol_obj.s1) or (high > symbol_obj.s2 and low < symbol_obj.s2)):
+                            data = {
+                                'exit_type': 'PIVOT',
+                                'configuration_obj': configuration_obj,
+                                'stock_obj': stock_obj
+                            }
+                            Stock_Square_Off(data, stock_obj.ltp)
 
                 del mode, entries_list
 
@@ -471,6 +478,7 @@ def SquareOff():
             for stock_obj in entries_list:
                 try:
                     data = {
+                        'exit_type': 'SQ-OFF',
                         'configuration_obj': future_configuration_obj if stock_obj.symbol.product == 'future' else equity_configuration_obj,
                         'stock_obj': stock_obj
                     }
