@@ -57,7 +57,7 @@ def LTP_Action(token, ltp, open_position, correlation_id, socket_mode, sws):
 
 def connect_to_socket(correlation_id, socket_mode, subscribe_list):
     try: 
-        global open_position, sws
+        global sws, open_position
 
         def on_data(wsapp, message):
             ltp = message['last_traded_price']/100
