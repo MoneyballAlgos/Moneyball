@@ -12,10 +12,19 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 pip install --upgrade pip && pip install -r requirements.txt
 gunicorn --workers=1 --threads=3 moneyball.wsgi:application
 
-Backup Db-
-    python manage.py dumpdata auth.user system_conf.Configuration system_conf.Symbol stock.StockConfig stock.Transaction account.AccountKeys account.AccountConfiguration account.AccountStockConfig account.AccountTransaction > db.json
-Restore Db-
-    python manage.py loaddata db.json
+Backup Db :
+    - python manage.py shell
+    - from stock.models import StockConfig
+    - from system_conf.models import Symbol
+    - open_entries_symbols = StockConfig.objects.filter(is_active=True).values_list('symbol__symbol', flat=True)
+    - Symbol.objects.filter(is_active=True).exclude(symbol__in=open_entries_symbols).delete()
+    - exit()
+
+    - python manage.py dumpdata auth.user system_conf.Configuration system_conf.Symbol stock.StockConfig stock.Transaction account.AccountKeys account.AccountConfiguration account.AccountStockConfig account.AccountTransaction > db.json
+Restore Db :
+    - Comment all post_save actions form action.py file (end of file)
+    - python manage.py loaddata db.json
+
 """
 
 import os
