@@ -353,7 +353,7 @@ def FnO_BreakOut_1(auto_trigger=True):
         
         exclude_symbols_names = Transaction.objects.filter(product=product, indicate='ENTRY', created_at__date=now.date(), is_active=True).values_list('name', flat=True)
 
-        symbol_list = Symbol.objects.filter(product='equity', fno=True, is_active=True).exclude(name__in=exclude_symbols_names).order_by('-volume')
+        symbol_list = Symbol.objects.filter(product='equity', fno=True, is_active=True).order_by('-volume')
 
         global broker_connection, entry_holder
         if not entry_holder.get(log_identifier):
@@ -410,7 +410,7 @@ def FnO_BreakOut_1(auto_trigger=True):
                                                         fno=True,
                                                         is_active=True).order_by('-strike')
 
-                        if mode not in [None]:
+                        if mode not in [None] and symbol_obj.name not in exclude_symbols_names:
                             data = {
                                 'log_identifier': log_identifier,
                                 'configuration_obj': configuration_obj,
