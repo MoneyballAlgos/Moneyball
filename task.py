@@ -322,7 +322,6 @@ def Equity_BreakOut_1(auto_trigger=True):
                             stock_config_obj.trailing_sl = trsl_ce
                             print(f'MoneyBall: {log_identifier}: {index+1}: {stock_config_obj.mode} : Old Trailing SL --> New Trailing SL : {symbol_obj.symbol}')
                     stock_config_obj.save()
-                del mode, entries_list
 
             except Exception as e:
                 StockConfig.objects.filter(symbol__product=product, symbol__name=symbol_obj.name, is_active=False).delete()
@@ -449,8 +448,6 @@ def FnO_BreakOut_1(auto_trigger=True):
                                 'stock_obj': stock_obj
                             }
                             Stock_Square_Off(data, stock_obj.ltp)
-
-                del mode, entries_list
 
             except Exception as e:
                 StockConfig.objects.filter(symbol__product=product, symbol__name=symbol_obj.name, is_active=False).delete()
