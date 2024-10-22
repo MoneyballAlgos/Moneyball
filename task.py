@@ -446,6 +446,7 @@ def FnO_BreakOut_1(auto_trigger=True):
                             'configuration_obj': configuration_obj,
                             'stock_obj': stock_obj
                         }
+                        print(f'MoneyBall: {log_identifier}: PIVOT Exit: FnO-Symbol: {symbol_obj.symbol} : {stock_obj.ltp}')
                         Stock_Square_Off(data, stock_obj.ltp)
 
             except Exception as e:
