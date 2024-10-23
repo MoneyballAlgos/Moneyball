@@ -48,7 +48,7 @@ class AccountTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
         return ['-date']
 
     def account_name(self, obj):
-        if obj.order_status == 'Cancelled':
+        if 'Cancelled' in obj.order_status:
             return format_html('<strong style="color:Orange;">{}</strong>', f"{obj.account.first_name}")
         return f"{obj.account.first_name}"# {obj.account.last_name[0]}"
     account_name.short_description = 'User'
@@ -96,7 +96,7 @@ class AccountEquityTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
         return ['-date']
     
     def account_name(self, obj):
-        if obj.order_status == 'Cancelled':
+        if 'Cancelled' in obj.order_status:
             return format_html('<strong style="color:Orange;">{}</strong>', f"{obj.account.first_name}")
         return f"{obj.account.first_name}"# {obj.account.last_name[0]}"
     account_name.short_description = 'User'
@@ -145,7 +145,7 @@ class AccountFnOTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
         return ['-date']
     
     def account_name(self, obj):
-        if obj.order_status == 'Cancelled':
+        if 'Cancelled' in obj.order_status:
             return format_html('<strong style="color:Orange;">{}</strong>', f"{obj.account.first_name}")
         return f"{obj.account.first_name}"# {obj.account.last_name[0]}"
     account_name.short_description = 'User'
