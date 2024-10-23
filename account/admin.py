@@ -16,13 +16,36 @@ class AccountKeyAdmin(ExportActionMixin, admin.ModelAdmin):
 
 @admin.register(AccountConfiguration)
 class AccountConfigurationAdmin(admin.ModelAdmin):
-    list_display = ('account_name', 'place_order', 'account_balance', 'entry_amount', 'total_open_position', 'active_open_position', 'fno_enabled', 'equity_enabled', 'nifty50', 'nifty100', 'nifty200', 'midcpnifty50', 'midcpnifty100', 'midcpnifty150', 'smallcpnifty50', 'smallcpnifty100', 'smallcpnifty250', 'is_active')
+    list_display = ('account_name', 'place_order', 'account_balance', 'entry_amount', 'total_open_position', 'active_open_position', 'fno_enabled', 'equity_enabled', 'indics', 'nifty50', 'nifty100', 'nifty200', 'midcpnifty50', 'midcpnifty100', 'midcpnifty150', 'smallcpnifty50', 'smallcpnifty100', 'smallcpnifty250', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
     list_filter = ('account__first_name', 'nifty50', 'nifty100', 'nifty200', 'midcpnifty50', 'midcpnifty100', 'midcpnifty150', 'smallcpnifty50', 'smallcpnifty100', 'smallcpnifty250', 'is_active')
 
     def account_name(self, obj):
         return f"{obj.account.first_name}"# {obj.account.last_name[0]}"
     account_name.short_description = 'User'
+
+    def indics(self, obj):
+        ind_str = []
+        if obj.nifty50:
+            ind_str.append('N50')
+        if obj.nifty100:
+            ind_str.append('N100')
+        if obj.nifty200:
+            ind_str.append('N200')
+        if obj.midcpnifty50:
+            ind_str.append('MDCP50')
+        if obj.midcpnifty100:
+            ind_str.append('MDCP100')
+        if obj.midcpnifty150:
+            ind_str.append('MDCP150')
+        if obj.smallcpnifty50:
+            ind_str.append('SMCP50')
+        if obj.smallcpnifty100:
+            ind_str.append('SMCP100')
+        if obj.smallcpnifty250:
+            ind_str.append('SMCP250')
+        return ",".join(ind_str)
+    indics.short_description = 'Enabled-Indics'
 
 @admin.register(AccountStockConfig)
 class AccountStockConfigAdmin(admin.ModelAdmin):
