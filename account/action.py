@@ -256,21 +256,29 @@ def AccountTradeAction(sender, instance, created):
     try:
         print(f"MoneyBall: Account Trade Action {instance.indicate} : {instance.product} : {instance.symbol}")
         if instance.indicate == 'ENTRY':
-            symbol_obj = Symbol.objects.filter(token=instance.token, is_active=True)
+            symbol_obj = Symbol.objects.get(token=instance.token, is_active=True)
 
             # Fetch Active User
             if instance.product == 'equity':
-                filter_Query = {
-                    'nifty50' : True if symbol_obj.nifty50 else False,
-                    'nifty100' : True if symbol_obj.nifty100 else False,
-                    'nifty200' : True if symbol_obj.nifty200 else False,
-                    'midcpnifty50' : True if symbol_obj.midcpnifty50 else False,
-                    'midcpnifty100' : True if symbol_obj.midcpnifty100 else False,
-                    'midcpnifty150' : True if symbol_obj.midcpnifty150 else False,
-                    'smallcpnifty50' : True if symbol_obj.smallcpnifty50 else False,
-                    'smallcpnifty100' : True if symbol_obj.smallcpnifty100 else False,
-                    'smallcpnifty250' : True if symbol_obj.smallcpnifty250 else False,
-                }
+                filter_Query = {}
+                if symbol_obj.nifty50:
+                    filter_Query['nifty50'] = True
+                elif symbol_obj.nifty100:
+                    filter_Query['nifty100'] = True
+                elif symbol_obj.nifty200:
+                    filter_Query['nifty200'] = True
+                elif symbol_obj.midcpnifty50:
+                    filter_Query['midcpnifty50'] = True
+                elif symbol_obj.midcpnifty100:
+                    filter_Query['midcpnifty100'] = True
+                elif symbol_obj.midcpnifty150:
+                    filter_Query['midcpnifty150'] = True
+                elif symbol_obj.smallcpnifty50:
+                    filter_Query['smallcpnifty50'] = True
+                elif symbol_obj.smallcpnifty100:
+                    filter_Query['smallcpnifty100'] = True
+                elif symbol_obj.smallcpnifty250:
+                    filter_Query['smallcpnifty250'] = True
                 user_account_configs = AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, entry_amount__gte=instance.price, account__is_active=True).filter(**filter_Query)
             else:
                 user_account_configs = AccountConfiguration.objects.filter(place_order=True, fno_enabled=True, account__is_active=True)
