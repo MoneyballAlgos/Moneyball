@@ -20,6 +20,7 @@ class StockConfig(models.Model):
     tr_hit = models.BooleanField(verbose_name='Target Hit', default=False)
     trailing_sl = models.FloatField(verbose_name='Trailing SL', default=0)
     ltp = models.FloatField(verbose_name='Ltp', blank=True, null=True, default=0)
+    fno_activation = models.BooleanField(default=False)
 
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
