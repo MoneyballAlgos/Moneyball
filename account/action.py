@@ -260,31 +260,38 @@ def AccountTradeAction(sender, instance, created):
 
             # Fetch Active User
             if instance.product == 'equity':
-                filter_Query = {}
+                user_accounts = []
                 if symbol_obj.nifty50:
-                    filter_Query['nifty50'] = True
-                elif symbol_obj.nifty100:
-                    filter_Query['nifty100'] = True
-                elif symbol_obj.nifty200:
-                    filter_Query['nifty200'] = True
-                elif symbol_obj.midcpnifty50:
-                    filter_Query['midcpnifty50'] = True
-                elif symbol_obj.midcpnifty100:
-                    filter_Query['midcpnifty100'] = True
-                elif symbol_obj.midcpnifty150:
-                    filter_Query['midcpnifty150'] = True
-                elif symbol_obj.smallcpnifty50:
-                    filter_Query['smallcpnifty50'] = True
-                elif symbol_obj.smallcpnifty100:
-                    filter_Query['smallcpnifty100'] = True
-                elif symbol_obj.smallcpnifty250:
-                    filter_Query['smallcpnifty250'] = True
-                user_account_configs = AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, entry_amount__gte=instance.price, account__is_active=True).filter(**filter_Query)
+                    user_accounts.extend(list(AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, nifty50=True, entry_amount__gte=instance.price, account__is_active=True)))
+                if symbol_obj.nifty100:
+                    user_accounts.extend(list(AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, nifty100=True, entry_amount__gte=instance.price, account__is_active=True)))
+                if symbol_obj.nifty200:
+                    user_accounts.extend(list(AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, nifty200=True, entry_amount__gte=instance.price, account__is_active=True)))
+                if symbol_obj.midcpnifty50:
+                    user_accounts.extend(list(AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, midcpnifty50=True, entry_amount__gte=instance.price, account__is_active=True)))
+                if symbol_obj.midcpnifty100:
+                    user_accounts.extend(list(AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, midcpnifty100=True, entry_amount__gte=instance.price, account__is_active=True)))
+                if symbol_obj.midcpnifty150:
+                    user_accounts.extend(list(AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, midcpnifty150=True, entry_amount__gte=instance.price, account__is_active=True)))
+                if symbol_obj.smallcpnifty50:
+                    user_accounts.extend(list(AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, smallcpnifty50=True, entry_amount__gte=instance.price, account__is_active=True)))
+                if symbol_obj.smallcpnifty100:
+                    user_accounts.extend(list(AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, smallcpnifty100=True, entry_amount__gte=instance.price, account__is_active=True)))
+                if symbol_obj.smallcpnifty250:
+                    user_accounts.extend(list(AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, smallcpnifty250=True, entry_amount__gte=instance.price, account__is_active=True)))
+                
+                temp_user_account_ids = []
+                user_account_configs = []
+                for user_obj in user_accounts:
+                    if user_obj.account.user_id not in temp_user_account_ids:
+                        temp_user_account_ids.append(user_obj.account.user_id)
+                        user_account_configs.append(user_obj)
+                
             else:
                 user_account_configs = AccountConfiguration.objects.filter(place_order=True, fno_enabled=True, account__is_active=True)
 
             if user_account_configs:
-                print(f"MoneyBall: Account Trade Action {instance.indicate}: Total User for Entry: {user_account_configs.count()}")
+                print(f"MoneyBall: Account Trade Action {instance.indicate}: Total User for Entry: {len(user_account_configs)}")
 
                 for user_config in user_account_configs:
                     try:
@@ -295,7 +302,7 @@ def AccountTradeAction(sender, instance, created):
                     except Exception as e:
                         print(f"MoneyBall: Account Trade Action {instance.indicate}: User Loop Error: {e}")
             else:
-                print(f"MoneyBall: Account Trade Action {instance.indicate}: No User for Entry: {user_account_configs.count()}")
+                print(f"MoneyBall: Account Trade Action {instance.indicate}: No User for Entry: {len(user_account_configs)}")
         elif instance.indicate == 'EXIT':
             transaction_data = {
                 'product': instance.product,
