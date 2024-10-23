@@ -239,7 +239,7 @@ def UserTrade(sender, instance, created, user_config):
             email_context = {
                 'name': user_config.account.first_name,
                 "symbol": instance.symbol,
-                "price": instance.price,
+                "price": round(instance.price, 2),
                 "target": instance.fixed_target,
                 "stoploss": instance.stoploss,
                 "order_id": order_id
@@ -256,10 +256,30 @@ def AccountTradeAction(sender, instance, created):
     try:
         print(f"MoneyBall: Account Trade Action {instance.indicate} : {instance.product} : {instance.symbol}")
         if instance.indicate == 'ENTRY':
+            symbol_obj = Symbol.objects.get(token=instance.token, is_active=True)
 
             # Fetch Active User
             if instance.product == 'equity':
-                user_account_configs = AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, entry_amount__gte=instance.price, account__is_active=True)
+                filter_Query = {}
+                if symbol_obj.nifty50:
+                    filter_Query['nifty50'] = True
+                elif symbol_obj.nifty100:
+                    filter_Query['nifty100'] = True
+                elif symbol_obj.nifty200:
+                    filter_Query['nifty200'] = True
+                elif symbol_obj.midcpnifty50:
+                    filter_Query['midcpnifty50'] = True
+                elif symbol_obj.midcpnifty100:
+                    filter_Query['midcpnifty100'] = True
+                elif symbol_obj.midcpnifty150:
+                    filter_Query['midcpnifty150'] = True
+                elif symbol_obj.smallcpnifty50:
+                    filter_Query['smallcpnifty50'] = True
+                elif symbol_obj.smallcpnifty100:
+                    filter_Query['smallcpnifty100'] = True
+                elif symbol_obj.smallcpnifty250:
+                    filter_Query['smallcpnifty250'] = True
+                user_account_configs = AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, entry_amount__gte=instance.price, account__is_active=True).filter(**filter_Query)
             else:
                 user_account_configs = AccountConfiguration.objects.filter(place_order=True, fno_enabled=True, account__is_active=True)
 
@@ -387,7 +407,7 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
                         email_context = {
                             'name': instance.account.first_name,
                             "symbol": instance.symbol,
-                            "price": instance.price,
+                            "price": round(instance.price, 2),
                             "target": instance.fixed_target,
                             "stoploss": instance.stoploss,
                             "order_id": user_stock_config.order_id
@@ -481,7 +501,7 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
                             email_context = {
                                 'name': instance.account.first_name,
                                 "symbol": instance.symbol,
-                                "price": instance.price,
+                                "price": round(instance.price, 2),
                                 "target": instance.fixed_target,
                                 "stoploss": instance.stoploss,
                                 "order_id": user_stock_config.order_id

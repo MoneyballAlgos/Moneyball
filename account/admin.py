@@ -16,9 +16,9 @@ class AccountKeyAdmin(ExportActionMixin, admin.ModelAdmin):
 
 @admin.register(AccountConfiguration)
 class AccountConfigurationAdmin(admin.ModelAdmin):
-    list_display = ('account_name', 'place_order', 'account_balance', 'entry_amount', 'equity_enabled', 'fno_enabled', 'total_open_position', 'active_open_position', 'is_active')
+    list_display = ('account_name', 'place_order', 'account_balance', 'entry_amount', 'total_open_position', 'active_open_position', 'fno_enabled', 'equity_enabled', 'nifty50', 'nifty100', 'nifty200', 'midcpnifty50', 'midcpnifty100', 'midcpnifty150', 'smallcpnifty50', 'smallcpnifty100', 'smallcpnifty250', 'is_active')
     search_fields = ['account__first_name', 'account__last_name', 'account__mobile', 'account__user_id']
-    list_filter = ('account__first_name', 'is_active')
+    list_filter = ('account__first_name', 'nifty50', 'nifty100', 'nifty200', 'midcpnifty50', 'midcpnifty100', 'midcpnifty150', 'smallcpnifty50', 'smallcpnifty100', 'smallcpnifty250', 'is_active')
 
     def account_name(self, obj):
         return f"{obj.account.first_name}"# {obj.account.last_name[0]}"
@@ -48,7 +48,7 @@ class AccountTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
         return ['-date']
 
     def account_name(self, obj):
-        if obj.order_status == 'Cancelled':
+        if 'Cancelled' in obj.order_status:
             return format_html('<strong style="color:Orange;">{}</strong>', f"{obj.account.first_name}")
         return f"{obj.account.first_name}"# {obj.account.last_name[0]}"
     account_name.short_description = 'User'
@@ -96,7 +96,7 @@ class AccountEquityTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
         return ['-date']
     
     def account_name(self, obj):
-        if obj.order_status == 'Cancelled':
+        if 'Cancelled' in obj.order_status:
             return format_html('<strong style="color:Orange;">{}</strong>', f"{obj.account.first_name}")
         return f"{obj.account.first_name}"# {obj.account.last_name[0]}"
     account_name.short_description = 'User'
@@ -145,7 +145,7 @@ class AccountFnOTransactionAdmin(ExportActionMixin, admin.ModelAdmin):
         return ['-date']
     
     def account_name(self, obj):
-        if obj.order_status == 'Cancelled':
+        if 'Cancelled' in obj.order_status:
             return format_html('<strong style="color:Orange;">{}</strong>', f"{obj.account.first_name}")
         return f"{obj.account.first_name}"# {obj.account.last_name[0]}"
     account_name.short_description = 'User'

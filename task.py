@@ -1,14 +1,15 @@
 import pyotp
 import requests
+import yfinance as yf
 from time import sleep
 from zoneinfo import ZoneInfo
 from SmartApi import SmartConnect
+from helper.common import last_thursday
 from datetime import datetime, time, timedelta
 from helper.angel_function import historical_data
 from stock.models import StockConfig, Transaction
 from helper.indicator import BB, PIVOT, SUPER_TREND
 from system_conf.models import Configuration, Symbol
-from helper.common import calculate_volatility, last_thursday
 from helper.trade_action import Price_Action_Trade, Stock_Square_Off
 from account.models import AccountConfiguration, AccountKeys, AccountStockConfig, AccountTransaction
 from moneyball.settings import BED_URL_DOMAIN, BROKER_API_KEY, BROKER_PIN, BROKER_TOTP_KEY, BROKER_USER_ID, SOCKET_STREAM_URL_DOMAIN, broker_connection, account_connections, entry_holder
@@ -83,7 +84,7 @@ def SymbolSetup():
 
         Symbol.objects.filter(expiry__lt=now.date(), is_active=True).delete()
 
-        exclude_symbol = ['HDFCNIFTY', '031NSETEST', '151NSETEST', 'LIQUID', 'HNGSNGBEES', 'AXISCETF', 'SETFNIFBK', 'EBANKNIFTY', '171NSETEST', 'SETFNIF50', 'CPSEETF', 'GSEC10IETF', 'DIVOPPBEES', 'OILIETF', 'AUTOIETF', 'HDFCLIQUID', 'AXISNIFTY', 'NIFTY50ADD', 'CONSUMBEES', 'HDFCNIFBAN', 'NIFTYBEES', '101NSETEST', 'LIQUIDETF', 'TOP10ADD', 'NIF100BEES', 'PSUBNKIETF', 'INFRABEES', 'AXISTECETF', 'NV20BEES', 'ALPL30IETF', 'INFRAIETF', '181NSETEST', 'MOM30IETF', 'SBISILVER', 'NIFTY1', 'UTINIFTETF', 'SILVERBEES', 'BANKETFADD', 'MIDCAPIETF', 'PHARMABEES', 'SENSEXADD', 'GOLDCASE', 'HEALTHIETF', 'BSLNIFTY', 'PVTBANIETF', 'BSE500IETF', '071NSETEST', '011NSETEST', 'IVZINGOLD', 'NETF', 'SENSEXIETF', 'SBIETFIT', 'ABSLBANETF', 'SILVERTUC', 'SHARIABEES', 'EBBETF0433', 'SILVERETF', 'FMCGIETF', 'NIF10GETF', '021NSETEST', 'CONSUMIETF', 'SILVERIETF', 'SETF10GILT', 'NV20IETF', 'SDL26BEES', 'SENSEXETF', 'NIF100IETF', 'QNIFTY', 'MIDSELIETF', 'BBNPPGOLD', 'SBINEQWETF', 'NIFTYIETF', 'LIQUIDIETF', 'ITBEES', 'LICNETFSEN', '121NSETEST', '051NSETEST', 'ITETF', 'NIFTYETF', 'SILVER', 'EQUAL50ADD', 'UTISENSETF', 'QUAL30IETF', 'AXISGOLD', 'AXISHCETF', 'ALPHAETF', 'HDFCNIF100', 'PSUBNKBEES', 'BSLSENETFG', '041NSETEST', 'QGOLDHALF', 'BBETF0432', 'COMMOIETF', 'MONIFTY500', 'BBNPNBETF', 'LIQUIDCASE', 'GINNIFILA', 'GOLDIAM', 'NAVINIFTY', 'ITIETF', 'SILVER1', '131NSETEST', 'SBIETFPB', 'LICNETFN50', 'BANKBEES', 'METALIETF', 'AUTOBEES', 'ITETFADD', 'SILVERADD', 'HEALTHADD', 'GOLDSHARE', 'LIQUID1', 'AXISBPSETF', 'IVZINNIFTY', 'GILT5YBEES', '111NSETEST', 'HDFCGOLD', 'SILVRETF', 'GOLDTECH', 'BANKETF', 'LICNETFGSC', 'LTGILTBEES', 'GOLD1', 'BANKNIFTY1', '161NSETEST', 'ABSLLIQUID', 'GSEC5IETF', 'LIQUIDBETF', '061NSETEST', 'BANKIETF', 'LIQUIDSHRI', 'AXISILVER', 'UTIBANKETF', 'IDFNIFTYET', 'MIDCAPETF', 'GOLDBEES', 'FINIETF', 'EBBETF0425', 'PVTBANKADD', 'NEXT50IETF', 'ESILVER', 'GOLDETFADD', 'BANKBETF', 'JUNIORBEES', 'PSUBANKADD', 'MIDQ50ADD', 'HDFCNIFIT', 'GOLDIETF', 'EBBETF0430', 'NIF5GETF', 'BSLGOLDETF', 'EBBETF0431', 'LIQUIDSBI', 'EGOLD', 'TATAGOLD', 'TNIDETF', 'SBIETFQLTY', 'NIFITETF', 'LOWVOLIETF', 'SDL24BEES', '081NSETEST', 'GOLDETF', 'SETFGOLD', 'AXISBNKETF', 'NIFTYQLITY', 'LIQUIDADD', '141NSETEST', 'SBIETFCON', 'LIQUIDBEES', 'MID150BEES', 'SETFNN50', 'NIFMID150', '091NSETEST', 'HDFCSILVER', 'NIFTYBETF', 'LICMFGOLD', 'MOM100', 'TOP100CASE', 'MON100', 'LICNMID100', 'MIDSMALL', 'MIDCAP', 'MID150CASE', 'HDFCMID150', 'HDFCNEXT50', 'UTISXN50', 'MONQ50', 'MOM50', 'ABSLNN50ET', 'HDFCSML250', 'NEXT50', 'HDFCBSE500', 'MOSMALL250', 'UTINEXT50', 'MASPTOP50', 'HDFCSENSEX', 'AXSENSEX', '11NSETEST']
+        exclude_symbol = ['HDFCNIFTY', '031NSETEST', '151NSETEST', 'LIQUID', 'HNGSNGBEES', 'AXISCETF', 'SETFNIFBK', 'EBANKNIFTY', '171NSETEST', 'SETFNIF50', 'CPSEETF', 'GSEC10IETF', 'DIVOPPBEES', 'OILIETF', 'AUTOIETF', 'HDFCLIQUID', 'AXISNIFTY', 'NIFTY50ADD', 'CONSUMBEES', 'HDFCNIFBAN', 'NIFTYBEES', '101NSETEST', 'LIQUIDETF', 'TOP10ADD', 'NIF100BEES', 'PSUBNKIETF', 'INFRABEES', 'AXISTECETF', 'NV20BEES', 'ALPL30IETF', 'INFRAIETF', '181NSETEST', 'MOM30IETF', 'SBISILVER', 'NIFTY1', 'UTINIFTETF', 'SILVERBEES', 'BANKETFADD', 'MIDCAPIETF', 'PHARMABEES', 'SENSEXADD', 'GOLDCASE', 'HEALTHIETF', 'BSLNIFTY', 'PVTBANIETF', 'BSE500IETF', '071NSETEST', '011NSETEST', 'IVZINGOLD', 'NETF', 'SENSEXIETF', 'SBIETFIT', 'ABSLBANETF', 'SILVERTUC', 'SHARIABEES', 'EBBETF0433', 'SILVERETF', 'FMCGIETF', 'NIF10GETF', '021NSETEST', 'CONSUMIETF', 'SILVERIETF', 'SETF10GILT', 'NV20IETF', 'SDL26BEES', 'SENSEXETF', 'NIF100IETF', 'QNIFTY', 'MIDSELIETF', 'BBNPPGOLD', 'SBINEQWETF', 'NIFTYIETF', 'LIQUIDIETF', 'ITBEES', 'LICNETFSEN', '121NSETEST', '051NSETEST', 'ITETF', 'NIFTYETF', 'SILVER', 'EQUAL50ADD', 'UTISENSETF', 'QUAL30IETF', 'AXISGOLD', 'AXISHCETF', 'ALPHAETF', 'HDFCNIF100', 'PSUBNKBEES', 'BSLSENETFG', '041NSETEST', 'QGOLDHALF', 'BBETF0432', 'COMMOIETF', 'MONIFTY500', 'BBNPNBETF', 'LIQUIDCASE', 'GINNIFILA', 'GOLDIAM', 'NAVINIFTY', 'ITIETF', 'SILVER1', '131NSETEST', 'SBIETFPB', 'LICNETFN50', 'BANKBEES', 'METALIETF', 'AUTOBEES', 'ITETFADD', 'SILVERADD', 'HEALTHADD', 'GOLDSHARE', 'LIQUID1', 'AXISBPSETF', 'IVZINNIFTY', 'GILT5YBEES', '111NSETEST', 'HDFCGOLD', 'SILVRETF', 'GOLDTECH', 'BANKETF', 'LICNETFGSC', 'LTGILTBEES', 'GOLD1', 'BANKNIFTY1', '161NSETEST', 'ABSLLIQUID', 'GSEC5IETF', 'LIQUIDBETF', '061NSETEST', 'BANKIETF', 'LIQUIDSHRI', 'AXISILVER', 'UTIBANKETF', 'IDFNIFTYET', 'MIDCAPETF', 'GOLDBEES', 'FINIETF', 'EBBETF0425', 'PVTBANKADD', 'NEXT50IETF', 'ESILVER', 'GOLDETFADD', 'BANKBETF', 'JUNIORBEES', 'PSUBANKADD', 'MIDQ50ADD', 'HDFCNIFIT', 'GOLDIETF', 'EBBETF0430', 'NIF5GETF', 'BSLGOLDETF', 'EBBETF0431', 'LIQUIDSBI', 'EGOLD', 'TATAGOLD', 'TNIDETF', 'SBIETFQLTY', 'NIFITETF', 'LOWVOLIETF', 'SDL24BEES', '081NSETEST', 'GOLDETF', 'SETFGOLD', 'AXISBNKETF', 'NIFTYQLITY', 'LIQUIDADD', '141NSETEST', 'SBIETFCON', 'LIQUIDBEES', 'MID150BEES', 'SETFNN50', 'NIFMID150', '091NSETEST', 'HDFCSILVER', 'NIFTYBETF', 'LICMFGOLD', 'MOM100', 'TOP100CASE', 'MON100', 'LICNMID100', 'MIDSMALL', 'MIDCAP', 'MID150CASE', 'HDFCMID150', 'HDFCNEXT50', 'UTISXN50', 'MONQ50', 'MOM50', 'ABSLNN50ET', 'HDFCSML250', 'NEXT50', 'HDFCBSE500', 'MOSMALL250', 'UTINEXT50', 'MASPTOP50', 'HDFCSENSEX', 'AXSENSEX', '11NSETEST', 'MOQLTYINAV', 'MOVALUINAV', 'N1NSETEST', 'V1NSETEST', 'G1NSETEST', 'VAL30IETF']
 
         Symbol.objects.filter(name__in=exclude_symbol, is_active=True).delete()
 
@@ -246,6 +247,8 @@ def Equity_BreakOut_1(auto_trigger=True):
     product = 'equity'
     log_identifier = 'Equity_BreakOut_1'
     print(f'MoneyBall: {log_identifier}: Runtime : {product} : {now.strftime("%d-%b-%Y %H:%M:%S")}')
+    from_day = now - timedelta(days=365)
+    sleep(10)
 
     try:
         if auto_trigger:
@@ -258,34 +261,47 @@ def Equity_BreakOut_1(auto_trigger=True):
 
         exclude_symbols_names = Transaction.objects.filter(product=product, indicate='EXIT', created_at__date=now.date(), is_active=True).values_list('name', flat=True)
 
-        symbol_list_1 = Symbol.objects.filter(product=product, nifty100=True, is_active=True).exclude(name__in=exclude_symbols_names).order_by('-volume')
-        symbol_list_2 = Symbol.objects.filter(product=product, midcpnifty50=True, is_active=True).exclude(name__in=exclude_symbols_names).order_by('-volume')
-        symbol_list_3 = Symbol.objects.filter(product=product, smallcpnifty100=True, is_active=True).exclude(name__in=exclude_symbols_names).order_by('-volume')
+        symbol_list_1 = Symbol.objects.filter(product=product, nifty200=True, is_active=True).exclude(name__in=exclude_symbols_names).order_by('-volume')
+        symbol_list_2 = Symbol.objects.filter(product=product, midcpnifty150=True, is_active=True).exclude(name__in=exclude_symbols_names).order_by('-volume')
+        symbol_list_3 = Symbol.objects.filter(product=product, smallcpnifty250=True, is_active=True).exclude(name__in=exclude_symbols_names).order_by('-volume')
 
-        symbol_list = list(symbol_list_1) + list(symbol_list_2) + list(symbol_list_3)
+        symbol_list = set(list(symbol_list_1) + list(symbol_list_2) + list(symbol_list_3))
+        symbol_obj_list = {f"{sym.name}.NS":sym for sym in symbol_list}
 
         print(f'MoneyBall: {log_identifier}: Total Equity Symbol Picked: {len(symbol_list)}')
 
+        # When using yfinance
+        multiple_data_frame = yf.download(list(symbol_obj_list.keys()), interval="1d", start=from_day.date(), end=now.date(), group_by='ticker', rounding=True, auto_adjust=True)
+        
         new_entry = []
-        for index, symbol_obj in enumerate(symbol_list):
+        for index, symbol_name in enumerate(symbol_obj_list):
             try:
                 mode = None
 
+                # When using yfinance
+                # Starts
+                symbol_obj = symbol_obj_list[symbol_name]
+                data_frame = multiple_data_frame[symbol_name]
+                data_frame = data_frame.fillna(data_frame.mean())
+                # Ends
+
+                # # When using angelone
+                # # Start
+                # data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
+                # sleep(0.3)
+                # # Ends
+
+                open = data_frame['Open'].iloc[-1]
+                high = data_frame['High'].iloc[-1]
+                low = data_frame['Low'].iloc[-1]
+                close = data_frame['Close'].iloc[-1]
+                max_high_1y = max(data_frame['High'].iloc[-200:-1])
+
                 entries_list = StockConfig.objects.filter(symbol__product=product, symbol__name=symbol_obj.name, is_active=True)
                 if not entries_list:
-                    from_day = now - timedelta(days=365)
-                    data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
-                    sleep(0.3)
 
-                    open = data_frame['Open'].iloc[-1]
-                    high = data_frame['High'].iloc[-1]
-                    low = data_frame['Low'].iloc[-1]
-                    close = data_frame['Close'].iloc[-1]
-                    max_high = max(data_frame['High'].iloc[-200:-1])
-                    daily_volatility = calculate_volatility(data_frame)
-
-                    # if (symbol_obj.weekhigh52 < close):
-                    if (max_high < close):
+                    if (symbol_obj.weekhigh52 > 0) and (symbol_obj.weekhigh52 < close):
+                    # if (max_high_1y < close):
                         mode = 'CE'
 
                     else:
@@ -307,10 +323,6 @@ def Equity_BreakOut_1(auto_trigger=True):
                         new_entry = Price_Action_Trade(data, new_entry)
                 else:
                     stock_config_obj = entries_list[0]
-                    from_day = now - timedelta(days=100)
-                    data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
-                    sleep(0.3)
-
                     trsl_ce = min(data_frame['Low'].iloc[-50:-1])
 
                     if stock_config_obj.mode == 'CE':
@@ -340,6 +352,8 @@ def FnO_BreakOut_1(auto_trigger=True):
     product = 'future'
     log_identifier = 'FnO_BreakOut_1'
     print(f'MoneyBall: {log_identifier}: Runtime : {product} : {now.strftime("%d-%b-%Y %H:%M:%S")}')
+    from_day = now - timedelta(days=10)
+    sleep(10)
 
     try:
         if auto_trigger:
@@ -353,6 +367,7 @@ def FnO_BreakOut_1(auto_trigger=True):
         exclude_symbols_names = Transaction.objects.filter(product=product, indicate='ENTRY', created_at__date=now.date(), is_active=True).values_list('name', flat=True)
 
         symbol_list = Symbol.objects.filter(product='equity', fno=True, is_active=True).order_by('-volume')
+        symbol_obj_list = {f"{sym.name}.NS":sym for sym in symbol_list}
 
         global broker_connection, entry_holder
         if not entry_holder.get(log_identifier):
@@ -363,24 +378,32 @@ def FnO_BreakOut_1(auto_trigger=True):
 
         new_entry = []
         nop = StockConfig.objects.filter(symbol__product=product, is_active=True).count()
-        for index, symbol_obj in enumerate(symbol_list):
+
+        # When using yfinance
+        multiple_data_frame = yf.download(list(symbol_obj_list.keys()), interval="5m", start=from_day.date(), end=now.date(), group_by='ticker', rounding=True, auto_adjust=True)
+
+        for index, symbol_name in enumerate(symbol_obj_list):
             try:
                 mode = None
+                
+                # When using yfinance
+                # Starts
+                symbol_obj = symbol_obj_list[symbol_name]
+                data_frame = multiple_data_frame[symbol_name]
+                data_frame = data_frame.fillna(data_frame.mean())
+                # Ends
 
-                from_day = now - timedelta(days=3)
-                data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
-                sleep(0.3)
+                # # When using angelone
+                # # Start
+                # data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
+                # sleep(0.3)
+                # # End
 
                 open = data_frame['Open'].iloc[-1]
                 high = data_frame['High'].iloc[-1]
                 low = data_frame['Low'].iloc[-1]
                 close = data_frame['Close'].iloc[-1]
                 prev_close = data_frame['Close'].iloc[-2]
-
-                max_high = max(data_frame['High'].iloc[-30:-1])
-                min_low = min(data_frame['Low'].iloc[-30:-1])
-
-                daily_volatility = calculate_volatility(data_frame)
 
                 super_trend = SUPER_TREND(high=data_frame['High'], low=data_frame['Low'], close=data_frame['Close'], length=10, multiplier=3)
                 bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
