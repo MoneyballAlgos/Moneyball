@@ -239,7 +239,7 @@ def UserTrade(sender, instance, created, user_config):
             email_context = {
                 'name': user_config.account.first_name,
                 "symbol": instance.symbol,
-                "price": instance.price,
+                "price": round(instance.price, 2),
                 "target": instance.fixed_target,
                 "stoploss": instance.stoploss,
                 "order_id": order_id
@@ -407,7 +407,7 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
                         email_context = {
                             'name': instance.account.first_name,
                             "symbol": instance.symbol,
-                            "price": instance.price,
+                            "price": round(instance.price, 2),
                             "target": instance.fixed_target,
                             "stoploss": instance.stoploss,
                             "order_id": user_stock_config.order_id
@@ -501,7 +501,7 @@ def AccountPlaceTargetStoplossOrder(sender, instance, created):
                             email_context = {
                                 'name': instance.account.first_name,
                                 "symbol": instance.symbol,
-                                "price": instance.price,
+                                "price": round(instance.price, 2),
                                 "target": instance.fixed_target,
                                 "stoploss": instance.stoploss,
                                 "order_id": user_stock_config.order_id
