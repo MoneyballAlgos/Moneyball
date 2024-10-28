@@ -1,5 +1,81 @@
 [
     {
+        "model": "auth.user",
+        "pk": 1,
+        "fields": {
+            "password": "pbkdf2_sha256$870000$D6KNOJngoMC6X8VuK1KV0t$3F+3vOuvzd4PLTr5Yl4b61gGxx3WUr0tx8Xdc3JhF48=",
+            "last_login": "2024-10-21T09:14:17.926Z",
+            "is_superuser": false,
+            "username": "MoneyBall",
+            "first_name": "",
+            "last_name": "",
+            "email": "",
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2024-10-04T11:41:10Z",
+            "groups": [],
+            "user_permissions": [
+                62,
+                64,
+                76,
+                84,
+                80,
+                88,
+                57,
+                60,
+                48,
+                52,
+                44,
+                56,
+                26,
+                28,
+                32
+            ]
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 2,
+        "fields": {
+            "password": "pbkdf2_sha256$870000$OgQkkffiTqb6lHSTmUwOT3$1gSGsdV/6FMcqfeDH9sdg5qkuYl8SGMN2EDcWFhb4Ec=",
+            "last_login": "2024-10-24T11:17:59.429Z",
+            "is_superuser": true,
+            "username": "Master",
+            "first_name": "",
+            "last_name": "",
+            "email": "",
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2024-10-04T11:41:10.763Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "auth.user",
+        "pk": 5,
+        "fields": {
+            "password": "pbkdf2_sha256$870000$ef03tL9Mn59mN34kDSTY3i$EmMn85ECEkpZAXgDicdqqsvwqquRZQiL4aGV29ocC1E=",
+            "last_login": "2024-10-21T09:13:41.521Z",
+            "is_superuser": false,
+            "username": "User",
+            "first_name": "",
+            "last_name": "",
+            "email": "",
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2024-10-06T01:26:46Z",
+            "groups": [],
+            "user_permissions": [
+                48,
+                52,
+                44,
+                56,
+                32
+            ]
+        }
+    },
+    {
         "model": "system_conf.configuration",
         "pk": 1,
         "fields": {
@@ -28,7 +104,7 @@
             "trail_stoploss_by": 10.0,
             "is_active": true,
             "created_at": "2024-10-04T11:44:30.878Z",
-            "updated_at": "2024-10-04T11:44:30.878Z"
+            "updated_at": "2024-10-23T10:42:56.922Z"
         }
     },
     {
@@ -37,8 +113,8 @@
         "fields": {
             "first_name": "Himanshu",
             "last_name": "Parmar",
-            "mobile": "7415535562",
             "email": "himanshuparmar1212@gmail.com",
+            "mobile": "7415535562",
             "api_key": "PWH6YyPN",
             "user_id": "H188598",
             "user_pin": "1234",
@@ -54,8 +130,8 @@
         "fields": {
             "first_name": "Pratik",
             "last_name": "Mahobiya",
-            "mobile": "7000681073",
             "email": "pratikmahobiya18@gmail.com",
+            "mobile": "7000681073",
             "api_key": "ExEEsqVb",
             "user_id": "P567723",
             "user_pin": "4567",
@@ -77,9 +153,18 @@
             "active_open_position": 0,
             "fno_enabled": false,
             "equity_enabled": true,
+            "nifty50": false,
+            "nifty100": false,
+            "nifty200": true,
+            "midcpnifty50": false,
+            "midcpnifty100": false,
+            "midcpnifty150": false,
+            "smallcpnifty50": false,
+            "smallcpnifty100": false,
+            "smallcpnifty250": false,
             "is_active": true,
             "created_at": "2024-10-05T23:01:02.020Z",
-            "updated_at": "2024-10-06T01:05:21.789Z"
+            "updated_at": "2024-10-23T10:35:44.666Z"
         }
     },
     {
@@ -88,15 +173,24 @@
         "fields": {
             "account": 2,
             "place_order": true,
-            "account_balance": 50000.0,
+            "account_balance": 100000.0,
             "entry_amount": 10000.0,
-            "total_open_position": 5,
+            "total_open_position": 10,
             "active_open_position": 0,
             "fno_enabled": false,
             "equity_enabled": true,
+            "nifty50": false,
+            "nifty100": false,
+            "nifty200": false,
+            "midcpnifty50": false,
+            "midcpnifty100": false,
+            "midcpnifty150": false,
+            "smallcpnifty50": false,
+            "smallcpnifty100": false,
+            "smallcpnifty250": true,
             "is_active": true,
             "created_at": "2024-10-05T23:01:03.025Z",
-            "updated_at": "2024-10-06T01:05:16.094Z"
+            "updated_at": "2024-10-24T11:19:49.585Z"
         }
     }
 ]
