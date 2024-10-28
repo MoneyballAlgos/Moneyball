@@ -247,8 +247,6 @@ def Equity_BreakOut_1(auto_trigger=True):
     product = 'equity'
     log_identifier = 'Equity_BreakOut_1'
     print(f'MoneyBall: {log_identifier}: Runtime : {product} : {now.strftime("%d-%b-%Y %H:%M:%S")}')
-    from_day = now - timedelta(days=365)
-    sleep(10)
 
     try:
         if auto_trigger:
@@ -326,7 +324,10 @@ def Equity_BreakOut_1(auto_trigger=True):
                         new_entry = Price_Action_Trade(data, new_entry)
                 else:
                     stock_config_obj = entries_list[0]
-                    trsl_ce = min(data_frame['Low'].iloc[-50:-1])
+                    from_day = now - timedelta(days=100)
+                    data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
+                    sleep(0.3)
+                    trsl_ce = min(data_frame['Low'].iloc[-50:-1]) if stock_config_obj.max < configuration_obj.target else round(close - close * (configuration_obj.trail_stoploss_by)/100, 2)
 
                     if stock_config_obj.mode == 'CE':
                         if not stock_config_obj.tr_hit and (stock_config_obj.stoploss < trsl_ce):
