@@ -19,7 +19,11 @@ def historical_data(token, exchange, now, from_day, interval, product):
         connection = account_connections.get('P567723')
     else:
         connection = broker_connection
-    data = pd.DataFrame(connection.getCandleData(historicParam)['data'])
+    data = connection.getCandleData(historicParam)
+    if data['status'] in [False, 'False', '']:
+        raise Exception(f"Historical API error: {product} : {historicParam} : {data['errorcode']} : {data['message']}")
+    else:
+        data = data['data']
     data.rename(columns={
         0: 'date', 1: 'Open', 2: 'High', 3: 'Low', 4: 'Close', 5: 'Volume'}, inplace=True)
     data.index.names = ['date']
