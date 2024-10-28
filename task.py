@@ -271,31 +271,34 @@ def Equity_BreakOut_1(auto_trigger=True):
         print(f'MoneyBall: {log_identifier}: Total Equity Symbol Picked: {len(symbol_list)}')
 
         # When using yfinance
-        multiple_data_frame = yf.download(list(symbol_obj_list.keys()), interval="1d", start=from_day.date(), end=now.date(), group_by='ticker', rounding=True, auto_adjust=True)
+        symbol_details = yf.Tickers(list(symbol_obj_list.keys())).tickers
         
         new_entry = []
-        for index, symbol_name in enumerate(symbol_obj_list):
+        for index, symbol_name in enumerate(symbol_details):
             try:
                 mode = None
 
                 # When using yfinance
                 # Starts
                 symbol_obj = symbol_obj_list[symbol_name]
-                data_frame = multiple_data_frame[symbol_name]
-                data_frame = data_frame.fillna(data_frame.mean())
+                open = symbol_details[symbol_name].info.get('open')
+                high = symbol_details[symbol_name].info.get('dayHigh')
+                low = symbol_details[symbol_name].info.get('dayLow')
+                close = symbol_details[symbol_name].info.get('currentPrice')
+                max_high_1y = symbol_details[symbol_name].info.get('fiftyTwoWeekHigh')
                 # Ends
 
                 # # When using angelone
                 # # Start
                 # data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
                 # sleep(0.3)
-                # # Ends
 
-                open = data_frame['Open'].iloc[-1]
-                high = data_frame['High'].iloc[-1]
-                low = data_frame['Low'].iloc[-1]
-                close = data_frame['Close'].iloc[-1]
-                max_high_1y = max(data_frame['High'].iloc[-200:-1])
+                # open = data_frame['Open'].iloc[-1]
+                # high = data_frame['High'].iloc[-1]
+                # low = data_frame['Low'].iloc[-1]
+                # close = data_frame['Close'].iloc[-1]
+                # max_high_1y = max(data_frame['High'].iloc[-200:-1])
+                # # Ends
 
                 entries_list = StockConfig.objects.filter(symbol__product=product, symbol__name=symbol_obj.name, is_active=True)
                 if not entries_list:
@@ -352,8 +355,7 @@ def FnO_BreakOut_1(auto_trigger=True):
     product = 'future'
     log_identifier = 'FnO_BreakOut_1'
     print(f'MoneyBall: {log_identifier}: Runtime : {product} : {now.strftime("%d-%b-%Y %H:%M:%S")}')
-    from_day = now - timedelta(days=10)
-    sleep(10)
+    from_day = now - timedelta(days=3)
 
     try:
         if auto_trigger:
@@ -367,7 +369,6 @@ def FnO_BreakOut_1(auto_trigger=True):
         exclude_symbols_names = Transaction.objects.filter(product=product, indicate='ENTRY', created_at__date=now.date(), is_active=True).values_list('name', flat=True)
 
         symbol_list = Symbol.objects.filter(product='equity', fno=True, is_active=True).order_by('-volume')
-        symbol_obj_list = {f"{sym.name}.NS":sym for sym in symbol_list}
 
         global broker_connection, entry_holder
         if not entry_holder.get(log_identifier):
@@ -379,25 +380,15 @@ def FnO_BreakOut_1(auto_trigger=True):
         new_entry = []
         nop = StockConfig.objects.filter(symbol__product=product, is_active=True).count()
 
-        # When using yfinance
-        multiple_data_frame = yf.download(list(symbol_obj_list.keys()), interval="5m", start=from_day.date(), end=now.date(), group_by='ticker', rounding=True, auto_adjust=True)
-
-        for index, symbol_name in enumerate(symbol_obj_list):
+        for index, symbol_obj in enumerate(symbol_list):
             try:
                 mode = None
-                
-                # When using yfinance
-                # Starts
-                symbol_obj = symbol_obj_list[symbol_name]
-                data_frame = multiple_data_frame[symbol_name]
-                data_frame = data_frame.fillna(data_frame.mean())
-                # Ends
 
-                # # When using angelone
-                # # Start
-                # data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
-                # sleep(0.3)
-                # # End
+                # When using angelone
+                # Start
+                data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
+                sleep(0.3)
+                # End
 
                 open = data_frame['Open'].iloc[-1]
                 high = data_frame['High'].iloc[-1]
