@@ -42,36 +42,12 @@ def AccountExitAction(instance):
                                 if not user_stock_config.stoploss_order_placed:
                                     order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "LIMIT")
                                 email_message = STOPLOSS_ORDER_PLACED.format(symbol=instance.get('symbol'), price=instance.get('price'), profit=instance.get('profit'), order_id=order_id)
-                                
-                                # Send Email Notification
-                                subject = f"Fno Trade on {instance.get('symbol')}" if instance.get('product') == 'future' else f"Equity Trade on {instance.get('name')}"
-                                template = 'stoploss_hit.html'
-                                recipients = [user_stock_config.account.email]
-                                email_context = {
-                                    'name': user_stock_config.account.first_name,
-                                    "symbol": instance.get('symbol'),
-                                    "price": instance.get('price'),
-                                    "profit": instance.get('profit'),
-                                    "order_id": order_id
-                                }
-                                email_send(subject, template, recipients, email_context)
+
                             elif instance.get('type') == 'TARGET':
                                 if not user_stock_config.target_order_placed:
                                     order_id, order_status = Create_Order(connection, 'SELL', 'CARRYFORWARD', instance.get('token'), instance.get('symbol'), instance.get('exchange'), instance.get('price'), user_stock_config.lot, "LIMIT")
                                 email_message = TARGET_ORDER_PLACED.format(symbol=instance.get('symbol'), price=instance.get('price'), profit=instance.get('profit'), order_id=order_id)
 
-                                # Send Email Notification
-                                subject = f"Fno Trade on {instance.get('symbol')}" if instance.get('product') == 'future' else f"Equity Trade on {instance.get('name')}"
-                                template = 'target_hit.html'
-                                recipients = [user_stock_config.account.email]
-                                email_context = {
-                                    'name': user_stock_config.account.first_name,
-                                    "symbol": instance.get('symbol'),
-                                    "price": instance.get('price'),
-                                    "profit": instance.get('profit'),
-                                    "order_id": order_id
-                                }
-                                email_send(subject, template, recipients, email_context)
                             elif instance.get('type') in ['TR-SL', 'SQ-OFF', 'PIVOT']:
                                 if user_stock_config.stoploss_order_placed:
                                     _, _ = Cancel_Order(connection, user_stock_config.stoploss_order_id)
@@ -82,18 +58,6 @@ def AccountExitAction(instance):
                                 
                                 email_message = TRSL_ORDER_PLACED.format(symbol=instance.get('symbol'), price=instance.get('price'), profit=instance.get('profit'), order_id=order_id)
 
-                                # Send Email Notification
-                                subject = f"Fno Trade on {instance.get('symbol')}" if instance.get('product') == 'future' else f"Equity Trade on {instance.get('name')}"
-                                template = 'tr_sl_hit.html'
-                                recipients = [user_stock_config.account.email]
-                                email_context = {
-                                    'name': user_stock_config.account.first_name,
-                                    "symbol": instance.get('symbol'),
-                                    "price": instance.get('price'),
-                                    "profit": instance.get('profit'),
-                                    "order_id": order_id
-                                }
-                                email_send(subject, template, recipients, email_context)
                         else:
                             order_id, order_status = Cancel_Order(connection, user_stock_config.order_id)
                     # Equity Delivery and INTRADAY(PE)
@@ -151,6 +115,24 @@ def AccountExitAction(instance):
                                 user_config = AccountConfiguration.objects.get(account=user_stock_config.account, is_active=True)
                                 user_config.active_open_position -= 1
                                 user_config.save()
+
+                        # Send Email Notification
+                        if instance.get('type') in ['TR-SL', 'SQ-OFF', 'PIVOT']:
+                            template = 'tr_sl_hit.html'
+                        elif instance.get('type') == 'TARGET':
+                            template = 'target_hit.html'
+                        else:
+                            template = 'stoploss_hit.html'
+                        subject = f"Fno Trade on {instance.get('symbol')}" if instance.get('product') == 'future' else f"Equity Trade on {instance.get('name')}"
+                        recipients = [user_stock_config.account.email]
+                        email_context = {
+                            'name': user_stock_config.account.first_name,
+                            "symbol": instance.get('symbol'),
+                            "price": instance.get('price'),
+                            "profit": instance.get('profit'),
+                            "order_id": order_id
+                        }
+                        email_send(subject, template, recipients, email_context)
                 
                 except Exception as e:
                     print(f"MoneyBall: Account Trade Action {instance.get('indicate')}: User Loop Error: {e}")
