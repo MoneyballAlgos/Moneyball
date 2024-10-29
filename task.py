@@ -86,8 +86,6 @@ def SymbolSetup():
 
         exclude_symbol = ['HDFCNIFTY', '031NSETEST', '151NSETEST', 'LIQUID', 'HNGSNGBEES', 'AXISCETF', 'SETFNIFBK', 'EBANKNIFTY', '171NSETEST', 'SETFNIF50', 'CPSEETF', 'GSEC10IETF', 'DIVOPPBEES', 'OILIETF', 'AUTOIETF', 'HDFCLIQUID', 'AXISNIFTY', 'NIFTY50ADD', 'CONSUMBEES', 'HDFCNIFBAN', 'NIFTYBEES', '101NSETEST', 'LIQUIDETF', 'TOP10ADD', 'NIF100BEES', 'PSUBNKIETF', 'INFRABEES', 'AXISTECETF', 'NV20BEES', 'ALPL30IETF', 'INFRAIETF', '181NSETEST', 'MOM30IETF', 'SBISILVER', 'NIFTY1', 'UTINIFTETF', 'SILVERBEES', 'BANKETFADD', 'MIDCAPIETF', 'PHARMABEES', 'SENSEXADD', 'GOLDCASE', 'HEALTHIETF', 'BSLNIFTY', 'PVTBANIETF', 'BSE500IETF', '071NSETEST', '011NSETEST', 'IVZINGOLD', 'NETF', 'SENSEXIETF', 'SBIETFIT', 'ABSLBANETF', 'SILVERTUC', 'SHARIABEES', 'EBBETF0433', 'SILVERETF', 'FMCGIETF', 'NIF10GETF', '021NSETEST', 'CONSUMIETF', 'SILVERIETF', 'SETF10GILT', 'NV20IETF', 'SDL26BEES', 'SENSEXETF', 'NIF100IETF', 'QNIFTY', 'MIDSELIETF', 'BBNPPGOLD', 'SBINEQWETF', 'NIFTYIETF', 'LIQUIDIETF', 'ITBEES', 'LICNETFSEN', '121NSETEST', '051NSETEST', 'ITETF', 'NIFTYETF', 'SILVER', 'EQUAL50ADD', 'UTISENSETF', 'QUAL30IETF', 'AXISGOLD', 'AXISHCETF', 'ALPHAETF', 'HDFCNIF100', 'PSUBNKBEES', 'BSLSENETFG', '041NSETEST', 'QGOLDHALF', 'BBETF0432', 'COMMOIETF', 'MONIFTY500', 'BBNPNBETF', 'LIQUIDCASE', 'GINNIFILA', 'GOLDIAM', 'NAVINIFTY', 'ITIETF', 'SILVER1', '131NSETEST', 'SBIETFPB', 'LICNETFN50', 'BANKBEES', 'METALIETF', 'AUTOBEES', 'ITETFADD', 'SILVERADD', 'HEALTHADD', 'GOLDSHARE', 'LIQUID1', 'AXISBPSETF', 'IVZINNIFTY', 'GILT5YBEES', '111NSETEST', 'HDFCGOLD', 'SILVRETF', 'GOLDTECH', 'BANKETF', 'LICNETFGSC', 'LTGILTBEES', 'GOLD1', 'BANKNIFTY1', '161NSETEST', 'ABSLLIQUID', 'GSEC5IETF', 'LIQUIDBETF', '061NSETEST', 'BANKIETF', 'LIQUIDSHRI', 'AXISILVER', 'UTIBANKETF', 'IDFNIFTYET', 'MIDCAPETF', 'GOLDBEES', 'FINIETF', 'EBBETF0425', 'PVTBANKADD', 'NEXT50IETF', 'ESILVER', 'GOLDETFADD', 'BANKBETF', 'JUNIORBEES', 'PSUBANKADD', 'MIDQ50ADD', 'HDFCNIFIT', 'GOLDIETF', 'EBBETF0430', 'NIF5GETF', 'BSLGOLDETF', 'EBBETF0431', 'LIQUIDSBI', 'EGOLD', 'TATAGOLD', 'TNIDETF', 'SBIETFQLTY', 'NIFITETF', 'LOWVOLIETF', 'SDL24BEES', '081NSETEST', 'GOLDETF', 'SETFGOLD', 'AXISBNKETF', 'NIFTYQLITY', 'LIQUIDADD', '141NSETEST', 'SBIETFCON', 'LIQUIDBEES', 'MID150BEES', 'SETFNN50', 'NIFMID150', '091NSETEST', 'HDFCSILVER', 'NIFTYBETF', 'LICMFGOLD', 'MOM100', 'TOP100CASE', 'MON100', 'LICNMID100', 'MIDSMALL', 'MIDCAP', 'MID150CASE', 'HDFCMID150', 'HDFCNEXT50', 'UTISXN50', 'MONQ50', 'MOM50', 'ABSLNN50ET', 'HDFCSML250', 'NEXT50', 'HDFCBSE500', 'MOSMALL250', 'UTINEXT50', 'MASPTOP50', 'HDFCSENSEX', 'AXSENSEX', '11NSETEST', 'MOQLTYINAV', 'MOVALUINAV', 'N1NSETEST', 'V1NSETEST', 'G1NSETEST', 'VAL30IETF']
 
-        Symbol.objects.filter(name__in=exclude_symbol, is_active=True).delete()
-
         last_thursday_date = last_thursday(now)
         if last_thursday_date.date() < now.date():
             month_num = now.month + 1
@@ -122,10 +120,10 @@ def SymbolSetup():
         for i in data:
             product = None
             expity_date = datetime.strptime(i['expiry'], '%d%b%Y') if i['expiry'] else None
-            if i['exch_seg'] in ['NSE', 'NFO'] and i['name'] not in exclude_symbol:
-                if i['instrumenttype'] in ['OPTSTK'] and (expity_date.month == month_num): # , 'OPTIDX', 'OPTFUT'
+            if i['exch_seg'] in ['NSE', 'NFO']:# and i['name'] not in exclude_symbol:
+                if i['instrumenttype'] in ['OPTSTK', 'OPTIDX'] and (expity_date.month == month_num): # , 'OPTIDX', 'OPTFUT'
                     product = 'future'
-                elif i['symbol'].endswith('-EQ'):
+                elif (i['symbol'] in ['NIFTY', 'BANKNIFTY', 'NIFTY MID SELECT', 'FINNIFTY', 'Nifty Next 50'] and expity_date == None) or i['symbol'].endswith('-EQ'):
                     product = 'equity'
                 if product is not None:
                     if (i['symbol'], i['token']) not in exist_token_symbols:
@@ -411,7 +409,7 @@ def FnO_BreakOut_1(auto_trigger=True):
                                                     symbol__endswith='CE',
                                                     strike__gt=close,
                                                     fno=True,
-                                                    is_active=True).order_by('strike')
+                                                    is_active=True).order_by('expiry', 'strike')
 
                     if close < super_trend.iloc[-1] and prev_close > super_trend.iloc[-2] and low > bb['lband'].iloc[-1] and not ((high > symbol_obj.r1 and low < symbol_obj.r1) or (high > symbol_obj.r2 and low < symbol_obj.r2) or (high > symbol_obj.pivot and low < symbol_obj.pivot) or (high > symbol_obj.s1 and low < symbol_obj.s1) or (high > symbol_obj.s2 and low < symbol_obj.s2)):
                         mode = 'PE'
@@ -421,7 +419,7 @@ def FnO_BreakOut_1(auto_trigger=True):
                                                     symbol__endswith='PE',
                                                     strike__lt=close,
                                                     fno=True,
-                                                    is_active=True).order_by('-strike')
+                                                    is_active=True).order_by('expiry', '-strike')
 
                     if nop < configuration_obj.open_position and symbol_obj.name not in exclude_symbols_names and mode not in [None]:
                         data = {
@@ -563,10 +561,22 @@ def PivotUpdate():
 
         from_day = now - timedelta(days=5)
         print(f'MoneyBall: PIVOT UPDATE: Started : Total : {symbol_list.count()}')
-        for symbol_obj in symbol_list:
+        for index, symbol_obj in enumerate(symbol_list):
             try:
-                data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
-                sleep(0.3)
+                # data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
+                # sleep(0.3)
+                if symbol_obj.symbol in ['NIFTY', 'BANKNIFTY', 'NIFTY MID SELECT', 'FINNIFTY', 'Nifty Next 50']:
+                    yfsymb = {
+                        'NIFTY': '^NSEI',
+                        'BANKNIFTY': '^NSEBANK',
+                        'MIDCPNIFTY' : 'NIFTY_MID_SELECT.NS',
+                        'FINNIFTY': 'NIFTY_FIN_SERVICE.NS',
+                        'NIFTYNXT50': '^NSMIDCP'
+                    }
+                    symbol = yfsymb[symbol_obj.name]
+                else:
+                    symbol = f"{symbol_obj.name}.NS"
+                data_frame = yf.download(symbol, period="5d", group_by='ticker', rounding=True, progress=False)[symbol]
 
                 last_day = data_frame.iloc[-2]
 
@@ -580,7 +590,7 @@ def PivotUpdate():
                 symbol_obj.s3 = round(pivot_traditional['s3'], 2)
 
                 symbol_obj.save()
-                print(f'MoneyBall: PIVOT UPDATE: Updated: {symbol_obj.name}')
+                # print(f'MoneyBall: PIVOT UPDATE: Updated: {index+1} : {symbol_obj.name}')
             except Exception as e:
                 print(f'MoneyBall: PIVOT UPDATE: Loop Error: {symbol_obj.symbol} : {str(e)}')
         print(f'MoneyBall: PIVOT UPDATE: Ended')
