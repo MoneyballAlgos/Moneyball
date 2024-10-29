@@ -5,11 +5,13 @@ from moneyball.settings import SOCKET_STREAM_URL_DOMAIN
 from helper.common import next_multiple_of_5_after_decimal
 
 def Price_Action_Trade(data, new_entry):
+    price = next_multiple_of_5_after_decimal(data['ltp'])
+    if price == 0:
+        return new_entry
     stock_config_obj, created = StockConfig.objects.get_or_create(mode=data['mode'], symbol=data['symbol_obj'], is_active=False)
     if created:
-        price = data['ltp']
         stock_config_obj.lot = data['lot']
-        stock_config_obj.price = next_multiple_of_5_after_decimal(price)
+        stock_config_obj.price = price
         stock_config_obj.highest_price = price
         stock_config_obj.stoploss = next_multiple_of_5_after_decimal(round(price - price * (data['stoploss'])/100, len(str(price).split('.')[-1])))
         stock_config_obj.target = next_multiple_of_5_after_decimal(round(price + price * (data['target'])/100, len(str(price).split('.')[-1])))
