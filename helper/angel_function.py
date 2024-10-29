@@ -14,9 +14,9 @@ def historical_data(token, exchange, now, from_day, interval, product):
     global broker_connection, account_connections
     connection = None
     if product == 'future':
-        connection = account_connections.get('P567723')
-    elif product == 'equity':
         connection = account_connections.get('H188598')
+    elif product == 'equity':
+        connection = account_connections.get('P567723')
     else:
         connection = broker_connection
     data = connection.getCandleData(historicParam)
