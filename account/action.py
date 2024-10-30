@@ -171,7 +171,8 @@ def UserTrade(sender, instance, created, user_config):
             
             # Equity Delivery
             if instance.mode == 'CE':
-                order_id, order_status = Create_Order(connection, 'BUY', 'DELIVERY', instance.token, instance.symbol, instance.exchange, instance.price, lot, "LIMIT")
+                order_type = 'LIMIT' if created else 'MARKET'
+                order_id, order_status = Create_Order(connection, 'BUY', 'DELIVERY', instance.token, instance.symbol, instance.exchange, instance.price, lot, order_type)
             
             # Equity INTRADAY(PE)
             else:
@@ -231,7 +232,6 @@ def UserTrade(sender, instance, created, user_config):
         print(f"MoneyBall: Account Trade Action {instance.indicate}: User may have Max Active Open posotion : Total - {user_config.total_open_position}, Active - {user_config.active_open_position}")
         print(f"MoneyBall: Account Trade Action {instance.indicate}: User may not have enough money to by a single share : 1 Share Price {instance.price}, - User Entry Amount {user_config.entry_amount}")
     return True
-
 
 
 def AccountTradeAction(sender, instance, created):

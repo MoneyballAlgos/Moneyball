@@ -1,9 +1,11 @@
 import pyotp
 import requests
+import threading
 import yfinance as yf
 from time import sleep
 from zoneinfo import ZoneInfo
 from SmartApi import SmartConnect
+from account.action import UserTrade
 from helper.common import last_thursday
 from datetime import datetime, time, timedelta
 from helper.angel_function import historical_data
@@ -612,4 +614,65 @@ def PivotUpdate():
     except Exception as e:
         print(f'MoneyBall: PIVOT UPDATE: Error: {str(e)}')
     print(f'MoneyBall: PIVOT UPDATE: Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
+    return True
+
+
+def CheckTodayEntry():
+    now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
+    try:
+        entries_list = Transaction.objects.filter(product='equity', indicate='ENTRY', date__date=now.date(), is_active=True)
+        users_list = AccountConfiguration.objects.filter(place_order=True, equity_enabled=True, account__is_active=True)
+
+        print(f'MoneyBall: CHECK TODAY ENTRY: Total Entry: {entries_list.count()} : Total User: {users_list.count()}')
+
+        for instance in entries_list:
+            for user_config in users_list:
+                try:
+                    symbol_obj = Symbol.objects.get(token=instance.token, is_active=True)
+                    user_symbol_enabled_indics = [
+                        (user_config.nifty50, symbol_obj.nifty50),
+                        (user_config.nifty100, symbol_obj.nifty100),
+                        (user_config.nifty200, symbol_obj.nifty200),
+                        (user_config.midcpnifty50, symbol_obj.midcpnifty50),
+                        (user_config.midcpnifty100, symbol_obj.midcpnifty100),
+                        (user_config.midcpnifty150, symbol_obj.midcpnifty150),
+                        (user_config.smallcpnifty50, symbol_obj.smallcpnifty50),
+                        (user_config.smallcpnifty100, symbol_obj.smallcpnifty100),
+                        (user_config.smallcpnifty250, symbol_obj.smallcpnifty250)
+                        ]
+
+                    # Check if any tuple contains both values as True
+                    flag_user_entry = any(all(value for value in pair) for pair in user_symbol_enabled_indics)
+
+                    if user_config.entry_amount > instance.price and flag_user_entry and not Transaction.objects.filter(
+                                                product=instance.product,
+                                                symbol=instance.symbol,
+                                                name=instance.name,
+                                                token=instance.token,
+                                                exchange=instance.exchange,
+                                                mode=instance.mode, indicate='EXIT', date__date=now.date(), is_active=True):
+                        entry = AccountTransaction.objects.filter(
+                                                        account=user_config.account,
+                                                        product=instance.product,
+                                                        symbol=instance.symbol,
+                                                        name=instance.name,
+                                                        token=instance.token,
+                                                        exchange=instance.exchange,
+                                                        mode=instance.mode,
+                                                        indicate=instance.indicate,
+                                                        type=instance.type,
+                                                        price=instance.price,
+                                                        target=instance.target,
+                                                        fixed_target=instance.fixed_target,
+                                                        stoploss=instance.stoploss)
+                        if not entry:
+                            # Open threads for user
+                            user_thread = threading.Thread(name=f"User-{instance.symbol}-{user_config.account.first_name}", target=UserTrade, args=(True, instance, False, user_config), daemon=True)
+                            user_thread.start()
+
+                except Exception as e:
+                    print(f"MoneyBall: CHECK TODAY ENTRY {instance.indicate}: User Loop Error: {e}")
+    except Exception as e:
+        print(f'MoneyBall: CHECK TODAY ENTRY: Error: {str(e)}')
+    print(f'MoneyBall: CHECK TODAY ENTRY: Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
     return True
