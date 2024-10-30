@@ -356,7 +356,6 @@ def FnO_BreakOut_1(auto_trigger=True):
     product = 'future'
     log_identifier = 'FnO_BreakOut_1'
     print(f'MoneyBall: {log_identifier}: Runtime : {product} : {now.strftime("%d-%b-%Y %H:%M:%S")}')
-    from_day = now - timedelta(days=5)
 
     try:
         if auto_trigger:
@@ -387,6 +386,7 @@ def FnO_BreakOut_1(auto_trigger=True):
 
                 # When using angelone
                 # Start
+                from_day = now - timedelta(days=5)
                 data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'FIVE_MINUTE', product)
                 sleep(0.3)
                 # End
