@@ -176,8 +176,8 @@ SMTP_SENDER_LOGIN = '7da65c001@smtp-brevo.com'
 SMTP_SENDER_PASSWORD = 't6KCV3yS9sX0jWBM'
 
 
-# Global Variable
-global broker_connection, account_connections, entry_holder
+# # Global Variable
+# global broker_connection, account_connections, entry_holder
 
 import pyotp
 from SmartApi import SmartConnect
