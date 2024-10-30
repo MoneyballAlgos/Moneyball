@@ -3,9 +3,9 @@ from time import sleep
 from django.db import transaction
 from helper.emails import email_send
 from django.dispatch import receiver
+from stock.models import Transaction
 from system_conf.models import Symbol
 from django.db.models.signals import post_save
-from stock.models import StockConfig, Transaction
 from moneyball.settings import account_connections
 from helper.angel_order import Cancel_Order, Create_Order, Is_Order_Completed
 from account.models import AccountConfiguration, AccountStockConfig, AccountTransaction
