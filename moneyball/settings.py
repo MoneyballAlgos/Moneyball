@@ -170,8 +170,8 @@ BROKER_API_KEY = os.getenv("BROKER_API_KEY", 'Api Key Required')
 BROKER_TOTP_KEY = os.getenv("BROKER_TOTP_KEY", 'TOTP Key required')
 
 
-# Global Variable
-global broker_connection
+# # Global Variable
+# global broker_connection
 
 import pyotp
 from SmartApi import SmartConnect
@@ -180,7 +180,7 @@ connection.generateSession(BROKER_USER_ID, BROKER_PIN, totp=pyotp.TOTP(BROKER_TO
 
 broker_connection = connection
 
-global sws, open_position
+# global sws, open_position
 
 open_position = {}
 
