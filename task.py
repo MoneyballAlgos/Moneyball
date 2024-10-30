@@ -563,8 +563,6 @@ def PivotUpdate():
         print(f'MoneyBall: PIVOT UPDATE: Started : Total : {symbol_list.count()}')
         for index, symbol_obj in enumerate(symbol_list):
             try:
-                # data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
-                # sleep(0.3)
                 if symbol_obj.symbol in ['NIFTY', 'BANKNIFTY', 'NIFTY MID SELECT', 'FINNIFTY', 'Nifty Next 50']:
                     yfsymb = {
                         'NIFTY': '^NSEI',
@@ -593,6 +591,23 @@ def PivotUpdate():
                 # print(f'MoneyBall: PIVOT UPDATE: Updated: {index+1} : {symbol_obj.name}')
             except Exception as e:
                 print(f'MoneyBall: PIVOT UPDATE: Loop Error: {symbol_obj.symbol} : {str(e)}')
+                try:
+                    data_frame = historical_data(symbol_obj.token, symbol_obj.exchange, now, from_day, 'ONE_DAY', product)
+                    sleep(0.3)
+                    last_day = data_frame.iloc[-2]
+
+                    pivot_traditional = PIVOT(last_day)
+                    symbol_obj.pivot = round(pivot_traditional['pivot'], 2)
+                    symbol_obj.r1 = round(pivot_traditional['r1'], 2)
+                    symbol_obj.s1 = round(pivot_traditional['s1'], 2)
+                    symbol_obj.r2 = round(pivot_traditional['r2'], 2)
+                    symbol_obj.s2 = round(pivot_traditional['s2'], 2)
+                    symbol_obj.r3 = round(pivot_traditional['r3'], 2)
+                    symbol_obj.s3 = round(pivot_traditional['s3'], 2)
+
+                    symbol_obj.save()
+                except Exception as e:
+                    print(f'MoneyBall: PIVOT UPDATE: Except Loop Error: {symbol_obj.symbol} : {str(e)}')
         print(f'MoneyBall: PIVOT UPDATE: Ended')
     except Exception as e:
         print(f'MoneyBall: PIVOT UPDATE: Error: {str(e)}')
