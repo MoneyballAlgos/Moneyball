@@ -8,13 +8,13 @@ from SmartApi import SmartConnect
 from stock.models import StockConfig
 from helper.angel_socket import connect_to_socket
 from SmartApi.smartWebSocketV2 import SmartWebSocketV2
-from moneyball.settings import SOCKET_STREAM_URL_DOMAIN, BROKER_API_KEY, BROKER_PIN, BROKER_TOTP_KEY, BROKER_USER_ID, broker_connection, sws, open_position
+from moneyball.settings import BED_URL_DOMAIN, BROKER_API_KEY, BROKER_PIN, BROKER_TOTP_KEY, BROKER_USER_ID, broker_connection, sws, open_position
 
 
 def stay_awake():
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
     print(f'Stay Awake: Runtime: {now.strftime("%d-%b-%Y %H:%M:%S")}')
-    x = requests.get(f"{SOCKET_STREAM_URL_DOMAIN}/api/system_conf/awake", verify=False)
+    x = requests.get(f"{BED_URL_DOMAIN}/api/system_conf/awake", verify=False)
     print(f'Stay Awake: Execution Time(hh:mm:ss): {x.status_code} : {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
     return True
 
