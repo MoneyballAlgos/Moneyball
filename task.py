@@ -14,8 +14,9 @@ from moneyball.settings import BED_URL_DOMAIN, BROKER_API_KEY, BROKER_PIN, BROKE
 def stay_awake():
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
     print(f'Stay Awake: Runtime: {now.strftime("%d-%b-%Y %H:%M:%S")}')
-    x = requests.get(f"{BED_URL_DOMAIN}/api/system_conf/awake", verify=False)
-    print(f'Stay Awake: Execution Time(hh:mm:ss): {x.status_code} : {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
+    url = f"{BED_URL_DOMAIN}/api/system_conf/awake/"
+    x = requests.get(url, verify=False)
+    print(f'Stay Awake: Execution Time(hh:mm:ss): {url} : {x.status_code} : {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
     return True
 
 
