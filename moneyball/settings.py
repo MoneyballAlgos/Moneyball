@@ -109,9 +109,9 @@ WSGI_APPLICATION = "moneyball.wsgi.application"
 # }
 
 DATABASES = {
-    'default': dj_database_url.parse("postgresql://moneyball_db_1_b042_user:4IU0ATw2c8sHIoThvEdp2hQ48rjZiAKu@dpg-csb0evt6l47c73f58c2g-a/moneyball_db_1_b042", conn_max_age=0),
+    'default': dj_database_url.parse("postgresql://admin:QVizsPUka8tqfNLVwXWbMKdlRbqFtauM@dpg-cshlffij1k6c739a8i70-a/moneyball_algos_1", conn_max_age=0),
 } if os.getenv('SERVER_DB', False) else {
-    'default': dj_database_url.parse("postgresql://moneyball_db_1_b042_user:4IU0ATw2c8sHIoThvEdp2hQ48rjZiAKu@dpg-csb0evt6l47c73f58c2g-a.singapore-postgres.render.com/moneyball_db_1_b042", conn_max_age=0),
+    'default': dj_database_url.parse("postgresql://admin:QVizsPUka8tqfNLVwXWbMKdlRbqFtauM@dpg-cshlffij1k6c739a8i70-a.singapore-postgres.render.com/moneyball_algos_1", conn_max_age=0),
 }
 
 # DATABASES = {
