@@ -1,9 +1,10 @@
 from datetime import timedelta
 from django.contrib import admin
 from helper.common import colour
+from stock.models import StockConfig
 from django.utils.html import format_html
 from import_export.admin import ExportActionMixin
-from account.models import AccountKeys, AccountConfiguration, AccountStockConfig, AccountTransaction, Account_Equity_Transaction, Account_FnO_Transaction, Account_Equity_Entry, Account_FnO_Entry
+from account.models import Account_Equity_Portfolio, AccountKeys, AccountConfiguration, AccountStockConfig, AccountTransaction, Account_Equity_Transaction, Account_FnO_Transaction, Account_Equity_Entry, Account_FnO_Entry
 
 
 # Register your models here.
@@ -242,3 +243,44 @@ class AccountFnOEntryAdmin(admin.ModelAdmin):
     def entry_time(self, obj):
         return (obj.created_at + timedelta(hours=5, minutes=30)).strftime("%-I:%-M:%-S %p")
     entry_time.short_description = 'Time'
+
+
+@admin.register(Account_Equity_Portfolio)
+class AccountEquityPortfolioAdmin(admin.ModelAdmin):
+    list_display = ('account_name', 'pnl', 'current', 'investment')
+    search_fields = ['first_name', 'last_name', 'mobile', 'user_id']
+    list_per_page = 10
+
+    def account_name(self, obj):
+        return f"{obj.user_id} ({obj.first_name})"
+    account_name.short_description = 'User'
+
+    def investment(self, obj):
+        invested_value = 0
+        entries = AccountStockConfig.objects.filter(account=obj)
+        for i in entries:
+            stock_obj = StockConfig.objects.get(symbol__symbol=i.symbol)
+            invested_value += i.lot * stock_obj.price
+        return round(invested_value, 2)
+    investment.short_description = 'Investment (₹)'
+    
+    def current(self, obj):
+        current_value = 0
+        entries = AccountStockConfig.objects.filter(account=obj)
+        for i in entries:
+            stock_obj = StockConfig.objects.get(symbol__symbol=i.symbol)
+            current_value += i.lot * stock_obj.ltp
+        return round(current_value, 2)
+    current.short_description = 'Current (₹)'
+    
+    def pnl(self, obj):
+        invested_value = 0
+        current_value = 0
+        entries = AccountStockConfig.objects.filter(account=obj)
+        for i in entries:
+            stock_obj = StockConfig.objects.get(symbol__symbol=i.symbol)
+            current_value += i.lot * stock_obj.ltp
+            invested_value += i.lot * stock_obj.price
+        pnl = round((current_value - invested_value)/invested_value * 100, 2)
+        return colour(pnl)
+    pnl.short_description = 'P/L (%)'

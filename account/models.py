@@ -143,3 +143,10 @@ class Account_FnO_Transaction(AccountTransaction):
         proxy = True
         verbose_name = "Account FnO Transaction"
         verbose_name_plural = "Account FnO Transactions"
+
+
+class Account_Equity_Portfolio(AccountKeys):
+    class Meta:
+        proxy = True
+        verbose_name = "Equity Portfolio"
+        verbose_name_plural = "Equity Portfolios"
