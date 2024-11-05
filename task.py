@@ -5,6 +5,7 @@ import yfinance as yf
 from time import sleep
 from zoneinfo import ZoneInfo
 from SmartApi import SmartConnect
+from helper.emails import email_send
 from account.action import UserTrade
 from helper.common import last_thursday
 from datetime import datetime, time, timedelta
@@ -23,6 +24,46 @@ def stay_awake():
     url = f"{SOCKET_STREAM_URL_DOMAIN}/api/system_conf/awake/"
     x = requests.get(url, verify=False)
     print(f'Stay Awake: Execution Time(hh:mm:ss): {url} : {x.status_code} : {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
+    return True
+
+
+def NotifyUsers():
+    now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
+    print(f'MoneyBall: Notify User: Started')
+    user_obj_list = AccountKeys.objects.filter(is_active=True)
+
+    print(f'MoneyBall: Notify User: Total User: {user_obj_list.count()}')
+    for user in user_obj_list:
+        try:
+            invested_value = 0
+            current_value = 0
+            entries = AccountStockConfig.objects.filter(account=user)
+            for i in entries:
+                stock_obj = StockConfig.objects.get(symbol__symbol=i.symbol)
+                current_value += i.lot * stock_obj.ltp
+                invested_value += i.lot * stock_obj.price
+            pnl = (current_value - invested_value)/invested_value * 100
+
+            if invested_value > 0:
+                # Send Email Notification
+                template = 'portfolio_notification.html'
+                subject = f"{user.user_id}-{user.first_name}'s Portfolio on MoneyBall.AI"
+                recipients = [user.email]
+                email_context = {
+                    "name": user.first_name,
+                    "today": now.strftime("%d-%b-%Y"),
+                    "flag_return": True if pnl > 0 else False,
+                    "percent": round(pnl, 2),
+                    "current_value": round(current_value, 2),
+                    "invested_value": round(invested_value, 2),
+                    "position": entries.count()
+                }
+                email_send(subject, template, recipients, email_context)
+                print(f'MoneyBall: Notify User: Notified to: {user.first_name} : {user.email}')
+        except Exception as e:
+            print(f'MoneyBall: Notify User: Loop Error: {e}')
+    print(f'MoneyBall: Notify User: Ended')
+    print(f'MoneyBall: Notify User: Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
     return True
 
 

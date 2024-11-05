@@ -1,0 +1,19 @@
+<head>
+    <meta charset="UTF-8">
+    <title>MoneyBall.AI</title>
+</head>
+<td>
+    <p style="padding-bottom: 10px;font-size: 20px">Hi {{ name }},</p>
+    {% if flag_return %}
+        <p style="padding-bottom: 10px;font-size: 20px">
+            {{ today }}, Congrats you have gained <strong style="color: #007400;font-size: 18px">{{ percent }} %.</strong>
+        </p>
+        {% else %}
+        <p style="padding-bottom: 10px;font-size: 20px">
+            {{ today }}, Earning on your investment <strong style="color: #ff0000;font-size: 18px">{{ percent }} %.</strong>
+        </p>
+    {% endif %}
+    <p style="padding-bottom: 0px;font-size: 18px">Current value of on your investment {% if flag_return %}<strong style="color: #007400;font-size: 18px">{{ current_value }} ₹</strong>{% else %}<strong style="color: #ff0000;font-size: 18px">{{ current_value }} ₹</strong>{% endif %} on total investment of  <strong>{{ invested_value }} ₹</strong> on <strong>{{ position }}</strong> positions.</p><br>
+    <p style="padding-bottom: 0px;font-size: 16px">Thanks & Regards<br>MoneyBall.AI Team</p>
+    <p style="padding-bottom: 0px;font-size: 16px">For more information please login in to your AngelOne account.</p>
+</td>

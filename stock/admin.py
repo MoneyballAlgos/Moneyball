@@ -6,7 +6,7 @@ from helper.common import colour, colour_indicator
 from admin_extra_buttons.api import ExtraButtonsMixin, button
 from admin_extra_buttons.utils import HttpResponseRedirectToReferrer
 from stock.models import StockConfig, Transaction, FnO_Status, Equity_Status, FnO_Transaction, Equity_Transaction
-from task import AccountConnection, BrokerConnection, CheckTodayEntry, Equity_BreakOut_1, FnO_BreakOut_1, MarketDataUpdate, PivotUpdate, SquareOff, SymbolSetup
+from task import AccountConnection, BrokerConnection, CheckTodayEntry, Equity_BreakOut_1, FnO_BreakOut_1, MarketDataUpdate, NotifyUsers, PivotUpdate, SquareOff, SymbolSetup
 
 
 # Register your models here.
@@ -304,6 +304,14 @@ class StockConfigAdmin(ExtraButtonsMixin, admin.ModelAdmin):
         self.message_user(request, 'Check Today Entry called')
         CheckTodayEntry()
         self.message_user(request, 'Check Today Entry Done')
+        return HttpResponseRedirectToReferrer(request)
+    
+    @button(change_form=True,
+            html_attrs={'style': 'background-color:#F1502F;color:black'})
+    def NotifyUsers(self, request):
+        self.message_user(request, 'Notify User called')
+        NotifyUsers()
+        self.message_user(request, 'Notify User Done')
         return HttpResponseRedirectToReferrer(request)
 
 
