@@ -247,7 +247,7 @@ class AccountFnOEntryAdmin(admin.ModelAdmin):
 
 @admin.register(Account_Equity_Portfolio)
 class AccountEquityPortfolioAdmin(admin.ModelAdmin):
-    list_display = ('account_name', 'pnl', 'current', 'investment')
+    list_display = ('account_name', 'pnl', 'current', 'investment', 'released')
     search_fields = ['first_name', 'last_name', 'mobile', 'user_id']
     list_per_page = 10
 
@@ -284,3 +284,11 @@ class AccountEquityPortfolioAdmin(admin.ModelAdmin):
         pnl = round((current_value - invested_value)/invested_value * 100, 2)
         return colour(pnl)
     pnl.short_description = 'P/L (%)'
+
+    def released(self, obj):
+        released_value = 0
+        exits = AccountTransaction.objects.filter(account=obj, indicate='EXIT')
+        for i in exits:
+            released_value += i.lot * i.price
+        return round(released_value, 2)
+    released.short_description = 'Released P/L (₹)'
