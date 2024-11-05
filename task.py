@@ -399,8 +399,6 @@ def FnO_BreakOut_1(auto_trigger=True):
         configuration_obj = Configuration.objects.filter(product=product)[0]
 
         today_earning = Transaction.objects.filter(product=product, indicate='EXIT', created_at__date=now.date(), is_active=True).values_list('profit', flat=True)
-        if sum(today_earning) > configuration_obj.fixed_target * 2:
-            raise Exception(f"MoneyBall: {log_identifier}: Daily Target Achived: {today_earning} % on {len(today_earning)} Trades.")
         
         exclude_symbols_names = Transaction.objects.filter(product=product, indicate='ENTRY', created_at__date=now.date(), is_active=True).values_list('name', flat=True)
 
@@ -436,7 +434,7 @@ def FnO_BreakOut_1(auto_trigger=True):
                 bb = BB(data_frame['Close'], timeperiod=15, std_dev=2)
 
                 entries_list = StockConfig.objects.filter(symbol__product=product, symbol__name=symbol_obj.name, is_active=True)
-                if not entries_list:
+                if not entries_list and sum(today_earning) < configuration_obj.fixed_target * 2:
 
                     if close > super_trend.iloc[-1] and prev_close < super_trend.iloc[-2] and high < bb['hband'].iloc[-1] and not ((high > symbol_obj.r1 and low < symbol_obj.r1) or (high > symbol_obj.r2 and low < symbol_obj.r2) or (high > symbol_obj.pivot and low < symbol_obj.pivot) or (high > symbol_obj.s1 and low < symbol_obj.s1) or (high > symbol_obj.s2 and low < symbol_obj.s2)):
                         mode = 'CE'
