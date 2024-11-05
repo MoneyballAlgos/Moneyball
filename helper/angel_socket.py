@@ -8,13 +8,6 @@ from helper.check_ltp import TargetExit, TrailingStopLossExit, TrailingTargetUpd
 def LTP_Action(token, ltp, open_position, correlation_id, socket_mode, sws):
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
     try:
-        if now.time() < time(9, 15, 2):
-            print("Market Not Started")
-            return True
-        elif now.time() > time(15, 29, 50):
-            print("Market Closed")
-            return True
-
         stock_obj = StockConfig.objects.filter(symbol__token=token, is_active=True)
         if stock_obj:
             stock_obj = stock_obj[0]
@@ -37,6 +30,13 @@ def LTP_Action(token, ltp, open_position, correlation_id, socket_mode, sws):
                     stock_obj.max_l = round(percent, 2)
                 stock_obj.ltp = ltp
                 stock_obj.save()
+
+                if now.time() < time(9, 15, 2):
+                    print("Market Not Started")
+                    return True
+                elif now.time() > time(15, 29, 50):
+                    print("Market Closed")
+                    return True
 
                 if ltp >= stock_obj.fixed_target:
                     TargetExit(data, ltp, open_position, correlation_id, socket_mode, sws)
