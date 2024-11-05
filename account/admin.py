@@ -291,4 +291,4 @@ class AccountEquityPortfolioAdmin(admin.ModelAdmin):
         for i in exits:
             released_value += i.lot * i.price
         return round(released_value, 2)
-    released.short_description = 'Released P/L (₹)'
+    released.short_description = 'Released P/L (Invested + Gained) (₹)'
