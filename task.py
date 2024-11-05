@@ -293,9 +293,9 @@ def Equity_BreakOut_1(auto_trigger=True):
     try:
         if auto_trigger:
             if now.time() < time(9, 18, 00):
-                raise Exception("Entry Not Started")
+                raise Exception(f"MoneyBall: {log_identifier}: Entry Not Started")
             elif now.time() > time(15, 14, 00):
-                raise Exception("Entry Not Stopped")
+                raise Exception(f"MoneyBall: {log_identifier}: Entry Not Stopped")
 
         configuration_obj = Configuration.objects.filter(product=product)[0]
 
@@ -392,11 +392,15 @@ def FnO_BreakOut_1(auto_trigger=True):
     try:
         if auto_trigger:
             if now.time() < time(9, 22, 00):
-                raise Exception("Entry Not Started")
+                raise Exception(f"MoneyBall: {log_identifier}: Entry Not Started")
             elif now.time() > time(15, 11, 00):
-                raise Exception("Entry Not Stopped")
+                raise Exception(f"MoneyBall: {log_identifier}: Entry Not Stopped")
 
         configuration_obj = Configuration.objects.filter(product=product)[0]
+
+        today_earning = Transaction.objects.filter(product=product, indicate='EXIT', created_at__date=now.date(), is_active=True).values_list('profit', flat=True)
+        if sum(today_earning) > configuration_obj.fixed_target * 2:
+            raise Exception(f"MoneyBall: {log_identifier}: Daily Target Achived: {today_earning} % on {len(today_earning)} Trades.")
         
         exclude_symbols_names = Transaction.objects.filter(product=product, indicate='ENTRY', created_at__date=now.date(), is_active=True).values_list('name', flat=True)
 
