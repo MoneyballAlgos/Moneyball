@@ -247,7 +247,7 @@ class AccountFnOEntryAdmin(admin.ModelAdmin):
 
 @admin.register(Account_Equity_Portfolio)
 class AccountEquityPortfolioAdmin(admin.ModelAdmin):
-    list_display = ('account_name', 'pnl', 'current', 'investment', 'released')
+    list_display = ('account_name', 'pnl', 'current', 'investment', 'active_position', 'max_allowed_position', 'released')
     search_fields = ['first_name', 'last_name', 'mobile', 'user_id']
     list_per_page = 10
 
@@ -265,12 +265,17 @@ class AccountEquityPortfolioAdmin(admin.ModelAdmin):
     investment.short_description = 'Investment (₹)'
     
     def current(self, obj):
+        invested_value = 0
         current_value = 0
         entries = AccountStockConfig.objects.filter(account=obj)
         for i in entries:
             stock_obj = StockConfig.objects.get(symbol__symbol=i.symbol)
             current_value += i.lot * stock_obj.ltp
-        return round(current_value, 2)
+            invested_value += i.lot * stock_obj.price
+        current_value = round(current_value, 2)
+        if invested_value > current_value:
+            return format_html('<strong style="color:Red;">{}</strong>', current_value)
+        return format_html('<strong style="color:Green;">{}</strong>', current_value)
     current.short_description = 'Current (₹)'
     
     def pnl(self, obj):
@@ -292,3 +297,11 @@ class AccountEquityPortfolioAdmin(admin.ModelAdmin):
             released_value += i.lot * i.price
         return round(released_value, 2)
     released.short_description = 'Released P/L (Invested + Gained) (₹)'
+
+    def active_position(self, obj):
+        return AccountConfiguration.objects.get(account=obj).active_open_position
+    active_position.short_description = 'Active Position'
+
+    def max_allowed_position(self, obj):
+        return AccountConfiguration.objects.get(account=obj).total_open_position
+    max_allowed_position.short_description = 'Max Allowed Position'

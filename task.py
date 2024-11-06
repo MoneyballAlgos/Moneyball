@@ -246,7 +246,11 @@ def AccountConnection():
                         account_config, _ = AccountConfiguration.objects.get_or_create(account=user_account_obj)
                         account_config.account_balance = float(fund_detail['data']['availablecash'])
                         if account_config.total_open_position > account_config.active_open_position:
-                            account_config.entry_amount = float(fund_detail['data']['availablecash'])/(account_config.total_open_position-account_config.active_open_position)
+                            if account_config.account_balance == 0:
+                                account_config.account_balance = 100000
+                                account_config.entry_amount = 10000
+                            else:
+                                account_config.entry_amount = float(fund_detail['data']['availablecash'])/(account_config.total_open_position-account_config.active_open_position)
                             account_config.save()
 
                 print(f'MoneyBall: Account Connection: Session generated for {account_detail["data"]["name"]} : {account_detail["data"]["clientcode"]}')
