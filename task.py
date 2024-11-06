@@ -15,13 +15,13 @@ from helper.indicator import BB, PIVOT, SUPER_TREND
 from system_conf.models import Configuration, Symbol
 from helper.trade_action import Price_Action_Trade, Stock_Square_Off
 from account.models import AccountConfiguration, AccountKeys, AccountStockConfig, AccountTransaction
-from moneyball.settings import BROKER_API_KEY, BROKER_PIN, BROKER_TOTP_KEY, BROKER_USER_ID, SOCKET_STREAM_URL_DOMAIN, broker_connection, account_connections, entry_holder
+from moneyball.settings import BED_URL_DOMAIN, BROKER_API_KEY, BROKER_PIN, BROKER_TOTP_KEY, BROKER_USER_ID, SOCKET_STREAM_URL_DOMAIN, broker_connection, account_connections, entry_holder
 
 
 def stay_awake():
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
     print(f'Stay Awake: Runtime: {now.strftime("%d-%b-%Y %H:%M:%S")}')
-    url = f"{SOCKET_STREAM_URL_DOMAIN}/api/system_conf/awake/"
+    url = f"{BED_URL_DOMAIN}/api/system_conf/awake/"
     x = requests.get(url, verify=False)
     print(f'Stay Awake: Execution Time(hh:mm:ss): {url} : {x.status_code} : {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
     return True
@@ -70,6 +70,11 @@ def NotifyUsers():
 def MarketDataUpdate():
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
     try:
+        if now.time() > time(8, 00, 00) and now.time() < time(9, 14, 00):
+            print(f'MoneyBall: Awake the Socket Service: Started')
+            x = requests.get(f"{SOCKET_STREAM_URL_DOMAIN}/api/system_conf/awake", verify=False)
+            print(f'MoneyBall: Awake the Socket Service: Execution Time(hh:mm:ss): {x.status_code} : {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
+
         print(f'MoneyBall: Market data Update: Started : Runtime : {now.strftime("%d-%b-%Y %H:%M:%S")}')
         if now.time().minute in list(range(0, 60, 5)):
             sleep(10)
@@ -114,11 +119,6 @@ def MarketDataUpdate():
 def SymbolSetup():
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
     try:
-
-        print(f'MoneyBall: Awake the Socket Service: Started')
-        x = requests.get(f"{SOCKET_STREAM_URL_DOMAIN}/api/system_conf/awake", verify=False)
-        print(f'MoneyBall: Awake the Socket Service: Execution Time(hh:mm:ss): {x.status_code} : {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
-
         print(f'MoneyBall: Symbol Setup: Started')
         url = "https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json"
         data = requests.get(url).json()
@@ -211,11 +211,6 @@ def SymbolSetup():
 def AccountConnection():
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
     try:
-
-        print(f'MoneyBall: Awake the Socket Service: Started')
-        x = requests.get(f"{SOCKET_STREAM_URL_DOMAIN}/api/system_conf/awake", verify=False)
-        print(f'MoneyBall: Awake the Socket Service: Execution Time(hh:mm:ss): {x.status_code} : {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
-
         print(f'MoneyBall: Account Connection: Started')
         global account_connections
         try:
@@ -267,11 +262,6 @@ def AccountConnection():
 def BrokerConnection():
     now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
     try:
-
-        print(f'MoneyBall: Awake the Socket Service: Started')
-        x = requests.get(f"{SOCKET_STREAM_URL_DOMAIN}/api/system_conf/awake", verify=False)
-        print(f'MoneyBall: Awake the Socket Service: Execution Time(hh:mm:ss): {x.status_code} : {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
-
         print(f'MoneyBall: Broker Connection: Started')
         global broker_connection
         try:
