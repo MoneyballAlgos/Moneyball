@@ -82,16 +82,18 @@ def socket_setup(log_identifier='Cron'):
     entries = StockConfig.objects.filter(is_active=True)
     for i in entries:
         open_position[i.symbol.token] = False
-        # if i.symbol.exchange == 'NSE':
-        #     nse.append(i.symbol.token)
-        if i.symbol.exchange == 'NFO':
+        if i.symbol.exchange == 'NSE':
+            # nse.append(i.symbol.token)
+            pass
+        elif i.symbol.exchange == 'NFO':
             nfo.append(i.symbol.token)
-        # elif i.symbol.exchange == 'BSE':
-        #     bse.append(i.symbol.token)
+        elif i.symbol.exchange == 'BSE':
+            # bse.append(i.symbol.token)
+            pass
         elif i.symbol.exchange == 'BFO':
             bfo.append(i.symbol.token)
-        # else:
-        #     mcx.append(i.symbol.token)
+        else:
+            mcx.append(i.symbol.token)
 
     subscribe_list = []
     for index, i in enumerate((nse,nfo,bse,bfo,mcx)):

@@ -11,7 +11,7 @@ def LTP_Action(token, ltp, open_position, correlation_id, socket_mode, sws):
         stock_obj = StockConfig.objects.filter(symbol__token=token, is_active=True)
         if stock_obj:
             stock_obj = stock_obj[0]
-            print(f"LTP : {stock_obj.symbol.symbol} : {ltp}")
+            print(f"LTP : {now.strftime('%H:%M:%S')} : {stock_obj.symbol.symbol} : {ltp}")
             configuration_obj = Configuration.objects.filter(product=stock_obj.symbol.product)[0]
             try:
                 data = {
