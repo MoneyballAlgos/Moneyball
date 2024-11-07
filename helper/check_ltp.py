@@ -43,8 +43,9 @@ def TargetExit(data, ltp, open_position, correlation_id, socket_mode, sws):
                                 highest_price=data['stock_obj'].highest_price,
                                 fixed_target=data['stock_obj'].fixed_target,
                                 lot=data['stock_obj'].lot)
-        sws.unsubscribe(correlation_id, socket_mode, [{"action": 0, "exchangeType": 1, "tokens": [data['stock_obj'].symbol.token]}])
-        print(f"MoneyBall: TARGET EXIT: Unsubscribed : {data['stock_obj'].symbol.symbol} : {data['stock_obj'].symbol.token}")
+        if data['stock_obj'].symbol.product == 'future':
+            sws.unsubscribe(correlation_id, socket_mode, [{"action": 0, "exchangeType": 1, "tokens": [data['stock_obj'].symbol.token]}])
+            print(f"MoneyBall: TARGET EXIT: Unsubscribed : {data['stock_obj'].symbol.symbol} : {data['stock_obj'].symbol.token}")
         data['stock_obj'].delete()
         print(f"MoneyBall: TARGET EXIT: Exit from all accounts: Api Calling")
         transaction_data = {
@@ -101,8 +102,9 @@ def TrailingStopLossExit(data, ltp, open_position, correlation_id, socket_mode, 
                                 highest_price=data['stock_obj'].highest_price,
                                 fixed_target=data['stock_obj'].fixed_target,
                                 lot=data['stock_obj'].lot)
-        sws.unsubscribe(correlation_id, socket_mode, [{"action": 0, "exchangeType": 1, "tokens": [data['stock_obj'].symbol.token]}])
-        print(f"MoneyBall: TRAILING/STOPLOSS EXIT: Unsubscribed : {data['stock_obj'].symbol.symbol} : {data['stock_obj'].symbol.token}")
+        if data['stock_obj'].symbol.product == 'future':
+            sws.unsubscribe(correlation_id, socket_mode, [{"action": 0, "exchangeType": 1, "tokens": [data['stock_obj'].symbol.token]}])
+            print(f"MoneyBall: TRAILING/STOPLOSS EXIT: Unsubscribed : {data['stock_obj'].symbol.symbol} : {data['stock_obj'].symbol.token}")
         data['stock_obj'].delete()
         print(f"MoneyBall: TRAILING/STOPLOSS EXIT: Exit from all accounts: Api Calling")
         transaction_data = {

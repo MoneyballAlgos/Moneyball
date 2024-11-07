@@ -1,13 +1,14 @@
 import pyotp
 import requests
 import threading
+import yfinance as yf
 from time import sleep
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from SmartApi import SmartConnect
 from stock.models import StockConfig
-from helper.angel_socket import connect_to_socket
 from SmartApi.smartWebSocketV2 import SmartWebSocketV2
+from helper.angel_socket import LTP_Action, connect_to_socket
 from moneyball.settings import BED_URL_DOMAIN, BROKER_API_KEY, BROKER_PIN, BROKER_TOTP_KEY, BROKER_USER_ID, SOCKET_STREAM_URL_DOMAIN, broker_connection, sws, open_position
 
 
@@ -81,16 +82,16 @@ def socket_setup(log_identifier='Cron'):
     entries = StockConfig.objects.filter(is_active=True)
     for i in entries:
         open_position[i.symbol.token] = False
-        if i.symbol.exchange == 'NSE':
-            nse.append(i.symbol.token)
-        elif i.symbol.exchange == 'NFO':
+        # if i.symbol.exchange == 'NSE':
+        #     nse.append(i.symbol.token)
+        if i.symbol.exchange == 'NFO':
             nfo.append(i.symbol.token)
-        elif i.symbol.exchange == 'BSE':
-            bse.append(i.symbol.token)
+        # elif i.symbol.exchange == 'BSE':
+        #     bse.append(i.symbol.token)
         elif i.symbol.exchange == 'BFO':
             bfo.append(i.symbol.token)
-        else:
-            mcx.append(i.symbol.token)
+        # else:
+        #     mcx.append(i.symbol.token)
 
     subscribe_list = []
     for index, i in enumerate((nse,nfo,bse,bfo,mcx)):
@@ -111,4 +112,27 @@ def socket_setup(log_identifier='Cron'):
     socket_thread.start()
 
     print(f'MoneyBall: Socket Setup : {log_identifier} : Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
+    return True
+
+
+def CheckLtp():
+    now = datetime.now(tz=ZoneInfo("Asia/Kolkata"))
+    print(f'MoneyBall: Check LTP : Runtime: {now.strftime("%d-%b-%Y %H:%M:%S")}')
+
+    global sws, open_position
+    correlation_id = "moneyball-socket"
+    socket_mode = 1
+    try:
+        symbol_obj_list = StockConfig.objects.filter(symbol__product='equity')
+        symbol_list = { f"{sym.symbol.name}.NS":sym.symbol.token for sym in symbol_obj_list }
+        tickers = yf.Tickers(list(symbol_list.keys())).tickers
+        for ticker in tickers:
+            try:
+                ltp = tickers[ticker].info.get('currentPrice')
+                LTP_Action(symbol_list[ticker], ltp, open_position, correlation_id, socket_mode, sws)
+            except Exception as e:
+                print(f'MoneyBall: Check LTP : Error Loop: {ticker} : {ltp} : {e}')
+    except Exception as e:
+        print(f'MoneyBall: Check LTP : Error Main : {e}')
+    print(f'MoneyBall: Check LTP : Execution Time(hh:mm:ss): {(datetime.now(tz=ZoneInfo("Asia/Kolkata")) - now)}')
     return True
