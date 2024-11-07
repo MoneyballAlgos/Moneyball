@@ -7,8 +7,9 @@ def TrailingTargetUpdate(data, ltp):
     # TARGET Exit
     if (ltp >= data['stock_obj'].target):
         data['stock_obj'].tr_hit = True
-        data['stock_obj'].target =  round(ltp + ltp * data['target'], len(str(ltp).split('.')[-1]))
-        data['stock_obj'].trailing_sl = round(ltp - ltp * data['stoploss'], len(str(ltp).split('.')[-1]))
+        if data['stock_obj'].symbol.product == 'future':
+            data['stock_obj'].target =  round(ltp + ltp * data['target'], len(str(ltp).split('.')[-1]))
+            data['stock_obj'].trailing_sl = round(ltp - ltp * data['stoploss'], len(str(ltp).split('.')[-1]))
         data['stock_obj'].save()
         return True
     return False
