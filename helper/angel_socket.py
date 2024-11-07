@@ -62,7 +62,7 @@ def connect_to_socket(correlation_id, socket_mode, subscribe_list):
         def on_data(wsapp, message):
             ltp = message['last_traded_price']/100
             token = message['token']
-            print(f'LTP: {token} : {ltp}')
+            # print(f'LTP: {token} : {ltp}')
             if open_position.get(token) is False:
                 open_position[token] = True
                 LTP_Action(token, ltp, open_position, correlation_id, socket_mode, sws)
